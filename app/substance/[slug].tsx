@@ -128,7 +128,18 @@ export default function SubstanceDetailScreen() {
         {/* Z3: Quick Facts */}
         <QuickFactsStrip quickFacts={substance.quickFacts} />
 
+        <DisclaimerCard />
+
         {/* Z4: Expandable Sections */}
+        <ExpandableSection title="Overview">
+          <OverviewContent
+            summary={substance.summary}
+            aliases={substance.aliases}
+            primaryClass={substance.primaryClass}
+            categories={substance.categories}
+          />
+        </ExpandableSection>
+
         <ExpandableSection title="Dosierung" hidden={substance.dosage.routes.length === 0}>
           <DosageSection routes={substance.dosage.routes} />
         </ExpandableSection>
@@ -165,6 +176,12 @@ export default function SubstanceDetailScreen() {
             lastUpdated={substance.lastUpdated}
           />
         </ExpandableSection>
+
+        <View style={inlineStyles.bottomDisclaimer}>
+          <Text style={[Typography.caption, { color: colors.textTertiary, textAlign: 'center' }]}>
+            Informations- und Harm-Reduction-Tool. Keine medizinische Beratung.
+          </Text>
+        </View>
       </ScrollView>
 
       {/* ── Z5: Sticky Bottom Bar ── */}
@@ -185,6 +202,62 @@ export default function SubstanceDetailScreen() {
 // ---------------------------------------------------------------------------
 // Inline section-content components (simple enough to live here for now)
 // ---------------------------------------------------------------------------
+
+function DisclaimerCard() {
+  const colors = useThemeColors();
+
+  return (
+    <View style={[inlineStyles.disclaimerCard, { backgroundColor: colors.backgroundSecondary }]}>
+      <Ionicons name="information-circle-outline" size={18} color={colors.accent} />
+      <Text style={[Typography.caption, { color: colors.textSecondary, flex: 1 }]}>
+        Informations- und Harm-Reduction-Tool. Keine medizinische Beratung.
+      </Text>
+    </View>
+  );
+}
+
+function OverviewContent({
+  summary,
+  aliases,
+  primaryClass,
+  categories,
+}: {
+  summary?: string;
+  aliases?: string[];
+  primaryClass?: string;
+  categories: string[];
+}) {
+  const colors = useThemeColors();
+
+  return (
+    <View style={{ gap: Spacing.md }}>
+      {summary && (
+        <Text style={[Typography.body, { color: colors.textPrimary }]}>
+          {summary}
+        </Text>
+      )}
+      <View style={inlineStyles.overviewGrid}>
+        <InfoTile label="Class" value={primaryClass ?? categories[0] ?? '—'} />
+        <InfoTile label="Aliases" value={aliases?.length ? aliases.join(', ') : '—'} />
+      </View>
+    </View>
+  );
+}
+
+function InfoTile({ label, value }: { label: string; value: string }) {
+  const colors = useThemeColors();
+
+  return (
+    <View style={[inlineStyles.infoTile, { backgroundColor: colors.backgroundSecondary }]}>
+      <Text style={[Typography.quickFactLabel, { color: colors.textTertiary }]}>
+        {label}
+      </Text>
+      <Text style={[Typography.captionBold, { color: colors.textPrimary, marginTop: 2 }]}>
+        {value}
+      </Text>
+    </View>
+  );
+}
 
 function EffectsContent({
   effects,
@@ -456,6 +529,27 @@ const styles = StyleSheet.create({
 });
 
 const inlineStyles = StyleSheet.create({
+  disclaimerCard: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.sm,
+    marginHorizontal: Spacing.lg,
+    marginTop: Spacing.md,
+    marginBottom: Spacing.sm,
+    padding: Spacing.md,
+    borderRadius: Radius.md,
+  },
+  overviewGrid: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+  },
+  infoTile: {
+    flex: 1,
+    minHeight: 72,
+    padding: Spacing.md,
+    borderRadius: Radius.md,
+    justifyContent: 'center',
+  },
   effectRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -480,5 +574,9 @@ const inlineStyles = StyleSheet.create({
     alignItems: 'flex-start',
     padding: Spacing.md,
     borderRadius: Radius.md,
+  },
+  bottomDisclaimer: {
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.lg,
   },
 });

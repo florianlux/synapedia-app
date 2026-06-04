@@ -1,19 +1,15 @@
 import type { SubstanceSummary, InteractionDetail } from '@/types/interaction';
+import { SUBSTANCES } from '@/constants/mock-data';
 
 // ---------------------------------------------------------------------------
 // Substance list for the picker (lightweight — no full detail data needed)
 // ---------------------------------------------------------------------------
 
-export const SUBSTANCE_LIST: SubstanceSummary[] = [
-  { slug: 'mdma', name: 'MDMA', categories: ['Empathogen', 'Stimulans'] },
-  { slug: 'lsd', name: 'LSD', categories: ['Psychedelikum'] },
-  { slug: 'ketamin', name: 'Ketamin', categories: ['Dissoziativum'] },
-  { slug: 'alkohol', name: 'Alkohol', categories: ['Depressivum'] },
-  { slug: 'cannabis', name: 'Cannabis', categories: ['Cannabinoid'] },
-  { slug: 'kokain', name: 'Kokain', categories: ['Stimulans'] },
-  { slug: 'psilocybin', name: 'Psilocybin', categories: ['Psychedelikum'] },
-  { slug: 'amphetamin', name: 'Amphetamin', categories: ['Stimulans'] },
-];
+export const SUBSTANCE_LIST: SubstanceSummary[] = SUBSTANCES.map((substance) => ({
+  slug: substance.slug,
+  name: substance.name,
+  categories: substance.categories,
+}));
 
 export const SUBSTANCE_NAME_MAP: Record<string, string> = Object.fromEntries(
   SUBSTANCE_LIST.map((s) => [s.slug, s.name]),

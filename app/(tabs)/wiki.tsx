@@ -1,36 +1,38 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-import { SUBSTANCE_LIST } from '@/constants/interactions';
-import { Radius, Spacing, Typography } from '@/constants/theme';
+import { Radius, Spacing, Typography, type ThemeColors } from '@/constants/theme';
+import { useSubstances, type LocalSubstanceSummary } from '@/hooks/use-substances';
 import { useThemeColors } from '@/hooks/use-theme';
+import type { RiskLevel } from '@/types/substance';
+
+function getRiskColor(level: RiskLevel, colors: ThemeColors): string {
+  const map: Record<RiskLevel, string> = {
+    low: colors.riskLow,
+    moderate: colors.riskModerate,
+    high: colors.riskHigh,
+    extreme: colors.riskExtreme,
+    unknown: colors.riskUnknown,
+  };
+  return map[level];
+}
 
 export default function WikiScreen() {
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
   const [query, setQuery] = useState('');
-
-  const filtered = useMemo(() => {
-    const term = query.trim().toLowerCase();
-    if (!term) return SUBSTANCE_LIST;
-
-    return SUBSTANCE_LIST.filter((substance) => {
-      const haystack = [substance.name, substance.slug, ...substance.categories]
-        .join(' ')
-        .toLowerCase();
-      return haystack.includes(term);
-    });
-  }, [query]);
+  const substancesState = useSubstances(query);
+  const substances = substancesState.status === 'success' ? substancesState.data : [];
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background, paddingTop: insets.top }]}>
       <View style={styles.header}>
         <Text style={[Typography.heroTitle, { color: colors.textPrimary }]}>Drug Wiki</Text>
         <Text style={[Typography.body, styles.subtitle, { color: colors.textSecondary }]}>
-          Searchable substance cards for the native Synapedia wiki.
+          Search by substance, alias, or class.
         </Text>
       </View>
 
@@ -39,7 +41,7 @@ export default function WikiScreen() {
         <TextInput
           value={query}
           onChangeText={setQuery}
-          placeholder="Search substances"
+          placeholder="Search MDMA, Valium, opioid..."
           placeholderTextColor={colors.textTertiary}
           autoCapitalize="none"
           autoCorrect={false}
@@ -54,7 +56,7 @@ export default function WikiScreen() {
       </View>
 
       <FlatList
-        data={filtered}
+        data={substances}
         keyExtractor={(item) => item.slug}
         contentContainerStyle={styles.list}
         keyboardDismissMode="on-drag"
@@ -62,42 +64,60 @@ export default function WikiScreen() {
           <View style={styles.emptyState}>
             <Ionicons name="library-outline" size={34} color={colors.textTertiary} />
             <Text style={[Typography.body, styles.emptyText, { color: colors.textSecondary }]}>
-              No example substances found.
+              No substances match that search.
             </Text>
           </View>
         }
-        renderItem={({ item }) => (
-          <Pressable
-            onPress={() =>
-              router.push({ pathname: '/substance/[slug]', params: { slug: item.slug } })
-            }
-            style={({ pressed }) => [
-              styles.card,
-              {
-                backgroundColor: pressed ? colors.backgroundTertiary : colors.backgroundSecondary,
-              },
-            ]}>
-            <View style={styles.cardContent}>
-              <Text style={[Typography.bodyBold, { color: colors.textPrimary }]}>
-                {item.name}
-              </Text>
-              <View style={styles.tagRow}>
-                {item.categories.map((category) => (
-                  <View
-                    key={category}
-                    style={[styles.tag, { backgroundColor: colors.backgroundTertiary }]}>
-                    <Text style={[Typography.chip, { color: colors.textSecondary }]}>
-                      {category}
-                    </Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-            <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
-          </Pressable>
-        )}
+        renderItem={({ item }) => <SubstanceCard item={item} />}
       />
     </View>
+  );
+}
+
+function SubstanceCard({ item }: { item: LocalSubstanceSummary }) {
+  const colors = useThemeColors();
+  const riskColor = getRiskColor(item.riskLevel, colors);
+
+  return (
+    <Pressable
+      onPress={() => router.push({ pathname: '/substance/[slug]', params: { slug: item.slug } })}
+      style={({ pressed }) => [
+        styles.card,
+        {
+          backgroundColor: pressed ? colors.backgroundTertiary : colors.backgroundSecondary,
+        },
+      ]}>
+      <View style={styles.cardHeader}>
+        <View style={styles.cardTitleBlock}>
+          <Text style={[Typography.bodyBold, { color: colors.textPrimary }]}>{item.name}</Text>
+          <Text style={[Typography.caption, { color: colors.textSecondary }]}>
+            {item.primaryClass ?? item.categories[0] ?? 'Substance'}
+          </Text>
+        </View>
+        <View style={[styles.riskPill, { backgroundColor: `${riskColor}20` }]}>
+          <View style={[styles.riskDot, { backgroundColor: riskColor }]} />
+          <Text style={[Typography.chip, { color: riskColor }]}>{item.riskLabel}</Text>
+        </View>
+      </View>
+
+      <Text style={[Typography.caption, styles.summary, { color: colors.textSecondary }]}>
+        {item.summary}
+      </Text>
+
+      <View style={styles.metaRow}>
+        <View style={[styles.metaChip, { backgroundColor: colors.backgroundTertiary }]}>
+          <Ionicons name="time-outline" size={14} color={colors.textTertiary} />
+          <Text style={[Typography.chip, { color: colors.textSecondary }]}>
+            {item.quickFacts.duration}
+          </Text>
+        </View>
+        {item.aliases && item.aliases.length > 0 && (
+          <Text style={[Typography.caption, styles.aliases, { color: colors.textTertiary }]} numberOfLines={1}>
+            Also: {item.aliases.slice(0, 3).join(', ')}
+          </Text>
+        )}
+      </View>
+    </Pressable>
   );
 }
 
@@ -132,24 +152,50 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   card: {
-    flexDirection: 'row',
-    alignItems: 'center',
     padding: Spacing.lg,
     borderRadius: Radius.lg,
+    gap: Spacing.md,
   },
-  cardContent: {
-    flex: 1,
-    gap: Spacing.sm,
-  },
-  tagRow: {
+  cardHeader: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: Spacing.md,
+  },
+  cardTitleBlock: {
+    flex: 1,
+  },
+  riskPill: {
+    minHeight: 30,
+    borderRadius: Radius.full,
+    paddingHorizontal: Spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: Spacing.xs,
   },
-  tag: {
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: Spacing.xs,
+  riskDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+  },
+  summary: {
+    marginRight: Spacing.md,
+  },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  metaChip: {
+    minHeight: 30,
     borderRadius: Radius.full,
+    paddingHorizontal: Spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+  },
+  aliases: {
+    flex: 1,
   },
   emptyState: {
     alignItems: 'center',

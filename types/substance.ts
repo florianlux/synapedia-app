@@ -57,7 +57,10 @@ export interface Source {
 export interface Substance {
   slug: string;
   name: string;
+  aliases?: string[];
   chemicalName: string;
+  primaryClass?: string;
+  summary?: string;
   categories: string[];
   riskLevel: RiskLevel;
   riskLabel: string;
