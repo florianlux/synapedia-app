@@ -131,7 +131,7 @@ export default function SubstanceDetailScreen() {
         <DisclaimerCard />
 
         {/* Z4: Expandable Sections */}
-        <ExpandableSection title="Overview">
+        <ExpandableSection title="Überblick">
           <OverviewContent
             summary={substance.summary}
             aliases={substance.aliases}
@@ -237,8 +237,8 @@ function OverviewContent({
         </Text>
       )}
       <View style={inlineStyles.overviewGrid}>
-        <InfoTile label="Class" value={primaryClass ?? categories[0] ?? '—'} />
-        <InfoTile label="Aliases" value={aliases?.length ? aliases.join(', ') : '—'} />
+        <InfoTile label="Klasse" value={primaryClass ?? categories[0] ?? '—'} />
+        <InfoTile label="Aliasse" value={aliases?.length ? aliases.join(', ') : '—'} />
       </View>
     </View>
   );

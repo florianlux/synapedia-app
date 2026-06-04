@@ -15,6 +15,7 @@ export default function RootLayout() {
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="substance/[slug]" />
+          <Stack.Screen name="guides/[slug]" />
         </Stack>
         <StatusBar style="auto" />
       </ThemeProvider>

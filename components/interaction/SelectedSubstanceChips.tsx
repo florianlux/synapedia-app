@@ -2,7 +2,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { useThemeColors } from '@/hooks/use-theme';
-import { Typography, Spacing, Radius } from '@/constants/theme';
+import { Elevation, Typography, Spacing, Radius } from '@/constants/theme';
 import { SUBSTANCE_NAME_MAP, SUBSTANCE_LIST } from '@/constants/interactions';
 
 interface Props {
@@ -34,7 +34,7 @@ function SlotCard({
             borderColor: pressed ? colors.accent : colors.separator,
             backgroundColor: pressed
               ? colors.accentLight
-              : colors.background,
+              : colors.backgroundElevated,
           },
         ]}>
         <Ionicons name="add" size={24} color={colors.accent} />
@@ -59,7 +59,7 @@ function SlotCard({
       style={[
         styles.slot,
         styles.filledSlot,
-        { backgroundColor: colors.backgroundSecondary },
+        { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder },
       ]}>
       <View style={styles.filledHeader}>
         <Text
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: Spacing.page,
     gap: Spacing.sm,
   },
   connector: {
@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
   slot: {
     flex: 1,
     minHeight: 72,
-    borderRadius: Radius.md,
+    borderRadius: Radius.xl,
     padding: Spacing.md,
     justifyContent: 'center',
   },
@@ -136,7 +136,10 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
     alignItems: 'center',
   },
-  filledSlot: {},
+  filledSlot: {
+    borderWidth: StyleSheet.hairlineWidth,
+    ...Elevation.subtle,
+  },
   filledHeader: {
     flexDirection: 'row',
     alignItems: 'center',

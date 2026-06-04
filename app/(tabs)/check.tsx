@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { useThemeColors } from '@/hooks/use-theme';
-import { Typography, Spacing, Radius } from '@/constants/theme';
+import { Elevation, Typography, Spacing, Radius } from '@/constants/theme';
 import { POPULAR_INTERACTION_PAIRS } from '@/constants/interactions';
 import { useInteraction } from '@/hooks/use-interaction';
 import { SubstancePicker } from '@/components/interaction/SubstancePicker';
@@ -79,7 +79,7 @@ export default function CheckScreen() {
           styles.subtitle,
           { color: colors.textSecondary },
         ]}>
-        Interaction checker module shell for comparing two substances.
+        Lokaler Interaktions-Check für zwei Substanzen mit kuratierten MVP-Hinweisen.
       </Text>
 
       {/* ── Substance selection ── */}
@@ -98,7 +98,7 @@ export default function CheckScreen() {
         showsVerticalScrollIndicator={false}>
         <View style={styles.popularSection}>
           <Text style={[Typography.captionBold, { color: colors.textSecondary }]}>
-            Popular combinations
+            Beliebte Kombinationen
           </Text>
           <View style={styles.popularGrid}>
             {POPULAR_INTERACTION_PAIRS.map((pair) => (
@@ -136,7 +136,7 @@ export default function CheckScreen() {
                   marginTop: Spacing.md,
                 },
               ]}>
-              Select two substances to preview{'\n'}the native interaction checker.
+              Wähle zwei Substanzen für eine{'\n'}lokale MixCheck-Bewertung.
             </Text>
           </View>
         )}
@@ -158,7 +158,7 @@ export default function CheckScreen() {
                   marginTop: Spacing.md,
                 },
               ]}>
-              Select a second substance.
+              Wähle eine zweite Substanz.
             </Text>
           </View>
         )}
@@ -172,7 +172,7 @@ export default function CheckScreen() {
                 Typography.body,
                 { color: colors.textSecondary, marginTop: Spacing.md },
               ]}>
-              Checking interaction…
+              Prüfe Kombination…
             </Text>
           </View>
         )}
@@ -194,7 +194,7 @@ export default function CheckScreen() {
                 Typography.bodyBold,
                 { color: colors.textPrimary, marginTop: Spacing.md },
               ]}>
-              Unable to load
+              Konnte nicht laden
             </Text>
             <Text
               style={[
@@ -238,7 +238,7 @@ export default function CheckScreen() {
                   marginTop: Spacing.sm,
                 },
               ]}>
-              Fuer diese Kombination liegt lokal noch keine kuratierte Bewertung vor.
+              Für diese Kombination liegt lokal noch keine kuratierte Bewertung vor.
             </Text>
             <View
               style={[
@@ -259,7 +259,7 @@ export default function CheckScreen() {
                     marginLeft: Spacing.sm,
                   },
                 ]}>
-                Absence of data does not mean safe. Mischkonsum kann auch ohne kuratierte Bewertung riskant sein.
+                Fehlende Daten bedeuten nicht sicher. Mischkonsum kann auch ohne kuratierte Bewertung riskant sein.
               </Text>
             </View>
           </View>
@@ -287,11 +287,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: Spacing.page,
     paddingTop: Spacing.lg,
   },
   subtitle: {
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: Spacing.page,
     marginTop: Spacing.xs,
     marginBottom: Spacing.lg,
   },
@@ -302,10 +302,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   resultContent: {
-    paddingBottom: Spacing.xxxl,
+    paddingBottom: 104,
   },
   popularSection: {
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: Spacing.page,
     paddingBottom: Spacing.lg,
     gap: Spacing.sm,
   },
@@ -320,6 +320,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(255,255,255,0.08)',
   },
   emptyState: {
     alignItems: 'center',
@@ -327,10 +329,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xxl,
   },
   noDataCard: {
-    marginHorizontal: Spacing.lg,
+    marginHorizontal: Spacing.page,
     padding: Spacing.xl,
-    borderRadius: Radius.lg,
+    borderRadius: Radius.xl,
     alignItems: 'center',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(255,255,255,0.08)',
+    ...Elevation.subtle,
   },
   warningBanner: {
     flexDirection: 'row',

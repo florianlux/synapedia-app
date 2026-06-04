@@ -13,7 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { SUBSTANCES } from '@/constants/mock-data';
-import { Radius, Spacing, Typography } from '@/constants/theme';
+import { Elevation, Radius, Spacing, Typography } from '@/constants/theme';
 import { useThemeColors } from '@/hooks/use-theme';
 
 const STORAGE_KEY = 'synapedia:dose-log:v1';
@@ -59,10 +59,10 @@ function initialForm(): FormState {
 }
 
 function validateForm(form: FormState): string | null {
-  if (!form.substance.trim()) return 'Substance is required.';
-  if (!form.timestamp.trim()) return 'Timestamp is required.';
+  if (!form.substance.trim()) return 'Substanz ist erforderlich.';
+  if (!form.timestamp.trim()) return 'Zeitpunkt ist erforderlich.';
   if (form.dose.trim() && Number.isNaN(Number(form.dose.replace(',', '.')))) {
-    return 'Dose must be numeric when provided.';
+    return 'Dosis muss numerisch sein, wenn sie angegeben wird.';
   }
   return null;
 }
@@ -175,16 +175,16 @@ export default function LogScreen() {
         <View style={styles.header}>
           <Text style={[Typography.heroTitle, { color: colors.textPrimary }]}>Dose Log</Text>
           <Text style={[Typography.body, styles.subtitle, { color: colors.textSecondary }]}>
-            Local-first entries for self-reflection and documentation. No account or sync required.
+            Lokales Konsumprotokoll zur Selbstreflexion. Kein Account, keine Cloud-Synchronisierung.
           </Text>
         </View>
 
-        <View style={[styles.formCard, { backgroundColor: colors.backgroundSecondary }]}>
+        <View style={[styles.formCard, { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder }]}>
           <Field
-            label="Substance"
+            label="Substanz"
             value={form.substance}
             onChangeText={(value) => updateField('substance', value)}
-            placeholder="e.g. MDMA"
+            placeholder="z. B. MDMA"
           />
 
           <View style={styles.suggestionRow}>
@@ -208,7 +208,7 @@ export default function LogScreen() {
           <View style={styles.row}>
             <View style={styles.rowField}>
               <Field
-                label="Dose"
+                label="Dosis"
                 value={form.dose}
                 onChangeText={(value) => updateField('dose', value)}
                 placeholder="80"
@@ -216,7 +216,7 @@ export default function LogScreen() {
               />
             </View>
             <View style={styles.rowField}>
-              <Text style={[Typography.captionBold, { color: colors.textSecondary }]}>Unit</Text>
+              <Text style={[Typography.captionBold, { color: colors.textSecondary }]}>Einheit</Text>
               <ChipRow
                 items={UNITS}
                 selected={form.unit}
@@ -226,7 +226,7 @@ export default function LogScreen() {
           </View>
 
           <View style={styles.group}>
-            <Text style={[Typography.captionBold, { color: colors.textSecondary }]}>Route</Text>
+            <Text style={[Typography.captionBold, { color: colors.textSecondary }]}>Einnahmeweg</Text>
             <ChipRow
               items={ROUTES}
               selected={form.route}
@@ -235,22 +235,22 @@ export default function LogScreen() {
           </View>
 
           <Field
-            label="Timestamp"
+            label="Zeitpunkt"
             value={form.timestamp}
             onChangeText={(value) => updateField('timestamp', value)}
             placeholder="2026-06-05T12:30"
           />
           <Field
-            label="Mood / condition"
+            label="Stimmung / Zustand"
             value={form.mood}
             onChangeText={(value) => updateField('mood', value)}
-            placeholder="e.g. calm, anxious, tired"
+            placeholder="z. B. ruhig, ängstlich, müde"
           />
           <Field
-            label="Notes"
+            label="Notizen"
             value={form.notes}
             onChangeText={(value) => updateField('notes', value)}
-            placeholder="Context, effects, reminders"
+            placeholder="Kontext, Wirkung, Erinnerungen"
             multiline
           />
 
@@ -267,11 +267,11 @@ export default function LogScreen() {
               { backgroundColor: pressed ? colors.tabIconSelected : colors.accent },
             ]}>
             <Ionicons name="add-circle-outline" size={18} color="#FFFFFF" />
-            <Text style={[Typography.bodyBold, { color: '#FFFFFF' }]}>Add entry</Text>
+            <Text style={[Typography.bodyBold, { color: '#FFFFFF' }]}>Eintrag hinzufügen</Text>
           </Pressable>
         </View>
 
-        <View style={[styles.localNote, { backgroundColor: colors.backgroundSecondary }]}>
+        <View style={[styles.localNote, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
           <Ionicons name="lock-closed-outline" size={18} color={colors.accent} />
           <Text style={[Typography.caption, styles.localNoteText, { color: colors.textSecondary }]}>
             Konsumprotokoll zur Selbstreflexion und Dokumentation. Keine medizinische Beratung.
@@ -279,12 +279,12 @@ export default function LogScreen() {
         </View>
 
         <View style={styles.sectionHeader}>
-          <Text style={[Typography.sectionTitle, { color: colors.textPrimary }]}>Recent entries</Text>
+          <Text style={[Typography.sectionTitle, { color: colors.textPrimary }]}>Letzte Einträge</Text>
           <Pressable
             onPress={() => setExportMessage('CSV-Export ist vorbereitet, aber noch nicht implementiert.')}
             style={({ pressed }) => [
               styles.exportButton,
-              { backgroundColor: pressed ? colors.backgroundTertiary : colors.backgroundSecondary },
+              { backgroundColor: pressed ? colors.backgroundTertiary : colors.backgroundElevated, borderColor: colors.cardBorder },
             ]}>
             <Ionicons name="download-outline" size={16} color={colors.accent} />
             <Text style={[Typography.chip, { color: colors.accent }]}>CSV-Export vorbereiten</Text>
@@ -298,10 +298,10 @@ export default function LogScreen() {
         )}
 
         {sortedEntries.length === 0 ? (
-          <View style={[styles.emptyCard, { backgroundColor: colors.backgroundSecondary }]}>
+          <View style={[styles.emptyCard, { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder }]}>
             <Ionicons name="document-text-outline" size={34} color={colors.textTertiary} />
             <Text style={[Typography.body, styles.emptyText, { color: colors.textSecondary }]}>
-              No dose entries yet.
+              Noch keine Einträge.
             </Text>
           </View>
         ) : (
@@ -348,7 +348,7 @@ function Field({
           Typography.body,
           styles.input,
           multiline && styles.notesInput,
-          { backgroundColor: colors.backgroundTertiary, color: colors.textPrimary },
+          { backgroundColor: colors.backgroundSecondary, borderColor: colors.border, color: colors.textPrimary },
         ]}
       />
     </View>
@@ -391,21 +391,21 @@ function EntryCard({ entry, onDelete }: { entry: DoseEntry; onDelete: () => void
   const colors = useThemeColors();
 
   return (
-    <View style={[styles.entryCard, { backgroundColor: colors.backgroundSecondary }]}>
+    <View style={[styles.entryCard, { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder }]}>
       <View style={styles.entryHeader}>
         <View style={styles.entryTitleBlock}>
           <Text style={[Typography.bodyBold, { color: colors.textPrimary }]}>
             {entry.substance}
           </Text>
           <Text style={[Typography.caption, { color: colors.textSecondary }]}>
-            {entry.dose ? `${entry.dose} ${entry.unit}` : 'Dose not recorded'} · {entry.route}
+            {entry.dose ? `${entry.dose} ${entry.unit}` : 'Dosis nicht erfasst'} · {entry.route}
           </Text>
         </View>
         <Pressable
           onPress={onDelete}
           hitSlop={8}
           accessibilityRole="button"
-          accessibilityLabel={`Delete ${entry.substance} entry`}>
+          accessibilityLabel={`${entry.substance}-Eintrag löschen`}>
           <Ionicons name="trash-outline" size={19} color={colors.textTertiary} />
         </Pressable>
       </View>
@@ -415,7 +415,7 @@ function EntryCard({ entry, onDelete }: { entry: DoseEntry; onDelete: () => void
       </Text>
       {entry.mood && (
         <Text style={[Typography.caption, { color: colors.textSecondary }]}>
-          Mood/condition: {entry.mood}
+          Stimmung / Zustand: {entry.mood}
         </Text>
       )}
       {entry.notes && (
@@ -432,8 +432,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    padding: Spacing.lg,
-    paddingBottom: Spacing.xxxl,
+    padding: Spacing.page,
+    paddingBottom: 104,
   },
   header: {
     paddingTop: Spacing.lg,
@@ -443,9 +443,11 @@ const styles = StyleSheet.create({
     marginTop: Spacing.xs,
   },
   formCard: {
-    borderRadius: Radius.lg,
+    borderRadius: Radius.xl,
+    borderWidth: StyleSheet.hairlineWidth,
     padding: Spacing.lg,
     gap: Spacing.lg,
+    ...Elevation.subtle,
   },
   group: {
     gap: Spacing.sm,
@@ -461,6 +463,7 @@ const styles = StyleSheet.create({
   input: {
     minHeight: 46,
     borderRadius: Radius.md,
+    borderWidth: StyleSheet.hairlineWidth,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
   },
@@ -504,6 +507,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: Spacing.sm,
     borderRadius: Radius.md,
+    borderWidth: StyleSheet.hairlineWidth,
     marginTop: Spacing.lg,
     padding: Spacing.md,
   },
@@ -521,6 +525,7 @@ const styles = StyleSheet.create({
   exportButton: {
     minHeight: 34,
     borderRadius: Radius.full,
+    borderWidth: StyleSheet.hairlineWidth,
     paddingHorizontal: Spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
@@ -530,9 +535,11 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
   },
   emptyCard: {
-    borderRadius: Radius.lg,
+    borderRadius: Radius.xl,
+    borderWidth: StyleSheet.hairlineWidth,
     padding: Spacing.xl,
     alignItems: 'center',
+    ...Elevation.subtle,
   },
   emptyText: {
     marginTop: Spacing.md,
@@ -542,8 +549,10 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   entryCard: {
-    borderRadius: Radius.lg,
+    borderRadius: Radius.xl,
+    borderWidth: StyleSheet.hairlineWidth,
     padding: Spacing.lg,
+    ...Elevation.subtle,
   },
   entryHeader: {
     flexDirection: 'row',

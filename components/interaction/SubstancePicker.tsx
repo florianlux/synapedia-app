@@ -61,6 +61,7 @@ export function SubstancePicker({
           {
             backgroundColor: colors.background,
             paddingBottom: Math.max(insets.bottom, Spacing.lg),
+            borderTopColor: colors.cardBorder,
           },
         ]}>
         {/* Handle */}
@@ -84,7 +85,7 @@ export function SubstancePicker({
         <View
           style={[
             styles.searchBar,
-            { backgroundColor: colors.backgroundSecondary },
+            { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder },
           ]}>
           <Ionicons name="search" size={16} color={colors.textTertiary} />
           <TextInput
@@ -151,7 +152,8 @@ export function SubstancePicker({
                   {
                     backgroundColor: pressed
                       ? colors.backgroundTertiary
-                      : colors.backgroundSecondary,
+                      : colors.backgroundElevated,
+                    borderColor: colors.cardBorder,
                     opacity: isDisabled ? 0.4 : 1,
                   },
                 ]}>
@@ -205,6 +207,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     maxHeight: '75%',
+    borderTopWidth: StyleSheet.hairlineWidth,
   },
   handleRow: {
     alignItems: 'center',
@@ -233,6 +236,7 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.sm,
     borderRadius: Radius.md,
     gap: Spacing.sm,
+    borderWidth: StyleSheet.hairlineWidth,
   },
   searchInput: {
     flex: 1,
@@ -250,7 +254,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: Spacing.md,
-    borderRadius: Radius.md,
+    borderRadius: Radius.lg,
+    borderWidth: StyleSheet.hairlineWidth,
   },
   rowContent: {
     flex: 1,

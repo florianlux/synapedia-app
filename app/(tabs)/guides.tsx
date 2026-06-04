@@ -1,42 +1,11 @@
-import type { ComponentProps } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-import { Radius, Spacing, Typography } from '@/constants/theme';
+import { GUIDE_DISCLAIMER, GUIDES } from '@/constants/guides';
+import { Elevation, Radius, Spacing, Typography } from '@/constants/theme';
 import { useThemeColors } from '@/hooks/use-theme';
-
-type IconName = ComponentProps<typeof Ionicons>['name'];
-
-const GUIDES: {
-  title: string;
-  subtitle: string;
-  status: string;
-  icon: IconName;
-  tint: string;
-}[] = [
-  {
-    title: 'Opioid Withdrawal',
-    subtitle: 'Taper planning, red flags, hydration, sleep, and when to seek medical help.',
-    status: 'Recovery guide',
-    icon: 'medkit-outline',
-    tint: '#0A84FF',
-  },
-  {
-    title: 'Benzodiazepine Withdrawal',
-    subtitle: 'Seizure-risk awareness, slow taper principles, symptoms, and support planning.',
-    status: 'High-risk guide',
-    icon: 'warning-outline',
-    tint: '#FF9F0A',
-  },
-  {
-    title: 'Phenibut Withdrawal',
-    subtitle: 'Dependence warning signs, rebound anxiety, taper notes, and escalation triggers.',
-    status: 'Curated guide',
-    icon: 'pulse-outline',
-    tint: '#D63A4A',
-  },
-];
 
 export default function GuidesScreen() {
   const colors = useThemeColors();
@@ -48,37 +17,45 @@ export default function GuidesScreen() {
         <View style={styles.header}>
           <Text style={[Typography.heroTitle, { color: colors.textPrimary }]}>Guides</Text>
           <Text style={[Typography.body, styles.subtitle, { color: colors.textSecondary }]}>
-            Mobile-first recovery and harm-reduction guides for the Synapedia content library.
+            Ruhige, lokal kuratierte Einstiege zu Recovery, Entzug und Harm Reduction.
           </Text>
         </View>
 
         <View style={styles.guideList}>
           {GUIDES.map((guide) => (
-            <View
-              key={guide.title}
-              style={[styles.guideCard, { backgroundColor: colors.backgroundSecondary }]}>
-              <View style={[styles.iconBox, { backgroundColor: `${guide.tint}20` }]}>
-                <Ionicons name={guide.icon} size={23} color={guide.tint} />
+            <Pressable
+              key={guide.slug}
+              onPress={() => router.push({ pathname: '/guides/[slug]', params: { slug: guide.slug } })}
+              style={({ pressed }) => [
+                styles.guideCard,
+                {
+                  backgroundColor: pressed ? colors.backgroundTertiary : colors.backgroundElevated,
+                  borderColor: colors.cardBorder,
+                },
+              ]}>
+              <View style={[styles.iconBox, { backgroundColor: `${guide.accent}20` }]}>
+                <Ionicons name="book-outline" size={23} color={guide.accent} />
               </View>
               <View style={styles.guideContent}>
-                <Text style={[Typography.captionBold, { color: guide.tint }]}>
-                  {guide.status}
+                <Text style={[Typography.captionBold, { color: guide.accent }]}>
+                  {guide.category}
                 </Text>
                 <Text style={[Typography.bodyBold, styles.guideTitle, { color: colors.textPrimary }]}>
                   {guide.title}
                 </Text>
                 <Text style={[Typography.caption, { color: colors.textSecondary }]}>
-                  {guide.subtitle}
+                  {guide.summary}
                 </Text>
               </View>
-            </View>
+              <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
+            </Pressable>
           ))}
         </View>
 
-        <View style={[styles.note, { backgroundColor: colors.backgroundSecondary }]}>
+        <View style={[styles.note, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
           <Ionicons name="information-circle-outline" size={18} color={colors.accent} />
           <Text style={[Typography.caption, styles.noteText, { color: colors.textSecondary }]}>
-            Guide detail pages are intentionally not implemented in this shell pass.
+            {GUIDE_DISCLAIMER}
           </Text>
         </View>
       </ScrollView>
@@ -91,8 +68,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    padding: Spacing.lg,
-    paddingBottom: Spacing.xxxl,
+    padding: Spacing.page,
+    paddingBottom: 104,
   },
   header: {
     paddingTop: Spacing.lg,
@@ -106,14 +83,17 @@ const styles = StyleSheet.create({
   },
   guideCard: {
     flexDirection: 'row',
+    alignItems: 'center',
     gap: Spacing.md,
-    borderRadius: Radius.lg,
+    borderRadius: Radius.xl,
+    borderWidth: StyleSheet.hairlineWidth,
     padding: Spacing.lg,
+    ...Elevation.subtle,
   },
   iconBox: {
     width: 44,
     height: 44,
-    borderRadius: Radius.md,
+    borderRadius: Radius.lg,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -128,7 +108,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: Spacing.sm,
-    borderRadius: Radius.md,
+    borderRadius: Radius.lg,
+    borderWidth: StyleSheet.hairlineWidth,
     marginTop: Spacing.lg,
     padding: Spacing.md,
   },

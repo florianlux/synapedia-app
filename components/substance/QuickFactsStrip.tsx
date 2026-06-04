@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
 import { useThemeColors } from '@/hooks/use-theme';
-import { Typography, Spacing } from '@/constants/theme';
+import { Radius, Typography, Spacing } from '@/constants/theme';
 import type { QuickFacts } from '@/types/substance';
 
 interface Props {
@@ -9,17 +9,17 @@ interface Props {
 }
 
 const COLUMNS: { key: keyof QuickFacts; label: string }[] = [
-  { key: 'onset', label: 'Onset' },
+  { key: 'onset', label: 'Eintritt' },
   { key: 'peak', label: 'Peak' },
   { key: 'duration', label: 'Dauer' },
-  { key: 'afterEffects', label: 'After' },
+  { key: 'afterEffects', label: 'Nachklang' },
 ];
 
 export function QuickFactsStrip({ quickFacts }: Props) {
   const colors = useThemeColors();
 
   return (
-    <View style={[styles.container, { borderBottomColor: colors.separator }]}>
+    <View style={[styles.container, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
       {COLUMNS.map((col, index) => (
         <View
           key={col.key}
@@ -52,8 +52,11 @@ export function QuickFactsStrip({ quickFacts }: Props) {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
+    marginHorizontal: Spacing.page,
+    marginTop: Spacing.md,
     paddingVertical: Spacing.md,
-    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: Radius.lg,
   },
   column: {
     flex: 1,

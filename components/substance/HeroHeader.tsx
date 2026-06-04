@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
 import { useThemeColors } from '@/hooks/use-theme';
-import { Typography, Spacing, Radius } from '@/constants/theme';
+import { Elevation, Typography, Spacing, Radius } from '@/constants/theme';
 import type { Substance } from '@/types/substance';
 import { RiskBanner } from './RiskBanner';
 
@@ -13,7 +13,7 @@ export function HeroHeader({ substance }: Props) {
   const colors = useThemeColors();
 
   return (
-    <View style={[styles.container, { borderBottomColor: colors.separator }]}>
+    <View style={[styles.container, { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder }]}>
       <Text style={[Typography.heroTitle, { color: colors.textPrimary }]}>
         {substance.name}
       </Text>
@@ -46,10 +46,14 @@ export function HeroHeader({ substance }: Props) {
 
 const styles = StyleSheet.create({
   container: {
+    marginHorizontal: Spacing.page,
+    marginTop: Spacing.lg,
     paddingHorizontal: Spacing.lg,
     paddingTop: Spacing.lg,
-    paddingBottom: Spacing.md,
-    borderBottomWidth: StyleSheet.hairlineWidth,
+    paddingBottom: Spacing.lg,
+    borderRadius: Radius.xl,
+    borderWidth: StyleSheet.hairlineWidth,
+    ...Elevation.subtle,
   },
   chips: {
     flexDirection: 'row',

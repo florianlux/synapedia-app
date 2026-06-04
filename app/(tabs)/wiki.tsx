@@ -8,6 +8,7 @@ import { Radius, Spacing, Typography, type ThemeColors } from '@/constants/theme
 import { useSubstances, type LocalSubstanceSummary } from '@/hooks/use-substances';
 import { useThemeColors } from '@/hooks/use-theme';
 import type { RiskLevel } from '@/types/substance';
+import { EmptyState, Pill } from '@/components/ui/premium';
 
 function getRiskColor(level: RiskLevel, colors: ThemeColors): string {
   const map: Record<RiskLevel, string> = {
@@ -29,44 +30,58 @@ export default function WikiScreen() {
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background, paddingTop: insets.top }]}>
-      <View style={styles.header}>
-        <Text style={[Typography.heroTitle, { color: colors.textPrimary }]}>Drug Wiki</Text>
-        <Text style={[Typography.body, styles.subtitle, { color: colors.textSecondary }]}>
-          Search by substance, alias, or class.
-        </Text>
-      </View>
-
-      <View style={[styles.searchBar, { backgroundColor: colors.backgroundSecondary }]}>
-        <Ionicons name="search-outline" size={18} color={colors.textTertiary} />
-        <TextInput
-          value={query}
-          onChangeText={setQuery}
-          placeholder="Search MDMA, Valium, opioid..."
-          placeholderTextColor={colors.textTertiary}
-          autoCapitalize="none"
-          autoCorrect={false}
-          returnKeyType="search"
-          style={[Typography.body, styles.searchInput, { color: colors.textPrimary }]}
-        />
-        {query.length > 0 && (
-          <Pressable onPress={() => setQuery('')} hitSlop={8}>
-            <Ionicons name="close-circle" size={18} color={colors.textTertiary} />
-          </Pressable>
-        )}
-      </View>
-
       <FlatList
         data={substances}
         keyExtractor={(item) => item.slug}
         contentContainerStyle={styles.list}
         keyboardDismissMode="on-drag"
+        keyboardShouldPersistTaps="handled"
+        ListHeaderComponent={
+          <>
+            <View style={styles.header}>
+              <Text style={[Typography.heroTitle, { color: colors.textPrimary }]}>Wiki</Text>
+              <Text style={[Typography.body, styles.subtitle, { color: colors.textSecondary }]}>
+                Lokale Substanzprofile durchsuchen, vergleichen und als Harm-Reduction-Kontext
+                nutzen.
+              </Text>
+            </View>
+
+            <View
+              style={[
+                styles.searchBar,
+                { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder },
+              ]}>
+              <Ionicons name="search-outline" size={18} color={colors.textTertiary} />
+              <TextInput
+                value={query}
+                onChangeText={setQuery}
+                placeholder="Name, Alias oder Klasse suchen..."
+                placeholderTextColor={colors.textTertiary}
+                autoCapitalize="none"
+                autoCorrect={false}
+                returnKeyType="search"
+                style={[Typography.body, styles.searchInput, { color: colors.textPrimary }]}
+              />
+              {query.length > 0 && (
+                <Pressable onPress={() => setQuery('')} hitSlop={8}>
+                  <Ionicons name="close-circle" size={18} color={colors.textTertiary} />
+                </Pressable>
+              )}
+            </View>
+
+            <View style={styles.resultHeader}>
+              <Text style={[Typography.captionBold, { color: colors.textSecondary }]}>
+                {substances.length} lokale Profile
+              </Text>
+            </View>
+          </>
+        }
         ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <Ionicons name="library-outline" size={34} color={colors.textTertiary} />
-            <Text style={[Typography.body, styles.emptyText, { color: colors.textSecondary }]}>
-              No substances match that search.
-            </Text>
-          </View>
+          <EmptyState
+            icon="library-outline"
+            title="Keine Treffer"
+            body="Passe die Suche nach Name, Alias oder Substanzklasse an."
+          />
         }
         renderItem={({ item }) => <SubstanceCard item={item} />}
       />
@@ -84,36 +99,31 @@ function SubstanceCard({ item }: { item: LocalSubstanceSummary }) {
       style={({ pressed }) => [
         styles.card,
         {
-          backgroundColor: pressed ? colors.backgroundTertiary : colors.backgroundSecondary,
+          backgroundColor: pressed ? colors.backgroundTertiary : colors.backgroundElevated,
+          borderColor: colors.cardBorder,
         },
       ]}>
       <View style={styles.cardHeader}>
         <View style={styles.cardTitleBlock}>
-          <Text style={[Typography.bodyBold, { color: colors.textPrimary }]}>{item.name}</Text>
+          <Text style={[Typography.sectionTitle, styles.cardTitle, { color: colors.textPrimary }]}>
+            {item.name}
+          </Text>
           <Text style={[Typography.caption, { color: colors.textSecondary }]}>
-            {item.primaryClass ?? item.categories[0] ?? 'Substance'}
+            {item.primaryClass ?? item.categories[0] ?? 'Substanz'}
           </Text>
         </View>
-        <View style={[styles.riskPill, { backgroundColor: `${riskColor}20` }]}>
-          <View style={[styles.riskDot, { backgroundColor: riskColor }]} />
-          <Text style={[Typography.chip, { color: riskColor }]}>{item.riskLabel}</Text>
-        </View>
+        <Pill label={item.riskLabel} tint={riskColor} icon="pulse-outline" />
       </View>
 
-      <Text style={[Typography.caption, styles.summary, { color: colors.textSecondary }]}>
+      <Text style={[Typography.body, styles.summary, { color: colors.textSecondary }]}>
         {item.summary}
       </Text>
 
       <View style={styles.metaRow}>
-        <View style={[styles.metaChip, { backgroundColor: colors.backgroundTertiary }]}>
-          <Ionicons name="time-outline" size={14} color={colors.textTertiary} />
-          <Text style={[Typography.chip, { color: colors.textSecondary }]}>
-            {item.quickFacts.duration}
-          </Text>
-        </View>
+        <Pill label={item.quickFacts.duration} icon="time-outline" />
         {item.aliases && item.aliases.length > 0 && (
           <Text style={[Typography.caption, styles.aliases, { color: colors.textTertiary }]} numberOfLines={1}>
-            Also: {item.aliases.slice(0, 3).join(', ')}
+            Aliasse: {item.aliases.slice(0, 3).join(', ')}
           </Text>
         )}
       </View>
@@ -125,35 +135,39 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
   },
+  list: {
+    padding: Spacing.page,
+    paddingBottom: 104,
+    gap: Spacing.sm,
+  },
   header: {
-    paddingHorizontal: Spacing.lg,
     paddingTop: Spacing.lg,
-    paddingBottom: Spacing.md,
+    paddingBottom: Spacing.lg,
   },
   subtitle: {
     marginTop: Spacing.xs,
   },
   searchBar: {
+    minHeight: 50,
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
-    marginHorizontal: Spacing.lg,
     paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    borderRadius: Radius.md,
+    borderRadius: Radius.lg,
+    borderWidth: StyleSheet.hairlineWidth,
   },
   searchInput: {
     flex: 1,
     padding: 0,
   },
-  list: {
-    padding: Spacing.lg,
-    paddingBottom: Spacing.xxxl,
-    gap: Spacing.sm,
+  resultHeader: {
+    paddingTop: Spacing.lg,
+    paddingBottom: Spacing.xs,
   },
   card: {
     padding: Spacing.lg,
-    borderRadius: Radius.lg,
+    borderRadius: Radius.xl,
+    borderWidth: StyleSheet.hairlineWidth,
     gap: Spacing.md,
   },
   cardHeader: {
@@ -165,44 +179,18 @@ const styles = StyleSheet.create({
   cardTitleBlock: {
     flex: 1,
   },
-  riskPill: {
-    minHeight: 30,
-    borderRadius: Radius.full,
-    paddingHorizontal: Spacing.sm,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.xs,
-  },
-  riskDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 4,
+  cardTitle: {
+    marginBottom: 2,
   },
   summary: {
-    marginRight: Spacing.md,
+    marginRight: Spacing.sm,
   },
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
   },
-  metaChip: {
-    minHeight: 30,
-    borderRadius: Radius.full,
-    paddingHorizontal: Spacing.sm,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.xs,
-  },
   aliases: {
     flex: 1,
-  },
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: Spacing.xxxl,
-  },
-  emptyText: {
-    marginTop: Spacing.md,
-    textAlign: 'center',
   },
 });

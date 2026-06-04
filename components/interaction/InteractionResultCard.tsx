@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-import { Radius, Spacing, Typography, type ThemeColors } from '@/constants/theme';
+import { Elevation, Radius, Spacing, Typography, type ThemeColors } from '@/constants/theme';
 import { SUBSTANCE_LIST, SUBSTANCE_NAME_MAP } from '@/constants/interactions';
 import { useThemeColors } from '@/hooks/use-theme';
 import type { InteractionDetail, MixCheckRiskLevel } from '@/types/interaction';
@@ -20,31 +20,31 @@ function getRiskMeta(
 ): { label: string; color: string; bg: string; icon: IconName } {
   const map: Record<MixCheckRiskLevel, { label: string; color: string; bg: string; icon: IconName }> = {
     low: {
-      label: 'Low',
+      label: 'Niedrig',
       color: colors.severityLowRisk,
       bg: 'rgba(48,209,88,0.12)',
       icon: 'checkmark-circle-outline',
     },
     medium: {
-      label: 'Medium',
+      label: 'Mittel',
       color: colors.severityCaution,
       bg: 'rgba(255,214,10,0.12)',
       icon: 'information-circle-outline',
     },
     high: {
-      label: 'High',
+      label: 'Hoch',
       color: colors.severityRisky,
       bg: 'rgba(255,159,10,0.12)',
       icon: 'warning-outline',
     },
     critical: {
-      label: 'Critical',
+      label: 'Kritisch',
       color: colors.severityDangerous,
       bg: 'rgba(255,69,58,0.12)',
       icon: 'alert-circle',
     },
     unknown: {
-      label: 'Unknown',
+      label: 'Unbekannt',
       color: colors.riskUnknown,
       bg: 'rgba(99,99,102,0.18)',
       icon: 'help-circle-outline',
@@ -69,7 +69,7 @@ function Section({
   const accent = danger ? colors.severityDangerous : colors.accent;
 
   return (
-    <View style={[styles.section, { backgroundColor: colors.backgroundSecondary }]}>
+    <View style={[styles.section, { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder }]}>
       <View style={styles.sectionHeader}>
         <Ionicons name={icon} size={17} color={accent} />
         <Text style={[Typography.captionBold, { color: colors.textSecondary }]}>
@@ -120,7 +120,7 @@ export function InteractionResultCard({ interaction }: Props) {
               {interaction.title}
             </Text>
             <Text style={[Typography.bodyBold, { color: risk.color }]}>
-              Risk level: {risk.label}
+              Risikostufe: {risk.label}
             </Text>
           </View>
         </View>
@@ -129,11 +129,11 @@ export function InteractionResultCard({ interaction }: Props) {
         </Text>
       </View>
 
-      <Section title="Key risk mechanisms" icon="git-network-outline">
+      <Section title="Risikomechanismen" icon="git-network-outline">
         <BulletList items={interaction.mechanisms} />
       </Section>
 
-      <Section title="Safer-use notes" icon="shield-checkmark-outline">
+      <Section title="Safer-Use-Hinweise" icon="shield-checkmark-outline">
         <BulletList items={interaction.saferUseNotes} />
       </Section>
 
@@ -141,7 +141,7 @@ export function InteractionResultCard({ interaction }: Props) {
         <BulletList items={interaction.redFlags} danger />
       </Section>
 
-      <Section title="Evidence / source placeholder" icon="document-text-outline">
+      <Section title="Evidenz / Quellen-Platzhalter" icon="document-text-outline">
         <Text style={[Typography.bodyBold, { color: colors.textPrimary }]}>
           {interaction.evidenceNote}
         </Text>
@@ -150,7 +150,7 @@ export function InteractionResultCard({ interaction }: Props) {
         </Text>
       </Section>
 
-      <View style={[styles.disclaimer, { backgroundColor: colors.backgroundSecondary }]}>
+      <View style={[styles.disclaimer, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
         <Ionicons name="information-circle-outline" size={18} color={colors.accent} />
         <Text style={[Typography.caption, { color: colors.textSecondary, flex: 1 }]}>
           Informations- und Harm-Reduction-Tool. Keine medizinische Beratung.
@@ -180,11 +180,12 @@ function DetailButton({ name, slug }: { name: string; slug: string }) {
       style={({ pressed }) => [
         styles.ctaButton,
         {
-          backgroundColor: pressed ? colors.backgroundTertiary : colors.backgroundSecondary,
+          backgroundColor: pressed ? colors.backgroundTertiary : colors.backgroundElevated,
+          borderColor: colors.cardBorder,
         },
       ]}>
       <Text style={[Typography.bodyBold, { color: colors.accent }]}>
-        Mehr ueber {name}
+        Mehr über {name}
       </Text>
       <Ionicons name="chevron-forward" size={16} color={colors.accent} />
     </Pressable>
@@ -193,12 +194,15 @@ function DetailButton({ name, slug }: { name: string; slug: string }) {
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: Spacing.page,
     gap: Spacing.lg,
   },
   hero: {
     padding: Spacing.lg,
-    borderRadius: Radius.lg,
+    borderRadius: Radius.xl,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(255,255,255,0.10)',
+    ...Elevation.subtle,
   },
   heroTop: {
     flexDirection: 'row',
@@ -220,7 +224,8 @@ const styles = StyleSheet.create({
   },
   section: {
     padding: Spacing.lg,
-    borderRadius: Radius.lg,
+    borderRadius: Radius.xl,
+    borderWidth: StyleSheet.hairlineWidth,
     gap: Spacing.md,
   },
   sectionHeader: {
@@ -250,7 +255,8 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: Spacing.sm,
     padding: Spacing.md,
-    borderRadius: Radius.md,
+    borderRadius: Radius.lg,
+    borderWidth: StyleSheet.hairlineWidth,
   },
   ctaSection: {
     borderTopWidth: StyleSheet.hairlineWidth,
@@ -262,6 +268,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: Spacing.md,
-    borderRadius: Radius.md,
+    borderRadius: Radius.lg,
+    borderWidth: StyleSheet.hairlineWidth,
   },
 });

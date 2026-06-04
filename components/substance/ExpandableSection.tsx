@@ -11,7 +11,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import * as Haptics from 'expo-haptics';
 
 import { useThemeColors } from '@/hooks/use-theme';
-import { Typography, Spacing } from '@/constants/theme';
+import { Elevation, Radius, Typography, Spacing } from '@/constants/theme';
 
 interface Props {
   title: string;
@@ -69,7 +69,7 @@ export function ExpandableSection({ title, badge, children, hidden }: Props) {
   if (hidden) return null;
 
   return (
-    <View style={[styles.container, { borderBottomColor: colors.separator }]}>
+    <View style={[styles.container, { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder }]}>
       <Pressable
         onPress={toggle}
         style={styles.header}
@@ -100,7 +100,12 @@ export function ExpandableSection({ title, badge, children, hidden }: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    borderBottomWidth: StyleSheet.hairlineWidth,
+    marginHorizontal: Spacing.page,
+    marginTop: Spacing.md,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: Radius.xl,
+    overflow: 'hidden',
+    ...Elevation.subtle,
   },
   header: {
     flexDirection: 'row',

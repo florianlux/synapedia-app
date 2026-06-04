@@ -64,6 +64,7 @@ export function InteractionsPreviewSection({ interactions }: Props) {
                 backgroundColor: pressed
                   ? colors.backgroundTertiary
                   : colors.backgroundSecondary,
+                borderColor: colors.border,
               },
             ]}>
             <View style={[styles.dot, { backgroundColor: severityColor }]} />
@@ -103,7 +104,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: Spacing.md,
-    borderRadius: Radius.md,
+    borderRadius: Radius.lg,
+    borderWidth: StyleSheet.hairlineWidth,
   },
   dot: {
     width: 10,
