@@ -161,14 +161,21 @@ export function normalizeInteractionPair(
     id: makeInteractionId(slugA, slugB),
     substanceA: slugA,
     substanceB: slugB,
+    title: `${slugA} + ${slugB}`,
+    riskLevel: 'unknown',
     severity: normalizeSeverity(pair.severity),
     summary: pair.summary ?? '',
     mechanisms,
     riskFactors,
+    saferUseNotes: harmReduction.length
+      ? harmReduction
+      : ['Keine kuratierten lokalen Safer-Use-Hinweise vorhanden.'],
+    redFlags: ['Bei schweren oder ungewoehnlichen Symptomen medizinische Hilfe holen.'],
     evidence: evidenceLevel,
     evidenceNote: pair.sources?.references?.length
       ? `${pair.sources.count} Quellen verfügbar.`
       : 'Basierend auf pharmakologischer Analyse.',
+    sourceNote: 'API-basierte Bewertung; lokale Quellenkuratierung ausstehend.',
   };
 }
 

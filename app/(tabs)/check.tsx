@@ -1,10 +1,11 @@
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { useThemeColors } from '@/hooks/use-theme';
 import { Typography, Spacing, Radius } from '@/constants/theme';
+import { POPULAR_INTERACTION_PAIRS } from '@/constants/interactions';
 import { useInteraction } from '@/hooks/use-interaction';
 import { SubstancePicker } from '@/components/interaction/SubstancePicker';
 import { SelectedSubstanceChips } from '@/components/interaction/SelectedSubstanceChips';
@@ -50,6 +51,10 @@ export default function CheckScreen() {
     });
   }, []);
 
+  const handlePopularPair = useCallback((slugA: string, slugB: string) => {
+    setSelected([slugA, slugB]);
+  }, []);
+
   // ---- Exclude already-selected slugs from picker ----
   const excludeSlugs = selected.filter((s): s is string => s !== null);
 
@@ -91,6 +96,29 @@ export default function CheckScreen() {
         style={styles.resultScroll}
         contentContainerStyle={styles.resultContent}
         showsVerticalScrollIndicator={false}>
+        <View style={styles.popularSection}>
+          <Text style={[Typography.captionBold, { color: colors.textSecondary }]}>
+            Popular combinations
+          </Text>
+          <View style={styles.popularGrid}>
+            {POPULAR_INTERACTION_PAIRS.map((pair) => (
+              <Pressable
+                key={pair.label}
+                onPress={() => handlePopularPair(pair.slugs[0], pair.slugs[1])}
+                style={({ pressed }) => [
+                  styles.popularChip,
+                  {
+                    backgroundColor: pressed ? colors.backgroundTertiary : colors.backgroundSecondary,
+                  },
+                ]}>
+                <Text style={[Typography.chip, { color: colors.textPrimary }]}>
+                  {pair.label}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+
         {/* Empty state */}
         {filledCount === 0 && (
           <View style={styles.emptyState}>
@@ -199,7 +227,7 @@ export default function CheckScreen() {
                 Typography.bodyBold,
                 { color: colors.textPrimary, marginTop: Spacing.md },
               ]}>
-              No data available
+              Keine kuratierte Bewertung vorhanden
             </Text>
             <Text
               style={[
@@ -210,7 +238,7 @@ export default function CheckScreen() {
                   marginTop: Spacing.sm,
                 },
               ]}>
-              This shell has no example data for that combination yet.
+              Fuer diese Kombination liegt lokal noch keine kuratierte Bewertung vor.
             </Text>
             <View
               style={[
@@ -231,7 +259,7 @@ export default function CheckScreen() {
                     marginLeft: Spacing.sm,
                   },
                 ]}>
-                Missing data does not mean the combination is safe.
+                Absence of data does not mean safe. Mischkonsum kann auch ohne kuratierte Bewertung riskant sein.
               </Text>
             </View>
           </View>
@@ -275,6 +303,23 @@ const styles = StyleSheet.create({
   },
   resultContent: {
     paddingBottom: Spacing.xxxl,
+  },
+  popularSection: {
+    paddingHorizontal: Spacing.lg,
+    paddingBottom: Spacing.lg,
+    gap: Spacing.sm,
+  },
+  popularGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.sm,
+  },
+  popularChip: {
+    minHeight: 34,
+    borderRadius: Radius.full,
+    paddingHorizontal: Spacing.md,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   emptyState: {
     alignItems: 'center',
