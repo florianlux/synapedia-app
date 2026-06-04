@@ -68,6 +68,8 @@ export function PremiumCard({
         {
           backgroundColor: pressed ? colors.backgroundTertiary : colors.backgroundElevated,
           borderColor: colors.cardBorder,
+          shadowColor: colors.accent,
+          shadowOpacity: pressed ? 0.16 : 0.08,
           transform: [{ scale: pressed ? 0.995 : 1 }],
         },
         style,

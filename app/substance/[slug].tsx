@@ -16,6 +16,8 @@ import { DosageSection } from '@/components/substance/DosageSection';
 import { DurationSection } from '@/components/substance/DurationSection';
 import { InteractionsPreviewSection } from '@/components/substance/InteractionsPreviewSection';
 import { StickyBottomBar } from '@/components/substance/StickyBottomBar';
+import { RiskProfileBars } from '@/components/visual/RiskProfileBars';
+import { DurationTimeline } from '@/components/visual/DurationTimeline';
 
 // ---------------------------------------------------------------------------
 // Screen
@@ -87,7 +89,7 @@ export default function SubstanceDetailScreen() {
       <View
         style={[
           styles.navBar,
-          { paddingTop: insets.top, borderBottomColor: colors.separator },
+          { paddingTop: insets.top, backgroundColor: colors.backgroundGlass, borderBottomColor: colors.separator },
         ]}>
         <Pressable onPress={() => router.back()} hitSlop={8} style={styles.navButton}>
           <Ionicons name="chevron-back" size={28} color={colors.accent} />
@@ -127,6 +129,9 @@ export default function SubstanceDetailScreen() {
 
         {/* Z3: Quick Facts */}
         <QuickFactsStrip quickFacts={substance.quickFacts} />
+
+        <RiskProfileBars substance={substance} />
+        <DurationTimeline quickFacts={substance.quickFacts} />
 
         <DisclaimerCard />
 
@@ -207,7 +212,7 @@ function DisclaimerCard() {
   const colors = useThemeColors();
 
   return (
-    <View style={[inlineStyles.disclaimerCard, { backgroundColor: colors.backgroundSecondary }]}>
+    <View style={[inlineStyles.disclaimerCard, { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder }]}>
       <Ionicons name="information-circle-outline" size={18} color={colors.accent} />
       <Text style={[Typography.caption, { color: colors.textSecondary, flex: 1 }]}>
         Informations- und Harm-Reduction-Tool. Keine medizinische Beratung.
@@ -248,7 +253,7 @@ function InfoTile({ label, value }: { label: string; value: string }) {
   const colors = useThemeColors();
 
   return (
-    <View style={[inlineStyles.infoTile, { backgroundColor: colors.backgroundSecondary }]}>
+    <View style={[inlineStyles.infoTile, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
       <Text style={[Typography.quickFactLabel, { color: colors.textTertiary }]}>
         {label}
       </Text>
@@ -343,7 +348,7 @@ function RisksContent({
         key={risk.name}
         style={[
           inlineStyles.riskCard,
-          { backgroundColor: colors.backgroundSecondary },
+          { backgroundColor: colors.backgroundSecondary, borderColor: colors.border },
         ]}>
         <View style={inlineStyles.riskCardHeader}>
           <View
@@ -414,7 +419,7 @@ function SaferUseContent({
           key={tip.title}
           style={[
             inlineStyles.saferUseCard,
-            { backgroundColor: colors.backgroundSecondary },
+            { backgroundColor: colors.backgroundSecondary, borderColor: colors.border },
           ]}>
           <Ionicons
             name="shield-checkmark"
@@ -538,6 +543,7 @@ const inlineStyles = StyleSheet.create({
     marginBottom: Spacing.sm,
     padding: Spacing.md,
     borderRadius: Radius.md,
+    borderWidth: StyleSheet.hairlineWidth,
   },
   overviewGrid: {
     flexDirection: 'row',
@@ -549,6 +555,7 @@ const inlineStyles = StyleSheet.create({
     padding: Spacing.md,
     borderRadius: Radius.md,
     justifyContent: 'center',
+    borderWidth: StyleSheet.hairlineWidth,
   },
   effectRow: {
     flexDirection: 'row',
@@ -558,6 +565,7 @@ const inlineStyles = StyleSheet.create({
   riskCard: {
     padding: Spacing.md,
     borderRadius: Radius.md,
+    borderWidth: StyleSheet.hairlineWidth,
   },
   riskCardHeader: {
     flexDirection: 'row',
@@ -574,6 +582,7 @@ const inlineStyles = StyleSheet.create({
     alignItems: 'flex-start',
     padding: Spacing.md,
     borderRadius: Radius.md,
+    borderWidth: StyleSheet.hairlineWidth,
   },
   bottomDisclaimer: {
     paddingHorizontal: Spacing.page,

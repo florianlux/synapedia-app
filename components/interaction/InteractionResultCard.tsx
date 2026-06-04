@@ -7,6 +7,7 @@ import { Elevation, Radius, Spacing, Typography, type ThemeColors } from '@/cons
 import { SUBSTANCE_LIST, SUBSTANCE_NAME_MAP } from '@/constants/interactions';
 import { useThemeColors } from '@/hooks/use-theme';
 import type { InteractionDetail, MixCheckRiskLevel } from '@/types/interaction';
+import { InteractionMiniGraph } from '@/components/visual/InteractionMiniGraph';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -110,7 +111,7 @@ export function InteractionResultCard({ interaction }: Props) {
 
   return (
     <View style={styles.container}>
-      <View style={[styles.hero, { backgroundColor: risk.bg }]}>
+      <View style={[styles.hero, { backgroundColor: risk.bg, borderColor: `${risk.color}38`, shadowColor: risk.color }]}>
         <View style={styles.heroTop}>
           <View style={[styles.riskIcon, { backgroundColor: risk.color }]}>
             <Ionicons name={risk.icon} size={20} color="#FFFFFF" />
@@ -128,6 +129,14 @@ export function InteractionResultCard({ interaction }: Props) {
           {interaction.summary}
         </Text>
       </View>
+
+      <InteractionMiniGraph
+        substanceA={nameA}
+        substanceB={nameB}
+        riskLevel={interaction.riskLevel}
+        riskLabel={risk.label}
+        mechanisms={interaction.mechanisms}
+      />
 
       <Section title="Risikomechanismen" icon="git-network-outline">
         <BulletList items={interaction.mechanisms} />
@@ -150,7 +159,7 @@ export function InteractionResultCard({ interaction }: Props) {
         </Text>
       </Section>
 
-      <View style={[styles.disclaimer, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
+      <View style={[styles.disclaimer, { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder }]}>
         <Ionicons name="information-circle-outline" size={18} color={colors.accent} />
         <Text style={[Typography.caption, { color: colors.textSecondary, flex: 1 }]}>
           Informations- und Harm-Reduction-Tool. Keine medizinische Beratung.
@@ -201,7 +210,6 @@ const styles = StyleSheet.create({
     padding: Spacing.lg,
     borderRadius: Radius.xl,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: 'rgba(255,255,255,0.10)',
     ...Elevation.subtle,
   },
   heroTop: {

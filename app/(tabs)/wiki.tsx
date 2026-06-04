@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-import { Radius, Spacing, Typography, type ThemeColors } from '@/constants/theme';
+import { Elevation, Radius, Spacing, Typography, type ThemeColors } from '@/constants/theme';
 import { useSubstances, type LocalSubstanceSummary } from '@/hooks/use-substances';
 import { useThemeColors } from '@/hooks/use-theme';
 import type { RiskLevel } from '@/types/substance';
@@ -101,6 +101,7 @@ function SubstanceCard({ item }: { item: LocalSubstanceSummary }) {
         {
           backgroundColor: pressed ? colors.backgroundTertiary : colors.backgroundElevated,
           borderColor: colors.cardBorder,
+          shadowColor: colors.accent,
         },
       ]}>
       <View style={styles.cardHeader}>
@@ -169,6 +170,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.xl,
     borderWidth: StyleSheet.hairlineWidth,
     gap: Spacing.md,
+    ...Elevation.subtle,
   },
   cardHeader: {
     flexDirection: 'column',

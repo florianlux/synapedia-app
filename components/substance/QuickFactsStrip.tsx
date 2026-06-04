@@ -19,7 +19,7 @@ export function QuickFactsStrip({ quickFacts }: Props) {
   const colors = useThemeColors();
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
+    <View style={[styles.container, { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder }]}>
       {COLUMNS.map((col, index) => (
         <View
           key={col.key}

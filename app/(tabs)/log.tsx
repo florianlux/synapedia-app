@@ -198,7 +198,8 @@ export default function LogScreen() {
                 style={({ pressed }) => [
                   styles.suggestionChip,
                   {
-                    backgroundColor: pressed ? colors.accentLight : colors.backgroundTertiary,
+                    backgroundColor: pressed ? colors.accentLight : colors.backgroundSecondary,
+                    borderColor: pressed ? `${colors.accent}55` : colors.border,
                   },
                 ]}>
                 <Text style={[Typography.chip, { color: colors.textSecondary }]}>
@@ -274,7 +275,7 @@ export default function LogScreen() {
           </Pressable>
         </View>
 
-        <View style={[styles.localNote, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
+        <View style={[styles.localNote, { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder }]}>
           <Ionicons name="lock-closed-outline" size={18} color={colors.accent} />
           <Text style={[Typography.caption, styles.localNoteText, { color: colors.textSecondary }]}>
             Konsumprotokoll zur Selbstreflexion und Dokumentation. Keine medizinische Beratung.
@@ -379,6 +380,7 @@ function ChipRow<T extends string>({
             styles.chip,
             {
               backgroundColor: selected === item ? colors.accent : colors.backgroundTertiary,
+              borderColor: selected === item ? `${colors.accent}75` : colors.border,
             },
           ]}>
           <Text style={[Typography.chip, { color: selected === item ? '#FFFFFF' : colors.textSecondary }]}>
@@ -487,6 +489,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: StyleSheet.hairlineWidth,
   },
   chipRow: {
     flexDirection: 'row',
@@ -499,6 +502,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: StyleSheet.hairlineWidth,
   },
   primaryButton: {
     minHeight: 46,

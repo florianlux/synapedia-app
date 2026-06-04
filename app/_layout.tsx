@@ -17,7 +17,7 @@ export default function RootLayout() {
           <Stack.Screen name="substance/[slug]" />
           <Stack.Screen name="guides/[slug]" />
         </Stack>
-        <StatusBar style="auto" />
+        <StatusBar style="light" />
       </ThemeProvider>
     </AppProvider>
   );

@@ -14,6 +14,10 @@ export function HeroHeader({ substance }: Props) {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder }]}>
+      <View pointerEvents="none" style={styles.background}>
+        <View style={[styles.signalLine, { backgroundColor: colors.accent }]} />
+        <View style={[styles.glow, { backgroundColor: colors.accent }]} />
+      </View>
       <Text style={[Typography.heroTitle, { color: colors.textPrimary }]}>
         {substance.name}
       </Text>
@@ -28,7 +32,7 @@ export function HeroHeader({ substance }: Props) {
         {substance.categories.map((cat) => (
           <View
             key={cat}
-            style={[styles.chip, { backgroundColor: colors.backgroundSecondary }]}>
+            style={[styles.chip, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
             <Text style={[Typography.chip, { color: colors.textSecondary }]}>
               {cat}
             </Text>
@@ -46,6 +50,8 @@ export function HeroHeader({ substance }: Props) {
 
 const styles = StyleSheet.create({
   container: {
+    position: 'relative',
+    overflow: 'hidden',
     marginHorizontal: Spacing.page,
     marginTop: Spacing.lg,
     paddingHorizontal: Spacing.lg,
@@ -54,6 +60,26 @@ const styles = StyleSheet.create({
     borderRadius: Radius.xl,
     borderWidth: StyleSheet.hairlineWidth,
     ...Elevation.subtle,
+  },
+  background: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  signalLine: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 2,
+    opacity: 0.65,
+  },
+  glow: {
+    position: 'absolute',
+    right: -52,
+    top: -44,
+    width: 180,
+    height: 120,
+    borderRadius: Radius.full,
+    opacity: 0.12,
   },
   chips: {
     flexDirection: 'row',
@@ -65,5 +91,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.xs,
     borderRadius: Radius.full,
+    borderWidth: StyleSheet.hairlineWidth,
   },
 });

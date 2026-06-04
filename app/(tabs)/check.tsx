@@ -109,6 +109,7 @@ export default function CheckScreen() {
                   styles.popularChip,
                   {
                     backgroundColor: pressed ? colors.backgroundTertiary : colors.backgroundSecondary,
+                    borderColor: pressed ? `${colors.accent}55` : colors.border,
                   },
                 ]}>
                 <Text style={[Typography.chip, { color: colors.textPrimary }]}>
@@ -182,7 +183,7 @@ export default function CheckScreen() {
           <View
             style={[
               styles.noDataCard,
-              { backgroundColor: colors.backgroundSecondary },
+              { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder },
             ]}>
             <Ionicons
               name="alert-circle-outline"
@@ -215,7 +216,7 @@ export default function CheckScreen() {
           <View
             style={[
               styles.noDataCard,
-              { backgroundColor: colors.backgroundSecondary },
+              { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder },
             ]}>
             <Ionicons
               name="information-circle-outline"
@@ -321,7 +322,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: 'rgba(255,255,255,0.08)',
   },
   emptyState: {
     alignItems: 'center',
@@ -334,7 +334,6 @@ const styles = StyleSheet.create({
     borderRadius: Radius.xl,
     alignItems: 'center',
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: 'rgba(255,255,255,0.08)',
     ...Elevation.subtle,
   },
   warningBanner: {

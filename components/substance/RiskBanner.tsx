@@ -36,7 +36,7 @@ export function RiskBanner({ riskLevel, riskLabel, riskChips }: Props) {
   const riskColor = getRiskColor(riskLevel, colors);
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
+    <View style={[styles.container, { backgroundColor: `${riskColor}10`, borderColor: `${riskColor}38` }]}>
       <View style={styles.header}>
         <Ionicons name={getRiskIcon(riskLevel)} size={20} color={riskColor} />
         <Text
@@ -54,7 +54,7 @@ export function RiskBanner({ riskLevel, riskLabel, riskChips }: Props) {
               key={chip}
               style={[
                 styles.chip,
-                { backgroundColor: colors.backgroundTertiary },
+                { backgroundColor: colors.backgroundSecondary, borderColor: colors.border },
               ]}>
               <Text style={[Typography.caption, { color: colors.textSecondary }]}>
                 {chip}
@@ -88,5 +88,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.sm,
     paddingVertical: 3,
     borderRadius: Radius.sm,
+    borderWidth: StyleSheet.hairlineWidth,
   },
 });

@@ -31,6 +31,7 @@ export default function GuidesScreen() {
                 {
                   backgroundColor: pressed ? colors.backgroundTertiary : colors.backgroundElevated,
                   borderColor: colors.cardBorder,
+                  shadowColor: guide.accent,
                 },
               ]}>
               <View style={[styles.iconBox, { backgroundColor: `${guide.accent}20` }]}>

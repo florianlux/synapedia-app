@@ -80,8 +80,8 @@ export function ExpandableSection({ title, badge, children, hidden }: Props) {
             {title}
           </Text>
           {badge !== undefined && badge > 0 && (
-            <View style={[styles.badge, { backgroundColor: colors.accent }]}>
-              <Text style={styles.badgeText}>{badge}</Text>
+            <View style={[styles.badge, { backgroundColor: colors.accentLight, borderColor: `${colors.accent}45` }]}>
+              <Text style={[styles.badgeText, { color: colors.accent }]}>{badge}</Text>
             </View>
           )}
         </View>
@@ -128,9 +128,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 6,
+    borderWidth: StyleSheet.hairlineWidth,
   },
   badgeText: {
-    color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '600',
   },

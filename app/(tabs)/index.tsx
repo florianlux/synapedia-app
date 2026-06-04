@@ -14,6 +14,7 @@ import {
   Screen,
   SectionHeader,
 } from '@/components/ui/premium';
+import { SynapediaGraphCard } from '@/components/visual/SynapediaGraphCard';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -59,6 +60,17 @@ const SAFETY_NOTE =
 
 const FEATURED_SUBSTANCES = ['mdma', 'lsd', 'ketamin', 'kokain', 'diazepam'];
 
+const HERO_NODES = [
+  { label: 'Wiki', left: '52%', top: 58, tint: '#36A3FF' },
+  { label: 'Check', left: '72%', top: 92, tint: '#FFB340' },
+  { label: '', left: '64%', top: 28, tint: '#7AE4FF' },
+] as const;
+
+const HERO_LINES = [
+  { left: '59%', top: 54, width: '20%', rotate: '28deg', tint: '#36A3FF' },
+  { left: '57%', top: 86, width: '26%', rotate: '-11deg', tint: '#FFB340' },
+] as const;
+
 function getRiskColor(level: RiskLevel, colors: ThemeColors): string {
   const map: Record<RiskLevel, string> = {
     low: colors.riskLow,
@@ -88,18 +100,58 @@ export default function HomeScreen() {
         ]}>
         <View pointerEvents="none" style={styles.heroBackground}>
           <View style={[styles.heroWash, { backgroundColor: colors.accentLight }]} />
+          <View style={[styles.heroRiskWash, { backgroundColor: colors.severityRisky }]} />
           <View style={[styles.heroSignalLine, { backgroundColor: colors.accent }]} />
+          <View style={styles.heroGraph}>
+            {HERO_LINES.map((line, index) => (
+              <View
+                key={`${line.tint}-${index}`}
+                style={[
+                  styles.heroGraphLine,
+                  {
+                    left: line.left,
+                    top: line.top,
+                    width: line.width,
+                    backgroundColor: line.tint,
+                    transform: [{ rotate: line.rotate }],
+                  },
+                ]}
+              />
+            ))}
+            {HERO_NODES.map((node) => (
+              <View
+                key={`${node.label}-${node.top}`}
+                style={[
+                  styles.heroGraphNode,
+                  {
+                    left: node.left,
+                    top: node.top,
+                    backgroundColor: `${node.tint}0D`,
+                    borderColor: `${node.tint}32`,
+                  },
+                ]}>
+                {node.label.length > 0 && (
+                  <Text
+                    style={[Typography.quickFactLabel, styles.heroNodeLabel, { color: `${node.tint}DD` }]}
+                    numberOfLines={1}
+                    adjustsFontSizeToFit>
+                    {node.label}
+                  </Text>
+                )}
+              </View>
+            ))}
+          </View>
         </View>
 
         <View style={styles.heroTop}>
-          <View style={[styles.mark, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
+          <View style={[styles.mark, { backgroundColor: colors.backgroundSecondary, borderColor: `${colors.accent}35` }]}>
             <View style={[styles.markInner, { backgroundColor: colors.accentLight }]}>
               <Ionicons name="pulse-outline" size={28} color={colors.accent} />
             </View>
           </View>
           <View style={styles.heroStatus}>
-            <HeroBadge label="Lokales MVP" icon="phone-portrait-outline" tint={colors.accent} />
-            <HeroBadge label="Keine medizinische Beratung" icon="shield-outline" tint={colors.riskModerate} />
+            <HeroBadge label="Knowledge Graph" icon="git-network-outline" tint={colors.accent} />
+            <HeroBadge label="Harm Reduction" icon="shield-outline" tint={colors.riskModerate} />
           </View>
         </View>
 
@@ -107,12 +159,15 @@ export default function HomeScreen() {
           Synapedia
         </Text>
         <Text style={[Typography.body, styles.subtitle, { color: colors.textSecondary }]}>
-          Mobiles Harm-Reduction-Wissen für Substanzen, Mischkonsum, Konsumtagebuch und Recovery.
+          Pharmakologie-Wissen als ruhiges Netzwerk: Substanzen, Interaktionen, Risiken und Recovery-Kontext.
         </Text>
       </View>
 
       <View style={styles.firstSectionHeader}>
         <Text style={[Typography.sectionTitle, { color: colors.textPrimary }]}>Schnellzugriff</Text>
+        <Text style={[Typography.caption, { color: colors.textSecondary }]}>
+          Module als Werkzeuge, nicht als Startpunkt.
+        </Text>
       </View>
       <View style={styles.actionList}>
         {QUICK_ACTIONS.map((action) => (
@@ -157,6 +212,10 @@ export default function HomeScreen() {
           </Text>
         </View>
       </PremiumCard>
+
+      <View style={styles.graphSection}>
+        <SynapediaGraphCard />
+      </View>
 
       <SectionHeader
         title="Schnell nachschlagen"
@@ -219,6 +278,7 @@ const styles = StyleSheet.create({
     padding: Spacing.lg,
     paddingTop: Spacing.lg,
     paddingBottom: Spacing.xl,
+    minHeight: 260,
     ...Elevation.card,
   },
   heroBackground: {
@@ -226,13 +286,22 @@ const styles = StyleSheet.create({
   },
   heroWash: {
     position: 'absolute',
-    top: -42,
-    right: -34,
-    width: 220,
-    height: 132,
-    borderRadius: Radius.xl,
-    opacity: 0.42,
+    top: -58,
+    right: -58,
+    width: 250,
+    height: 156,
+    borderRadius: Radius.full,
+    opacity: 0.36,
     transform: [{ rotate: '-10deg' }],
+  },
+  heroRiskWash: {
+    position: 'absolute',
+    bottom: -72,
+    left: -52,
+    width: 170,
+    height: 140,
+    borderRadius: Radius.full,
+    opacity: 0.06,
   },
   heroSignalLine: {
     position: 'absolute',
@@ -240,7 +309,7 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0,
     height: 2,
-    opacity: 0.8,
+    opacity: 0.56,
   },
   heroTop: {
     flexDirection: 'row',
@@ -288,9 +357,36 @@ const styles = StyleSheet.create({
   subtitle: {
     maxWidth: 430,
   },
+  heroGraph: {
+    ...StyleSheet.absoluteFillObject,
+    opacity: 0.82,
+  },
+  heroGraphLine: {
+    position: 'absolute',
+    height: 1,
+    opacity: 0.2,
+  },
+  heroGraphNode: {
+    position: 'absolute',
+    width: 52,
+    height: 32,
+    borderRadius: Radius.full,
+    borderWidth: StyleSheet.hairlineWidth,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.xs,
+  },
+  heroNodeLabel: {
+    fontSize: 10,
+    textAlign: 'center',
+  },
+  graphSection: {
+    marginTop: Spacing.xl,
+  },
   firstSectionHeader: {
     marginTop: Spacing.xl,
     marginBottom: Spacing.md,
+    gap: Spacing.xs,
   },
   actionList: {
     gap: Spacing.sm,
@@ -298,11 +394,11 @@ const styles = StyleSheet.create({
   actionCard: {
     position: 'relative',
     overflow: 'hidden',
-    minHeight: 88,
+    minHeight: 68,
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.md,
-    paddingVertical: Spacing.md,
+    paddingVertical: Spacing.sm,
   },
   actionAccent: {
     position: 'absolute',
@@ -315,9 +411,9 @@ const styles = StyleSheet.create({
     opacity: 0.9,
   },
   actionIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: Radius.lg,
+    width: 38,
+    height: 38,
+    borderRadius: Radius.md,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -41,85 +41,85 @@ export const Radius = {
 export const Colors = {
   light: {
     // Backgrounds
-    background: '#FFFFFF',
-    backgroundSecondary: '#F5F5F7',
-    backgroundTertiary: '#EBEBF0',
-    backgroundElevated: '#FFFFFF',
-    backgroundGlass: 'rgba(255,255,255,0.82)',
+    background: '#030406',
+    backgroundSecondary: '#080D14',
+    backgroundTertiary: '#101723',
+    backgroundElevated: '#070B11',
+    backgroundGlass: 'rgba(3,6,10,0.92)',
 
     // Text
-    textPrimary: '#1C1C1E',
-    textSecondary: '#6B6B80',
-    textTertiary: '#AEAEB2',
+    textPrimary: '#F7FAFF',
+    textSecondary: '#B2BDCD',
+    textTertiary: '#667386',
 
     // Accent
-    accent: '#007AFF',
-    accentLight: '#E5F1FF',
+    accent: '#36A3FF',
+    accentLight: 'rgba(54,163,255,0.16)',
 
     // Semantic
-    separator: 'rgba(60,60,67,0.12)',
-    border: 'rgba(60,60,67,0.14)',
-    cardBorder: 'rgba(60,60,67,0.10)',
+    separator: 'rgba(119,154,195,0.14)',
+    border: 'rgba(127,178,255,0.13)',
+    cardBorder: 'rgba(179,213,255,0.10)',
 
     // Risk Levels
-    riskLow: '#34C759',
-    riskModerate: '#FF9500',
-    riskHigh: '#FF3B30',
-    riskExtreme: '#AF1A2D',
-    riskUnknown: '#8E8E93',
+    riskLow: '#30D158',
+    riskModerate: '#FFB340',
+    riskHigh: '#FF5A52',
+    riskExtreme: '#D63A4A',
+    riskUnknown: '#7A8494',
 
     // Severity (Interactions)
-    severityLethal: '#AF1A2D',
-    severityDangerous: '#FF3B30',
-    severityRisky: '#FF9500',
-    severityCaution: '#FFCC00',
+    severityLethal: '#D63A4A',
+    severityDangerous: '#FF5A52',
+    severityRisky: '#FFB340',
+    severityCaution: '#FFD60A',
     severityLowRisk: '#34C759',
 
     // Effects
     effectPositive: '#34C759',
-    effectNeutral: '#8E8E93',
-    effectNegative: '#FF3B30',
+    effectNeutral: '#7A8494',
+    effectNegative: '#FF5A52',
 
     // Tab Bar
-    tabIconDefault: '#8E8E93',
-    tabIconSelected: '#007AFF',
+    tabIconDefault: '#687486',
+    tabIconSelected: '#66B8FF',
   },
   dark: {
-    background: '#050608',
-    backgroundSecondary: '#12151B',
-    backgroundTertiary: '#1E2430',
-    backgroundElevated: '#151A22',
-    backgroundGlass: 'rgba(17,22,31,0.88)',
+    background: '#030406',
+    backgroundSecondary: '#080D14',
+    backgroundTertiary: '#101723',
+    backgroundElevated: '#070B11',
+    backgroundGlass: 'rgba(3,6,10,0.92)',
 
-    textPrimary: '#FFFFFF',
-    textSecondary: '#B4BBC8',
-    textTertiary: '#747D8D',
+    textPrimary: '#F7FAFF',
+    textSecondary: '#B2BDCD',
+    textTertiary: '#667386',
 
-    accent: '#4DA3FF',
-    accentLight: 'rgba(77,163,255,0.16)',
+    accent: '#36A3FF',
+    accentLight: 'rgba(54,163,255,0.16)',
 
-    separator: 'rgba(132,142,158,0.20)',
-    border: 'rgba(132,142,158,0.16)',
-    cardBorder: 'rgba(255,255,255,0.07)',
+    separator: 'rgba(119,154,195,0.14)',
+    border: 'rgba(127,178,255,0.13)',
+    cardBorder: 'rgba(179,213,255,0.10)',
 
     riskLow: '#30D158',
-    riskModerate: '#FF9F0A',
-    riskHigh: '#FF453A',
+    riskModerate: '#FFB340',
+    riskHigh: '#FF5A52',
     riskExtreme: '#D63A4A',
-    riskUnknown: '#636366',
+    riskUnknown: '#7A8494',
 
     severityLethal: '#D63A4A',
-    severityDangerous: '#FF453A',
-    severityRisky: '#FF9F0A',
+    severityDangerous: '#FF5A52',
+    severityRisky: '#FFB340',
     severityCaution: '#FFD60A',
     severityLowRisk: '#30D158',
 
     effectPositive: '#30D158',
-    effectNeutral: '#636366',
-    effectNegative: '#FF453A',
+    effectNeutral: '#7A8494',
+    effectNegative: '#FF5A52',
 
-    tabIconDefault: '#636366',
-    tabIconSelected: '#4DA3FF',
+    tabIconDefault: '#687486',
+    tabIconSelected: '#66B8FF',
   },
 } as const;
 
