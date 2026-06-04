@@ -1,19 +1,173 @@
-import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  type KeyboardTypeOptions,
+} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
+import { SUBSTANCES } from '@/constants/mock-data';
 import { Radius, Spacing, Typography } from '@/constants/theme';
 import { useThemeColors } from '@/hooks/use-theme';
 
+const STORAGE_KEY = 'synapedia:dose-log:v1';
 const UNITS = ['mg', 'ug', 'g', 'ml'] as const;
-const ROUTES = ['oral', 'nasal', 'smoked', 'sublingual'] as const;
+const ROUTES = ['oral', 'nasal', 'smoked', 'sublingual', 'other'] as const;
+
+type DoseEntry = {
+  id: string;
+  substance: string;
+  dose?: string;
+  unit: (typeof UNITS)[number];
+  route: (typeof ROUTES)[number];
+  timestamp: string;
+  notes?: string;
+  mood?: string;
+  createdAt: string;
+};
+
+type FormState = {
+  substance: string;
+  dose: string;
+  unit: (typeof UNITS)[number];
+  route: (typeof ROUTES)[number];
+  timestamp: string;
+  notes: string;
+  mood: string;
+};
+
+function nowInputValue(): string {
+  return new Date().toISOString().slice(0, 16);
+}
+
+function initialForm(): FormState {
+  return {
+    substance: '',
+    dose: '',
+    unit: 'mg',
+    route: 'oral',
+    timestamp: nowInputValue(),
+    notes: '',
+    mood: '',
+  };
+}
+
+function validateForm(form: FormState): string | null {
+  if (!form.substance.trim()) return 'Substance is required.';
+  if (!form.timestamp.trim()) return 'Timestamp is required.';
+  if (form.dose.trim() && Number.isNaN(Number(form.dose.replace(',', '.')))) {
+    return 'Dose must be numeric when provided.';
+  }
+  return null;
+}
+
+function entryTime(entry: DoseEntry): number {
+  const parsed = Date.parse(entry.timestamp);
+  return Number.isNaN(parsed) ? Date.parse(entry.createdAt) : parsed;
+}
 
 export default function LogScreen() {
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
-  const [unit, setUnit] = useState<(typeof UNITS)[number]>('mg');
-  const [route, setRoute] = useState<(typeof ROUTES)[number]>('oral');
+  const [form, setForm] = useState<FormState>(() => initialForm());
+  const [entries, setEntries] = useState<DoseEntry[]>([]);
+  const [hydrated, setHydrated] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [exportMessage, setExportMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    AsyncStorage.getItem(STORAGE_KEY)
+      .then((value) => {
+        if (!mounted || !value) return;
+        const parsed = JSON.parse(value) as DoseEntry[];
+        if (Array.isArray(parsed)) setEntries(parsed);
+      })
+      .catch(() => {
+        if (mounted) setError('Could not load local log entries.');
+      })
+      .finally(() => {
+        if (mounted) setHydrated(true);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(entries)).catch(() => {
+      setError('Could not save local log entries.');
+    });
+  }, [entries, hydrated]);
+
+  const suggestions = useMemo(() => {
+    const term = form.substance.trim().toLowerCase();
+    const candidates = term
+      ? SUBSTANCES.filter((substance) => {
+          const haystack = [
+            substance.name,
+            substance.slug,
+            substance.primaryClass,
+            ...(substance.aliases ?? []),
+          ]
+            .filter(Boolean)
+            .join(' ')
+            .toLowerCase();
+          return haystack.includes(term);
+        })
+      : SUBSTANCES.slice(0, 6);
+
+    return candidates.slice(0, 6);
+  }, [form.substance]);
+
+  const sortedEntries = useMemo(
+    () => [...entries].sort((a, b) => entryTime(b) - entryTime(a)),
+    [entries],
+  );
+
+  function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
+    setForm((current) => ({ ...current, [key]: value }));
+    setError(null);
+    setExportMessage(null);
+  }
+
+  function addEntry() {
+    const validationError = validateForm(form);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    const entry: DoseEntry = {
+      id: `${Date.now()}`,
+      substance: form.substance.trim(),
+      dose: form.dose.trim() || undefined,
+      unit: form.unit,
+      route: form.route,
+      timestamp: form.timestamp.trim(),
+      notes: form.notes.trim() || undefined,
+      mood: form.mood.trim() || undefined,
+      createdAt: new Date().toISOString(),
+    };
+
+    setEntries((current) => [entry, ...current]);
+    setForm(initialForm());
+    setError(null);
+    setExportMessage(null);
+  }
+
+  function deleteEntry(id: string) {
+    setEntries((current) => current.filter((entry) => entry.id !== id));
+  }
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background, paddingTop: insets.top }]}>
@@ -21,66 +175,142 @@ export default function LogScreen() {
         <View style={styles.header}>
           <Text style={[Typography.heroTitle, { color: colors.textPrimary }]}>Dose Log</Text>
           <Text style={[Typography.body, styles.subtitle, { color: colors.textSecondary }]}>
-            Local-first logging shell for private dose notes. Saving is intentionally not wired yet.
+            Local-first entries for self-reflection and documentation. No account or sync required.
           </Text>
         </View>
 
         <View style={[styles.formCard, { backgroundColor: colors.backgroundSecondary }]}>
-          <Field label="Substance" placeholder="e.g. MDMA" />
-          <Field label="Dose" placeholder="e.g. 80" keyboardType="decimal-pad" />
+          <Field
+            label="Substance"
+            value={form.substance}
+            onChangeText={(value) => updateField('substance', value)}
+            placeholder="e.g. MDMA"
+          />
 
-          <View style={styles.group}>
-            <Text style={[Typography.captionBold, { color: colors.textSecondary }]}>Unit</Text>
-            <View style={styles.chipRow}>
-              {UNITS.map((item) => (
-                <Pressable
-                  key={item}
-                  onPress={() => setUnit(item)}
-                  style={[
-                    styles.chip,
-                    {
-                      backgroundColor: unit === item ? colors.accent : colors.backgroundTertiary,
-                    },
-                  ]}>
-                  <Text style={[Typography.chip, { color: unit === item ? '#FFFFFF' : colors.textSecondary }]}>
-                    {item}
-                  </Text>
-                </Pressable>
-              ))}
+          <View style={styles.suggestionRow}>
+            {suggestions.map((substance) => (
+              <Pressable
+                key={substance.slug}
+                onPress={() => updateField('substance', substance.name)}
+                style={({ pressed }) => [
+                  styles.suggestionChip,
+                  {
+                    backgroundColor: pressed ? colors.accentLight : colors.backgroundTertiary,
+                  },
+                ]}>
+                <Text style={[Typography.chip, { color: colors.textSecondary }]}>
+                  {substance.name}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+
+          <View style={styles.row}>
+            <View style={styles.rowField}>
+              <Field
+                label="Dose"
+                value={form.dose}
+                onChangeText={(value) => updateField('dose', value)}
+                placeholder="80"
+                keyboardType="decimal-pad"
+              />
+            </View>
+            <View style={styles.rowField}>
+              <Text style={[Typography.captionBold, { color: colors.textSecondary }]}>Unit</Text>
+              <ChipRow
+                items={UNITS}
+                selected={form.unit}
+                onSelect={(value) => updateField('unit', value)}
+              />
             </View>
           </View>
 
           <View style={styles.group}>
             <Text style={[Typography.captionBold, { color: colors.textSecondary }]}>Route</Text>
-            <View style={styles.chipRow}>
-              {ROUTES.map((item) => (
-                <Pressable
-                  key={item}
-                  onPress={() => setRoute(item)}
-                  style={[
-                    styles.chip,
-                    {
-                      backgroundColor: route === item ? colors.accent : colors.backgroundTertiary,
-                    },
-                  ]}>
-                  <Text style={[Typography.chip, { color: route === item ? '#FFFFFF' : colors.textSecondary }]}>
-                    {item}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
+            <ChipRow
+              items={ROUTES}
+              selected={form.route}
+              onSelect={(value) => updateField('route', value)}
+            />
           </View>
 
-          <Field label="Timestamp" placeholder="Now" />
-          <Field label="Notes" placeholder="Context, effects, reminders" multiline />
+          <Field
+            label="Timestamp"
+            value={form.timestamp}
+            onChangeText={(value) => updateField('timestamp', value)}
+            placeholder="2026-06-05T12:30"
+          />
+          <Field
+            label="Mood / condition"
+            value={form.mood}
+            onChangeText={(value) => updateField('mood', value)}
+            placeholder="e.g. calm, anxious, tired"
+          />
+          <Field
+            label="Notes"
+            value={form.notes}
+            onChangeText={(value) => updateField('notes', value)}
+            placeholder="Context, effects, reminders"
+            multiline
+          />
+
+          {error && (
+            <Text style={[Typography.captionBold, { color: colors.severityDangerous }]}>
+              {error}
+            </Text>
+          )}
+
+          <Pressable
+            onPress={addEntry}
+            style={({ pressed }) => [
+              styles.primaryButton,
+              { backgroundColor: pressed ? colors.tabIconSelected : colors.accent },
+            ]}>
+            <Ionicons name="add-circle-outline" size={18} color="#FFFFFF" />
+            <Text style={[Typography.bodyBold, { color: '#FFFFFF' }]}>Add entry</Text>
+          </Pressable>
         </View>
 
         <View style={[styles.localNote, { backgroundColor: colors.backgroundSecondary }]}>
           <Ionicons name="lock-closed-outline" size={18} color={colors.accent} />
           <Text style={[Typography.caption, styles.localNoteText, { color: colors.textSecondary }]}>
-            This screen is a UI placeholder only. No entries are stored or uploaded.
+            Konsumprotokoll zur Selbstreflexion und Dokumentation. Keine medizinische Beratung.
           </Text>
         </View>
+
+        <View style={styles.sectionHeader}>
+          <Text style={[Typography.sectionTitle, { color: colors.textPrimary }]}>Recent entries</Text>
+          <Pressable
+            onPress={() => setExportMessage('CSV-Export ist vorbereitet, aber noch nicht implementiert.')}
+            style={({ pressed }) => [
+              styles.exportButton,
+              { backgroundColor: pressed ? colors.backgroundTertiary : colors.backgroundSecondary },
+            ]}>
+            <Ionicons name="download-outline" size={16} color={colors.accent} />
+            <Text style={[Typography.chip, { color: colors.accent }]}>CSV-Export vorbereiten</Text>
+          </Pressable>
+        </View>
+
+        {exportMessage && (
+          <Text style={[Typography.caption, styles.exportMessage, { color: colors.textSecondary }]}>
+            {exportMessage}
+          </Text>
+        )}
+
+        {sortedEntries.length === 0 ? (
+          <View style={[styles.emptyCard, { backgroundColor: colors.backgroundSecondary }]}>
+            <Ionicons name="document-text-outline" size={34} color={colors.textTertiary} />
+            <Text style={[Typography.body, styles.emptyText, { color: colors.textSecondary }]}>
+              No dose entries yet.
+            </Text>
+          </View>
+        ) : (
+          <View style={styles.entryList}>
+            {sortedEntries.map((entry) => (
+              <EntryCard key={entry.id} entry={entry} onDelete={() => deleteEntry(entry.id)} />
+            ))}
+          </View>
+        )}
       </ScrollView>
     </View>
   );
@@ -88,13 +318,17 @@ export default function LogScreen() {
 
 function Field({
   label,
+  value,
+  onChangeText,
   placeholder,
   keyboardType,
   multiline,
 }: {
   label: string;
+  value: string;
+  onChangeText: (value: string) => void;
   placeholder: string;
-  keyboardType?: 'default' | 'decimal-pad';
+  keyboardType?: KeyboardTypeOptions;
   multiline?: boolean;
 }) {
   const colors = useThemeColors();
@@ -103,6 +337,8 @@ function Field({
     <View style={styles.group}>
       <Text style={[Typography.captionBold, { color: colors.textSecondary }]}>{label}</Text>
       <TextInput
+        value={value}
+        onChangeText={onChangeText}
         placeholder={placeholder}
         placeholderTextColor={colors.textTertiary}
         keyboardType={keyboardType}
@@ -115,6 +351,78 @@ function Field({
           { backgroundColor: colors.backgroundTertiary, color: colors.textPrimary },
         ]}
       />
+    </View>
+  );
+}
+
+function ChipRow<T extends string>({
+  items,
+  selected,
+  onSelect,
+}: {
+  items: readonly T[];
+  selected: T;
+  onSelect: (value: T) => void;
+}) {
+  const colors = useThemeColors();
+
+  return (
+    <View style={styles.chipRow}>
+      {items.map((item) => (
+        <Pressable
+          key={item}
+          onPress={() => onSelect(item)}
+          style={[
+            styles.chip,
+            {
+              backgroundColor: selected === item ? colors.accent : colors.backgroundTertiary,
+            },
+          ]}>
+          <Text style={[Typography.chip, { color: selected === item ? '#FFFFFF' : colors.textSecondary }]}>
+            {item}
+          </Text>
+        </Pressable>
+      ))}
+    </View>
+  );
+}
+
+function EntryCard({ entry, onDelete }: { entry: DoseEntry; onDelete: () => void }) {
+  const colors = useThemeColors();
+
+  return (
+    <View style={[styles.entryCard, { backgroundColor: colors.backgroundSecondary }]}>
+      <View style={styles.entryHeader}>
+        <View style={styles.entryTitleBlock}>
+          <Text style={[Typography.bodyBold, { color: colors.textPrimary }]}>
+            {entry.substance}
+          </Text>
+          <Text style={[Typography.caption, { color: colors.textSecondary }]}>
+            {entry.dose ? `${entry.dose} ${entry.unit}` : 'Dose not recorded'} · {entry.route}
+          </Text>
+        </View>
+        <Pressable
+          onPress={onDelete}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel={`Delete ${entry.substance} entry`}>
+          <Ionicons name="trash-outline" size={19} color={colors.textTertiary} />
+        </Pressable>
+      </View>
+
+      <Text style={[Typography.caption, styles.entryMeta, { color: colors.textTertiary }]}>
+        {entry.timestamp}
+      </Text>
+      {entry.mood && (
+        <Text style={[Typography.caption, { color: colors.textSecondary }]}>
+          Mood/condition: {entry.mood}
+        </Text>
+      )}
+      {entry.notes && (
+        <Text style={[Typography.caption, styles.entryNotes, { color: colors.textSecondary }]}>
+          {entry.notes}
+        </Text>
+      )}
     </View>
   );
 }
@@ -142,6 +450,14 @@ const styles = StyleSheet.create({
   group: {
     gap: Spacing.sm,
   },
+  row: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+  },
+  rowField: {
+    flex: 1,
+    gap: Spacing.sm,
+  },
   input: {
     minHeight: 46,
     borderRadius: Radius.md,
@@ -150,6 +466,18 @@ const styles = StyleSheet.create({
   },
   notesInput: {
     minHeight: 96,
+  },
+  suggestionRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.sm,
+  },
+  suggestionChip: {
+    minHeight: 32,
+    borderRadius: Radius.full,
+    paddingHorizontal: Spacing.md,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   chipRow: {
     flexDirection: 'row',
@@ -163,6 +491,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  primaryButton: {
+    minHeight: 46,
+    borderRadius: Radius.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.sm,
+  },
   localNote: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -173,5 +509,54 @@ const styles = StyleSheet.create({
   },
   localNoteText: {
     flex: 1,
+  },
+  sectionHeader: {
+    marginTop: Spacing.xl,
+    marginBottom: Spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: Spacing.md,
+  },
+  exportButton: {
+    minHeight: 34,
+    borderRadius: Radius.full,
+    paddingHorizontal: Spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+  },
+  exportMessage: {
+    marginBottom: Spacing.sm,
+  },
+  emptyCard: {
+    borderRadius: Radius.lg,
+    padding: Spacing.xl,
+    alignItems: 'center',
+  },
+  emptyText: {
+    marginTop: Spacing.md,
+    textAlign: 'center',
+  },
+  entryList: {
+    gap: Spacing.sm,
+  },
+  entryCard: {
+    borderRadius: Radius.lg,
+    padding: Spacing.lg,
+  },
+  entryHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.md,
+  },
+  entryTitleBlock: {
+    flex: 1,
+  },
+  entryMeta: {
+    marginTop: Spacing.sm,
+  },
+  entryNotes: {
+    marginTop: Spacing.xs,
   },
 });
