@@ -1,53 +1,116 @@
 /**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
+ * Synapedia Design Tokens
+ * 8pt grid system. All spacing values are multiples of 4pt or 8pt.
+ * Typography based on SF Pro (system font).
  */
 
-import { Platform } from 'react-native';
+export const Spacing = {
+  xs: 4,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 24,
+  xxl: 32,
+  xxxl: 48,
+} as const;
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
+export const Typography = {
+  heroTitle: { fontSize: 32, fontWeight: '700' as const, lineHeight: 38 },
+  navTitle: { fontSize: 17, fontWeight: '600' as const, lineHeight: 22 },
+  sectionTitle: { fontSize: 20, fontWeight: '700' as const, lineHeight: 25 },
+  body: { fontSize: 15, fontWeight: '400' as const, lineHeight: 22 },
+  bodyBold: { fontSize: 15, fontWeight: '600' as const, lineHeight: 22 },
+  caption: { fontSize: 13, fontWeight: '400' as const, lineHeight: 18 },
+  captionBold: { fontSize: 13, fontWeight: '600' as const, lineHeight: 18 },
+  chip: { fontSize: 13, fontWeight: '500' as const, lineHeight: 16 },
+  quickFactValue: { fontSize: 15, fontWeight: '700' as const, lineHeight: 20 },
+  quickFactLabel: { fontSize: 11, fontWeight: '500' as const, lineHeight: 14 },
+  tabLabel: { fontSize: 14, fontWeight: '600' as const, lineHeight: 18 },
+} as const;
+
+export const Radius = {
+  sm: 6,
+  md: 10,
+  lg: 14,
+  xl: 20,
+  full: 999,
+} as const;
 
 export const Colors = {
   light: {
-    text: '#11181C',
-    background: '#fff',
-    tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
-    tabIconSelected: tintColorLight,
+    // Backgrounds
+    background: '#FFFFFF',
+    backgroundSecondary: '#F5F5F7',
+    backgroundTertiary: '#EBEBF0',
+
+    // Text
+    textPrimary: '#1C1C1E',
+    textSecondary: '#6B6B80',
+    textTertiary: '#AEAEB2',
+
+    // Accent
+    accent: '#007AFF',
+    accentLight: '#E5F1FF',
+
+    // Semantic
+    separator: 'rgba(60,60,67,0.12)',
+
+    // Risk Levels
+    riskLow: '#34C759',
+    riskModerate: '#FF9500',
+    riskHigh: '#FF3B30',
+    riskExtreme: '#AF1A2D',
+    riskUnknown: '#8E8E93',
+
+    // Severity (Interactions)
+    severityLethal: '#AF1A2D',
+    severityDangerous: '#FF3B30',
+    severityRisky: '#FF9500',
+    severityCaution: '#FFCC00',
+    severityLowRisk: '#34C759',
+
+    // Effects
+    effectPositive: '#34C759',
+    effectNeutral: '#8E8E93',
+    effectNegative: '#FF3B30',
+
+    // Tab Bar
+    tabIconDefault: '#8E8E93',
+    tabIconSelected: '#007AFF',
   },
   dark: {
-    text: '#ECEDEE',
-    background: '#151718',
-    tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-    tabIconSelected: tintColorDark,
-  },
-};
+    background: '#000000',
+    backgroundSecondary: '#1C1C1E',
+    backgroundTertiary: '#2C2C2E',
 
-export const Fonts = Platform.select({
-  ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: 'ui-monospace',
+    textPrimary: '#FFFFFF',
+    textSecondary: '#98989F',
+    textTertiary: '#636366',
+
+    accent: '#0A84FF',
+    accentLight: '#1A2E4A',
+
+    separator: 'rgba(84,84,88,0.36)',
+
+    riskLow: '#30D158',
+    riskModerate: '#FF9F0A',
+    riskHigh: '#FF453A',
+    riskExtreme: '#D63A4A',
+    riskUnknown: '#636366',
+
+    severityLethal: '#D63A4A',
+    severityDangerous: '#FF453A',
+    severityRisky: '#FF9F0A',
+    severityCaution: '#FFD60A',
+    severityLowRisk: '#30D158',
+
+    effectPositive: '#30D158',
+    effectNeutral: '#636366',
+    effectNegative: '#FF453A',
+
+    tabIconDefault: '#636366',
+    tabIconSelected: '#0A84FF',
   },
-  default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
-  },
-  web: {
-    sans: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-    serif: "Georgia, 'Times New Roman', serif",
-    rounded: "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
-    mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
-  },
-});
+} as const;
+
+export type ThemeColors = { [K in keyof typeof Colors.light]: string };
