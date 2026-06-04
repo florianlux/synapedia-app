@@ -6,6 +6,7 @@ import {
   Text,
   TextInput,
   View,
+  useWindowDimensions,
   type KeyboardTypeOptions,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -75,6 +76,8 @@ function entryTime(entry: DoseEntry): number {
 export default function LogScreen() {
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const isCompact = width < 390;
   const [form, setForm] = useState<FormState>(() => initialForm());
   const [entries, setEntries] = useState<DoseEntry[]>([]);
   const [hydrated, setHydrated] = useState(false);
@@ -205,7 +208,7 @@ export default function LogScreen() {
             ))}
           </View>
 
-          <View style={styles.row}>
+          <View style={[styles.row, isCompact && styles.rowCompact]}>
             <View style={styles.rowField}>
               <Field
                 label="Dosis"
@@ -433,7 +436,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: Spacing.page,
-    paddingBottom: 104,
+    paddingBottom: Spacing.screenBottom,
   },
   header: {
     paddingTop: Spacing.lg,
@@ -455,6 +458,9 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     gap: Spacing.md,
+  },
+  rowCompact: {
+    flexDirection: 'column',
   },
   rowField: {
     flex: 1,
@@ -520,6 +526,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    flexWrap: 'wrap',
     gap: Spacing.md,
   },
   exportButton: {

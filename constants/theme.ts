@@ -13,6 +13,7 @@ export const Spacing = {
   xxl: 32,
   xxxl: 48,
   page: 20,
+  screenBottom: 140,
 } as const;
 
 export const Typography = {
@@ -86,20 +87,20 @@ export const Colors = {
   dark: {
     background: '#050608',
     backgroundSecondary: '#12151B',
-    backgroundTertiary: '#20242C',
-    backgroundElevated: '#171B22',
-    backgroundGlass: 'rgba(18,21,27,0.82)',
+    backgroundTertiary: '#1E2430',
+    backgroundElevated: '#151A22',
+    backgroundGlass: 'rgba(17,22,31,0.88)',
 
     textPrimary: '#FFFFFF',
-    textSecondary: '#A9B0BD',
-    textTertiary: '#6E7684',
+    textSecondary: '#B4BBC8',
+    textTertiary: '#747D8D',
 
     accent: '#4DA3FF',
     accentLight: 'rgba(77,163,255,0.16)',
 
     separator: 'rgba(132,142,158,0.20)',
-    border: 'rgba(132,142,158,0.18)',
-    cardBorder: 'rgba(255,255,255,0.08)',
+    border: 'rgba(132,142,158,0.16)',
+    cardBorder: 'rgba(255,255,255,0.07)',
 
     riskLow: '#30D158',
     riskModerate: '#FF9F0A',
@@ -134,9 +135,9 @@ export const Elevation = {
   },
   subtle: {
     shadowColor: '#000000',
-    shadowOpacity: 0.14,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.18,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 8 },
     elevation: 2,
   },
 } as const;

@@ -26,7 +26,11 @@ export function Screen({
 }) {
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
-  const content = [styles.screenContent, { paddingTop: insets.top + Spacing.md }, contentStyle];
+  const content = [
+    styles.screenContent,
+    { paddingTop: insets.top + Spacing.md, paddingBottom: insets.bottom + Spacing.screenBottom },
+    contentStyle,
+  ];
 
   if (!scroll) {
     return (
@@ -64,6 +68,7 @@ export function PremiumCard({
         {
           backgroundColor: pressed ? colors.backgroundTertiary : colors.backgroundElevated,
           borderColor: colors.cardBorder,
+          transform: [{ scale: pressed ? 0.995 : 1 }],
         },
         style,
       ]}>
@@ -126,7 +131,7 @@ export function Pill({
   const color = tint ?? colors.textSecondary;
 
   return (
-    <View style={[styles.pill, { backgroundColor: `${color}1F`, borderColor: `${color}33` }]}>
+    <View style={[styles.pill, { backgroundColor: `${color}18`, borderColor: `${color}26` }]}>
       {icon && <Ionicons name={icon} size={13} color={color} />}
       <Text style={[Typography.chip, { color }]} numberOfLines={1}>
         {label}
@@ -178,7 +183,6 @@ const styles = StyleSheet.create({
   },
   screenContent: {
     paddingHorizontal: Spacing.page,
-    paddingBottom: 96,
   },
   card: {
     borderRadius: Radius.xl,
@@ -187,7 +191,7 @@ const styles = StyleSheet.create({
   },
   sectionHeader: {
     gap: Spacing.xs,
-    marginTop: Spacing.xl,
+    marginTop: Spacing.xxl,
     marginBottom: Spacing.md,
   },
   pill: {

@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   resultContent: {
-    paddingBottom: 104,
+    paddingBottom: Spacing.screenBottom,
   },
   popularSection: {
     paddingHorizontal: Spacing.page,

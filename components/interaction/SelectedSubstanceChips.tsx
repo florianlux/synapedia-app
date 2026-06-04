@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { useThemeColors } from '@/hooks/use-theme';
@@ -84,9 +84,11 @@ function SlotCard({
 
 export function SelectedSubstanceChips({ selected, onAdd, onRemove }: Props) {
   const colors = useThemeColors();
+  const { width } = useWindowDimensions();
+  const shouldStack = width < 390;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, shouldStack && styles.containerStacked]}>
       <SlotCard
         slug={selected[0]}
         onPress={() => onAdd(0)}
@@ -94,7 +96,7 @@ export function SelectedSubstanceChips({ selected, onAdd, onRemove }: Props) {
       />
 
       {/* Connector */}
-      <View style={styles.connector}>
+      <View style={[styles.connector, shouldStack && styles.connectorStacked]}>
         <Text
           style={[
             Typography.sectionTitle,
@@ -120,9 +122,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.page,
     gap: Spacing.sm,
   },
+  containerStacked: {
+    flexDirection: 'column',
+    alignItems: 'stretch',
+  },
   connector: {
     width: 28,
     alignItems: 'center',
+  },
+  connectorStacked: {
+    width: '100%',
+    height: 20,
+    justifyContent: 'center',
   },
   slot: {
     flex: 1,

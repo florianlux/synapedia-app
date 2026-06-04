@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: Spacing.page,
-    paddingBottom: 104,
+    paddingBottom: Spacing.screenBottom,
   },
   hero: {
     paddingTop: Spacing.md,

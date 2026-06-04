@@ -68,7 +68,7 @@ export function StickyBottomBar({
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: Spacing.page,
     paddingTop: Spacing.md,
     borderTopWidth: StyleSheet.hairlineWidth,
     gap: Spacing.sm,

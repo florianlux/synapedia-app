@@ -2,7 +2,7 @@ import { Tabs } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { HapticTab } from '@/components/haptic-tab';
-import { Colors } from '@/constants/theme';
+import { Colors, Radius } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function TabLayout() {
@@ -16,16 +16,36 @@ export default function TabLayout() {
         tabBarInactiveTintColor: colors.tabIconDefault,
         headerShown: false,
         tabBarButton: HapticTab,
+        tabBarHideOnKeyboard: true,
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: '600',
+          lineHeight: 14,
+        },
+        tabBarIconStyle: {
+          marginTop: 6,
+        },
+        tabBarItemStyle: {
+          borderRadius: Radius.md,
+          marginHorizontal: 2,
+          paddingTop: 2,
+        },
         tabBarStyle: {
-          borderTopColor: colors.separator,
+          height: 86,
+          paddingTop: 6,
+          paddingHorizontal: 6,
+          paddingBottom: 12,
+          backgroundColor: colors.backgroundGlass,
+          borderTopColor: colors.cardBorder,
+          borderTopWidth: 1,
         },
       }}>
       <Tabs.Screen
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home-outline" size={size} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'home' : 'home-outline'} size={size} color={color} />
           ),
         }}
       />
@@ -33,8 +53,8 @@ export default function TabLayout() {
         name="wiki"
         options={{
           title: 'Wiki',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="library-outline" size={size} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'library' : 'library-outline'} size={size} color={color} />
           ),
         }}
       />
@@ -42,8 +62,8 @@ export default function TabLayout() {
         name="check"
         options={{
           title: 'Check',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="git-compare-outline" size={size} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'git-compare' : 'git-compare-outline'} size={size} color={color} />
           ),
         }}
       />
@@ -51,8 +71,8 @@ export default function TabLayout() {
         name="log"
         options={{
           title: 'Log',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="create-outline" size={size} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'create' : 'create-outline'} size={size} color={color} />
           ),
         }}
       />
@@ -60,8 +80,8 @@ export default function TabLayout() {
         name="guides"
         options={{
           title: 'Guides',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="heart-circle-outline" size={size} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'heart-circle' : 'heart-circle-outline'} size={size} color={color} />
           ),
         }}
       />

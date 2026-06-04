@@ -40,10 +40,12 @@ export default function GuidesScreen() {
                 <Text style={[Typography.captionBold, { color: guide.accent }]}>
                   {guide.category}
                 </Text>
-                <Text style={[Typography.bodyBold, styles.guideTitle, { color: colors.textPrimary }]}>
+                <Text
+                  style={[Typography.bodyBold, styles.guideTitle, { color: colors.textPrimary }]}
+                  numberOfLines={2}>
                   {guide.title}
                 </Text>
-                <Text style={[Typography.caption, { color: colors.textSecondary }]}>
+                <Text style={[Typography.caption, { color: colors.textSecondary }]} numberOfLines={3}>
                   {guide.summary}
                 </Text>
               </View>
@@ -69,7 +71,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: Spacing.page,
-    paddingBottom: 104,
+    paddingBottom: Spacing.screenBottom,
   },
   header: {
     paddingTop: Spacing.lg,

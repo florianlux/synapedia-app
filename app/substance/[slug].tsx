@@ -120,7 +120,7 @@ export default function SubstanceDetailScreen() {
 
       {/* ── Z2–Z4: Scrollable Content ── */}
       <ScrollView
-        contentContainerStyle={{ paddingBottom: 100 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + Spacing.screenBottom }}
         showsVerticalScrollIndicator={false}>
         {/* Z2: Hero Header */}
         <HeroHeader substance={substance} />
@@ -533,7 +533,7 @@ const inlineStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: Spacing.sm,
-    marginHorizontal: Spacing.lg,
+    marginHorizontal: Spacing.page,
     marginTop: Spacing.md,
     marginBottom: Spacing.sm,
     padding: Spacing.md,
@@ -576,7 +576,7 @@ const inlineStyles = StyleSheet.create({
     borderRadius: Radius.md,
   },
   bottomDisclaimer: {
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: Spacing.page,
     paddingTop: Spacing.lg,
   },
 });

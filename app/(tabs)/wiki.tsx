@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   },
   list: {
     padding: Spacing.page,
-    paddingBottom: 104,
+    paddingBottom: Spacing.screenBottom,
     gap: Spacing.sm,
   },
   header: {
@@ -171,10 +171,9 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
   },
   cardHeader: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    gap: Spacing.md,
+    gap: Spacing.sm,
   },
   cardTitleBlock: {
     flex: 1,
@@ -188,9 +187,10 @@ const styles = StyleSheet.create({
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    flexWrap: 'wrap',
     gap: Spacing.sm,
   },
   aliases: {
-    flex: 1,
+    maxWidth: '100%',
   },
 });
