@@ -84,6 +84,7 @@ export type ApiSubstanceListMeta = {
   query?: string | null;
   page?: number;
   offset?: number;
+  totalPages?: number;
   hasMore?: boolean;
   nextPage?: number;
   nextOffset?: number;
@@ -357,6 +358,7 @@ function normalizeListMeta(value: unknown): ApiSubstanceListMeta {
     query: stringValue(record.query) ?? null,
     page: numberValue(record.page),
     offset: numberValue(record.offset),
+    totalPages: numberValue(record.totalPages ?? record.total_pages),
     hasMore: booleanValue(record.hasMore ?? record.has_more),
     nextPage: numberValue(record.nextPage ?? record.next_page),
     nextOffset: numberValue(record.nextOffset ?? record.next_offset),
@@ -683,14 +685,20 @@ function normalizeDetailItem(item: MobileSubstanceItem, enrichment?: Substance):
 export async function fetchMobileSubstanceList({
   query = '',
   limit = 20,
+  page,
 }: {
   query?: string;
   limit?: number;
+  page?: number;
 } = {}): Promise<ApiSubstanceListResult> {
   const trimmed = query.trim();
   const response = await getJson<MobileListResponse>(
     '/api/mobile/substances',
-    trimmed ? { q: trimmed, limit } : { limit },
+    {
+      ...(trimmed ? { q: trimmed } : {}),
+      limit,
+      ...(typeof page === 'number' ? { page } : {}),
+    },
   );
 
   return normalizeMobileListResponse(response);

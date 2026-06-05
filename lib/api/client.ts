@@ -65,7 +65,11 @@ export async function getJson<T>(
   try {
     const response = await fetch(buildReadOnlyUrl(path, params), {
       method: 'GET',
-      headers: { Accept: 'application/json' },
+      headers: {
+        Accept: 'application/json',
+        'Cache-Control': 'no-cache, no-store',
+      },
+      cache: 'no-store',
       signal: controller.signal,
     });
 

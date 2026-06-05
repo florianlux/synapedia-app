@@ -1,11 +1,16 @@
 import { useState } from 'react';
-import { Pressable, SectionList, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, SectionList, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { Elevation, Radius, Spacing, Typography, type ThemeColors } from '@/constants/theme';
-import { useSubstances, type LocalSubstanceSummary, type SubstanceSource } from '@/hooks/use-substances';
+import {
+  useSubstances,
+  type LocalSubstanceSummary,
+  type SubstanceCatalogPagination,
+  type SubstanceSource,
+} from '@/hooks/use-substances';
 import { useThemeColors } from '@/hooks/use-theme';
 import type { RiskLevel } from '@/types/substance';
 import { EmptyState, Pill } from '@/components/ui/premium';
@@ -19,6 +24,13 @@ type WikiSection = {
   subtitle: string;
   source: SubstanceSource;
   data: LocalSubstanceSummary[];
+};
+
+const EMPTY_PAGINATION: SubstanceCatalogPagination = {
+  available: true,
+  hasMore: false,
+  page: 0,
+  limit: 20,
 };
 
 function getRiskColor(level: RiskLevel, colors: ThemeColors): string {
@@ -43,8 +55,12 @@ export default function WikiScreen() {
   const searchResults = substancesState.status === 'success' ? substancesState.searchResults : [];
   const source = substancesState.status === 'success' ? substancesState.source : 'local';
   const refreshing = substancesState.status === 'success' ? substancesState.refreshing : false;
+  const loadingMore = substancesState.status === 'success' ? substancesState.loadingMore : false;
   const liveLoaded = substancesState.status === 'success' ? substancesState.liveLoaded : 0;
-  const pagination = substancesState.status === 'success' ? substancesState.pagination : { available: false, hasMore: false };
+  const liveTotal = substancesState.status === 'success' ? substancesState.liveTotal : undefined;
+  const pagination = substancesState.status === 'success' ? substancesState.pagination : EMPTY_PAGINATION;
+  const loadMoreLiveCatalog =
+    substancesState.status === 'success' ? substancesState.loadMoreLiveCatalog : undefined;
   const sections: WikiSection[] = isSearching
     ? [
         {
@@ -67,7 +83,7 @@ export default function WikiScreen() {
           key: 'live',
           title: 'Live-Katalog',
           subtitle: liveCatalog.length > 0
-            ? 'Sicher begrenzte Vorschau aus dem Live-Katalog.'
+            ? `Seite ${pagination.page}${pagination.totalPages ? ` von ${pagination.totalPages}` : ''} aus dem Live-Katalog.`
             : 'Live-Vorschau wird geladen oder ist gerade nicht erreichbar.',
           source,
           data: liveCatalog,
@@ -75,7 +91,9 @@ export default function WikiScreen() {
       ];
   const statusText = isSearching
     ? `${searchResults.length} Treffer · Live-Suche`
-    : `${curated.length} kuratiert · ${liveLoaded} live geladen`;
+    : liveTotal
+      ? `${curated.length} kuratiert · ${liveLoaded} von ${liveTotal} live geladen`
+      : `${curated.length} kuratiert · ${liveLoaded} live geladen`;
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background, paddingTop: insets.top }]}>
@@ -149,14 +167,13 @@ export default function WikiScreen() {
           </View>
         )}
         renderSectionFooter={({ section }) => {
-          if (section.key !== 'live' || pagination.available) return null;
+          if (section.key !== 'live' || !pagination.hasMore || !loadMoreLiveCatalog) return null;
 
           return (
-            <View style={[styles.paginationNote, { borderColor: colors.border }]}>
-              <Text style={[Typography.caption, { color: colors.textTertiary }]}>
-                Vollständiges Blättern wartet auf Backend-Pagination; die Vorschau bleibt bewusst begrenzt.
-              </Text>
-            </View>
+            <LoadMoreButton
+              loading={loadingMore}
+              onPress={loadMoreLiveCatalog}
+            />
           );
         }}
         ListEmptyComponent={
@@ -170,6 +187,39 @@ export default function WikiScreen() {
         stickySectionHeadersEnabled={false}
       />
     </View>
+  );
+}
+
+function LoadMoreButton({
+  loading,
+  onPress,
+}: {
+  loading: boolean;
+  onPress: () => void;
+}) {
+  const colors = useThemeColors();
+
+  return (
+    <Pressable
+      disabled={loading}
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.loadMoreButton,
+        {
+          backgroundColor: pressed ? colors.backgroundTertiary : colors.backgroundSecondary,
+          borderColor: colors.border,
+          opacity: loading ? 0.72 : 1,
+        },
+      ]}>
+      {loading ? (
+        <ActivityIndicator size="small" color={colors.accent} />
+      ) : (
+        <Ionicons name="add-circle-outline" size={18} color={colors.accent} />
+      )}
+      <Text style={[Typography.bodyBold, { color: colors.accent }]}>
+        {loading ? 'Lädt weitere…' : 'Weitere laden'}
+      </Text>
+    </Pressable>
   );
 }
 
@@ -310,10 +360,17 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: Spacing.xs,
   },
-  paginationNote: {
-    borderTopWidth: StyleSheet.hairlineWidth,
+  loadMoreButton: {
+    minHeight: 44,
     marginTop: Spacing.md,
-    paddingTop: Spacing.md,
+    marginBottom: Spacing.xs,
+    borderRadius: Radius.md,
+    borderWidth: StyleSheet.hairlineWidth,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.sm,
+    paddingHorizontal: Spacing.md,
   },
   card: {
     padding: Spacing.md,

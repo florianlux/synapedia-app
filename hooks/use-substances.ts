@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { SUBSTANCES } from '@/constants/mock-data';
 import { fetchMobileSubstanceList, type ApiSubstanceListMeta } from '@/lib/api/substances';
@@ -14,25 +14,34 @@ export type SubstanceSource = 'live' | 'mixed' | 'local' | 'offline';
 export type SubstanceCatalogPagination = {
   available: boolean;
   hasMore: boolean;
+  page: number;
+  totalPages?: number;
+  limit: number;
+};
+
+type SubstancesSuccessData = {
+  data: LocalSubstanceSummary[];
+  curated: LocalSubstanceSummary[];
+  liveCatalog: LocalSubstanceSummary[];
+  searchResults: LocalSubstanceSummary[];
+  source: SubstanceSource;
+  refreshing: boolean;
+  loadingMore: boolean;
+  query: string;
+  liveLoaded: number;
+  liveTotal?: number;
+  pagination: SubstanceCatalogPagination;
+  loadedLiveSlugs: string[];
 };
 
 export type SubstancesState =
   | { status: 'loading' }
-  | {
+  | (SubstancesSuccessData & {
       status: 'success';
-      data: LocalSubstanceSummary[];
-      curated: LocalSubstanceSummary[];
-      liveCatalog: LocalSubstanceSummary[];
-      searchResults: LocalSubstanceSummary[];
-      source: SubstanceSource;
-      refreshing: boolean;
-      query: string;
-      liveLoaded: number;
-      liveTotal?: number;
-      pagination: SubstanceCatalogPagination;
-    };
+      loadMoreLiveCatalog: () => void;
+    });
 
-const CATALOG_PREVIEW_LIMIT = 100;
+const CATALOG_PAGE_LIMIT = 20;
 const SEARCH_LIMIT = 50;
 const SEARCH_DEBOUNCE_MS = 300;
 
@@ -118,33 +127,82 @@ function mergeSearchResults(
   return Array.from(bySlug.values());
 }
 
-function getLiveCatalog(remoteData: LocalSubstanceSummary[]): LocalSubstanceSummary[] {
-  return remoteData.filter((item) => !CURATED_SLUGS.has(item.slug));
+function mergeLoadedLiveSlugs(existing: string[], remoteData: LocalSubstanceSummary[]): string[] {
+  const bySlug = new Map(existing.map((slug) => [slug, slug]));
+  remoteData.forEach((item) => {
+    if (!bySlug.has(item.slug)) bySlug.set(item.slug, item.slug);
+  });
+  return Array.from(bySlug.values());
 }
 
-function hasPagination(meta: ApiSubstanceListMeta): boolean {
-  return (
-    typeof meta.page === 'number' ||
-    typeof meta.offset === 'number' ||
-    typeof meta.nextPage === 'number' ||
-    typeof meta.nextOffset === 'number' ||
-    typeof meta.hasMore === 'boolean'
-  );
+function mergeLiveCatalog(
+  existing: LocalSubstanceSummary[],
+  remoteData: LocalSubstanceSummary[],
+): LocalSubstanceSummary[] {
+  const bySlug = new Map(existing.map((item) => [item.slug, item]));
+  remoteData.forEach((item) => {
+    if (!CURATED_SLUGS.has(item.slug) && !bySlug.has(item.slug)) {
+      bySlug.set(item.slug, item);
+    }
+  });
+  return Array.from(bySlug.values());
 }
 
-function paginationFromMeta(meta: ApiSubstanceListMeta): SubstanceCatalogPagination {
-  const available = hasPagination(meta);
-  const inferredHasMore =
-    typeof meta.nextPage === 'number' ||
-    typeof meta.nextOffset === 'number' ||
+function paginationFromMeta(
+  meta: ApiSubstanceListMeta,
+  fallbackPage: number,
+): SubstanceCatalogPagination {
+  const page = meta.page ?? fallbackPage;
+  const totalPages = meta.totalPages;
+  const hasMore =
+    meta.hasMore ??
     (
-      typeof meta.total === 'number' &&
-      typeof meta.limit === 'number' &&
-      meta.total > meta.limit
+      typeof totalPages === 'number'
+        ? page < totalPages
+        : typeof meta.total === 'number' && typeof meta.limit === 'number'
+          ? page * meta.limit < meta.total
+          : false
     );
-  const hasMore = available && (meta.hasMore ?? inferredHasMore);
 
-  return { available, hasMore };
+  return {
+    available: true,
+    hasMore,
+    page,
+    totalPages,
+    limit: meta.limit ?? CATALOG_PAGE_LIMIT,
+  };
+}
+
+function loadedCountFromPagination(
+  loadedSlugs: string[],
+  pagination: SubstanceCatalogPagination,
+  total?: number,
+): number {
+  if (typeof total === 'number' && pagination.limit > 0) {
+    return Math.min(total, Math.max(loadedSlugs.length, pagination.page * pagination.limit));
+  }
+  return loadedSlugs.length;
+}
+
+function createBaseState(query: string): SubstancesSuccessData {
+  return {
+    data: CURATED_SUBSTANCES,
+    curated: CURATED_SUBSTANCES,
+    liveCatalog: [],
+    searchResults: [],
+    source: 'local',
+    refreshing: true,
+    loadingMore: false,
+    query,
+    liveLoaded: 0,
+    pagination: {
+      available: true,
+      hasMore: false,
+      page: 0,
+      limit: CATALOG_PAGE_LIMIT,
+    },
+    loadedLiveSlugs: [],
+  };
 }
 
 function useDebouncedValue(value: string): string {
@@ -166,111 +224,66 @@ export function useSubstances(query: string): SubstancesState {
     [debouncedQuery],
   );
   const isSearching = debouncedQuery.trim().length > 0;
-  const [state, setState] = useState<SubstancesState>({
-    status: 'success',
-    data: CURATED_SUBSTANCES,
-    curated: CURATED_SUBSTANCES,
-    liveCatalog: [],
-    searchResults: [],
-    source: 'local',
-    refreshing: true,
-    query: '',
-    liveLoaded: 0,
-    pagination: { available: false, hasMore: false },
-  });
+  const [state, setState] = useState<SubstancesSuccessData>(() => createBaseState(''));
 
   useEffect(() => {
     let active = true;
     const queryText = debouncedQuery.trim();
-    const requestLimit = isSearching ? SEARCH_LIMIT : CATALOG_PREVIEW_LIMIT;
 
     setState({
-      status: 'success',
+      ...createBaseState(queryText),
       data: isSearching ? localData : CURATED_SUBSTANCES,
-      curated: CURATED_SUBSTANCES,
-      liveCatalog: [],
       searchResults: isSearching ? localData : [],
-      source: 'local',
-      refreshing: true,
-      query: queryText,
-      liveLoaded: 0,
-      pagination: { available: false, hasMore: false },
     });
 
-    // TODO: Replace the preview fetch with real page/offset pagination once
-    // /api/mobile/substances exposes a cursor, page, or offset contract.
     fetchMobileSubstanceList({
       query: queryText,
-      limit: requestLimit,
+      limit: isSearching ? SEARCH_LIMIT : CATALOG_PAGE_LIMIT,
+      page: isSearching ? undefined : 1,
     })
       .then((result) => {
         if (!active) return;
         const remoteData = result.items;
-        const pagination = paginationFromMeta(result.meta);
 
         if (isSearching) {
           const searchResults = mergeSearchResults(localData, remoteData, queryText);
-          if (searchResults.length === 0 && localData.length > 0) {
-            setState({
-              status: 'success',
-              data: localData,
-              curated: CURATED_SUBSTANCES,
-              liveCatalog: [],
-              searchResults: localData,
-              source: 'offline',
-              refreshing: false,
-              query: queryText,
-              liveLoaded: 0,
-              liveTotal: result.meta.total,
-              pagination,
-            });
-            return;
-          }
-
           setState({
-            status: 'success',
+            ...createBaseState(queryText),
             data: searchResults,
-            curated: CURATED_SUBSTANCES,
-            liveCatalog: [],
             searchResults,
             source: remoteData.length > 0 && localData.length > 0 ? 'mixed' : remoteData.length > 0 ? 'live' : 'local',
             refreshing: false,
-            query: queryText,
             liveLoaded: remoteData.length,
             liveTotal: result.meta.total,
-            pagination,
+            pagination: paginationFromMeta(result.meta, 1),
+            loadedLiveSlugs: remoteData.map((item) => item.slug),
           });
           return;
         }
 
-        const liveCatalog = getLiveCatalog(remoteData);
+        const loadedLiveSlugs = mergeLoadedLiveSlugs([], remoteData);
+        const liveCatalog = mergeLiveCatalog([], remoteData);
+        const pagination = paginationFromMeta(result.meta, 1);
         setState({
-          status: 'success',
+          ...createBaseState(queryText),
           data: [...CURATED_SUBSTANCES, ...liveCatalog],
-          curated: CURATED_SUBSTANCES,
           liveCatalog,
-          searchResults: [],
           source: remoteData.length > 0 ? 'mixed' : 'local',
           refreshing: false,
-          query: queryText,
-          liveLoaded: remoteData.length,
+          liveLoaded: loadedCountFromPagination(loadedLiveSlugs, pagination, result.meta.total),
           liveTotal: result.meta.total,
           pagination,
+          loadedLiveSlugs,
         });
       })
       .catch(() => {
         if (!active) return;
         setState({
-          status: 'success',
+          ...createBaseState(queryText),
           data: isSearching ? localData : CURATED_SUBSTANCES,
-          curated: CURATED_SUBSTANCES,
-          liveCatalog: [],
           searchResults: isSearching ? localData : [],
           source: 'offline',
           refreshing: false,
-          query: queryText,
-          liveLoaded: 0,
-          pagination: { available: false, hasMore: false },
         });
       });
 
@@ -279,5 +292,60 @@ export function useSubstances(query: string): SubstancesState {
     };
   }, [debouncedQuery, isSearching, localData]);
 
-  return state;
+  const loadMoreLiveCatalog = useCallback(() => {
+    if (isSearching || state.refreshing || state.loadingMore || !state.pagination.hasMore) return;
+
+    const nextPage = state.pagination.page + 1;
+    setState((current) => ({ ...current, loadingMore: true }));
+
+    fetchMobileSubstanceList({
+      limit: CATALOG_PAGE_LIMIT,
+      page: nextPage,
+    })
+      .then((result) => {
+        setState((current) => {
+          const loadedLiveSlugs = mergeLoadedLiveSlugs(current.loadedLiveSlugs, result.items);
+          const liveCatalog = mergeLiveCatalog(current.liveCatalog, result.items);
+          const pagination = paginationFromMeta(result.meta, nextPage);
+          const page = Math.max(current.pagination.page, nextPage, pagination.page);
+          const nextPagination = {
+            ...pagination,
+            page,
+            hasMore: pagination.hasMore && (
+              typeof pagination.totalPages === 'number' ? page < pagination.totalPages : true
+            ),
+          };
+
+          return {
+            ...current,
+            data: [...CURATED_SUBSTANCES, ...liveCatalog],
+            liveCatalog,
+            source: result.items.length > 0 ? 'mixed' : current.source,
+            refreshing: false,
+            loadingMore: false,
+            liveLoaded: loadedCountFromPagination(
+              loadedLiveSlugs,
+              nextPagination,
+              result.meta.total ?? current.liveTotal,
+            ),
+            liveTotal: result.meta.total ?? current.liveTotal,
+            pagination: nextPagination,
+            loadedLiveSlugs,
+          };
+        });
+      })
+      .catch(() => {
+        setState((current) => ({
+          ...current,
+          loadingMore: false,
+          source: current.liveCatalog.length > 0 ? current.source : 'offline',
+        }));
+      });
+  }, [isSearching, state.loadingMore, state.pagination.hasMore, state.pagination.page, state.refreshing]);
+
+  return {
+    status: 'success',
+    ...state,
+    loadMoreLiveCatalog,
+  };
 }
