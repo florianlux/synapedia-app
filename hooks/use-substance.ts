@@ -70,6 +70,23 @@ function getLocalSubstance(slug: string, fallback?: SubstanceDetailFallback | nu
   return null;
 }
 
+function detailUnavailableFallback(substance: Substance): Substance {
+  return {
+    ...substance,
+    summary: 'Für diese Substanz liegen noch keine mobilen Detaildaten vor.',
+    effects: { positive: [], neutral: [], negative: [] },
+    risks: { acute: [], longterm: [] },
+    saferUse: [],
+    warnings: [],
+    mechanisms: [],
+    interactions: [],
+    interactionsPreview: [],
+    sources: [],
+    evidenceNote: undefined,
+    lastUpdated: '',
+  };
+}
+
 export function useSubstance(
   slug: string | undefined,
   fallback?: SubstanceDetailFallback | null,
@@ -128,9 +145,12 @@ export function useSubstance(
       .catch(() => {
         if (!active) return;
         if (localData) {
+          const fallbackData = SUBSTANCES_MAP[slug]
+            ? localData
+            : detailUnavailableFallback(localData);
           setState({
             status: 'success',
-            data: localData,
+            data: fallbackData,
             source: 'offline',
             refreshing: false,
           });

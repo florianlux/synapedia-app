@@ -1,15 +1,25 @@
 import { useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, SectionList, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { Elevation, Radius, Spacing, Typography, type ThemeColors } from '@/constants/theme';
-import { useSubstances, type LocalSubstanceSummary } from '@/hooks/use-substances';
+import { useSubstances, type LocalSubstanceSummary, type SubstanceSource } from '@/hooks/use-substances';
 import { useThemeColors } from '@/hooks/use-theme';
 import type { RiskLevel } from '@/types/substance';
 import { EmptyState, Pill } from '@/components/ui/premium';
 import { SourceBadge } from '@/components/ui/SourceBadge';
+
+type WikiSectionKind = 'curated' | 'live' | 'search';
+
+type WikiSection = {
+  key: WikiSectionKind;
+  title: string;
+  subtitle: string;
+  source: SubstanceSource;
+  data: LocalSubstanceSummary[];
+};
 
 function getRiskColor(level: RiskLevel, colors: ThemeColors): string {
   const map: Record<RiskLevel, string> = {
@@ -27,15 +37,51 @@ export default function WikiScreen() {
   const insets = useSafeAreaInsets();
   const [query, setQuery] = useState('');
   const substancesState = useSubstances(query);
-  const substances = substancesState.status === 'success' ? substancesState.data : [];
+  const isSearching = query.trim().length > 0;
+  const curated = substancesState.status === 'success' ? substancesState.curated : [];
+  const liveCatalog = substancesState.status === 'success' ? substancesState.liveCatalog : [];
+  const searchResults = substancesState.status === 'success' ? substancesState.searchResults : [];
   const source = substancesState.status === 'success' ? substancesState.source : 'local';
   const refreshing = substancesState.status === 'success' ? substancesState.refreshing : false;
+  const liveLoaded = substancesState.status === 'success' ? substancesState.liveLoaded : 0;
+  const pagination = substancesState.status === 'success' ? substancesState.pagination : { available: false, hasMore: false };
+  const sections: WikiSection[] = isSearching
+    ? [
+        {
+          key: 'search',
+          title: 'Suchergebnisse',
+          subtitle: 'Live-Suche im Synapedia-Katalog, ergänzt durch lokale MVP-Daten.',
+          source,
+          data: searchResults,
+        },
+      ]
+    : [
+        {
+          key: 'curated',
+          title: 'Schnellzugriff',
+          subtitle: 'Kuratierte Top-Profile mit stabiler Reihenfolge.',
+          source: 'local',
+          data: curated,
+        },
+        {
+          key: 'live',
+          title: 'Live-Katalog',
+          subtitle: liveCatalog.length > 0
+            ? 'Sicher begrenzte Vorschau aus dem Live-Katalog.'
+            : 'Live-Vorschau wird geladen oder ist gerade nicht erreichbar.',
+          source,
+          data: liveCatalog,
+        },
+      ];
+  const statusText = isSearching
+    ? `${searchResults.length} Treffer · Live-Suche`
+    : `${curated.length} kuratiert · ${liveLoaded} live geladen`;
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background, paddingTop: insets.top }]}>
-      <FlatList
-        data={substances}
-        keyExtractor={(item) => item.slug}
+      <SectionList
+        sections={sections}
+        keyExtractor={(item, index) => `${item.slug}-${index}`}
         contentContainerStyle={[
           styles.list,
           { paddingBottom: insets.bottom + Spacing.screenBottom + Spacing.lg },
@@ -76,12 +122,43 @@ export default function WikiScreen() {
 
             <View style={styles.resultHeader}>
               <Text style={[Typography.captionBold, { color: colors.textSecondary }]}>
-                {substances.length} Profile
+                {statusText}
               </Text>
               <SourceBadge source={source} refreshing={refreshing} />
             </View>
+
+            <View style={[styles.catalogNote, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
+              <Ionicons name="cloud-outline" size={16} color={colors.accent} />
+              <Text style={[Typography.caption, styles.catalogNoteText, { color: colors.textSecondary }]}>
+                Suche durchsucht den Live-Katalog.
+              </Text>
+            </View>
           </>
         }
+        renderSectionHeader={({ section }) => (
+          <View style={styles.sectionHeader}>
+            <View style={styles.sectionTitleBlock}>
+              <Text style={[Typography.sectionTitle, { color: colors.textPrimary }]}>
+                {section.title}
+              </Text>
+              <Text style={[Typography.caption, { color: colors.textSecondary }]}>
+                {section.subtitle}
+              </Text>
+            </View>
+            <SourceBadge source={section.source} refreshing={refreshing && section.key !== 'curated'} />
+          </View>
+        )}
+        renderSectionFooter={({ section }) => {
+          if (section.key !== 'live' || pagination.available) return null;
+
+          return (
+            <View style={[styles.paginationNote, { borderColor: colors.border }]}>
+              <Text style={[Typography.caption, { color: colors.textTertiary }]}>
+                Vollständiges Blättern wartet auf Backend-Pagination; die Vorschau bleibt bewusst begrenzt.
+              </Text>
+            </View>
+          );
+        }}
         ListEmptyComponent={
           <EmptyState
             icon="library-outline"
@@ -90,14 +167,32 @@ export default function WikiScreen() {
           />
         }
         renderItem={({ item }) => <SubstanceCard item={item} />}
+        stickySectionHeadersEnabled={false}
       />
     </View>
   );
 }
 
+function isChemicalAlias(value: string): boolean {
+  const compact = value.replace(/\s+/g, '');
+  if (/^\d{2,7}-\d{2}-\d$/.test(compact)) return true;
+  if (/^\([0-9A-Z,+-]+\)-/i.test(compact)) return true;
+  if ((compact.match(/\d/g)?.length ?? 0) >= 5 && /[()[\]]/.test(compact)) return true;
+  if ((compact.match(/\d/g)?.length ?? 0) >= 6 && /^[A-Z0-9-]+$/i.test(compact)) return true;
+  return compact.length > 32 && /[A-Z][a-z]?[0-9]/.test(compact);
+}
+
+function visibleAliases(aliases?: string[]): string[] {
+  return (aliases ?? [])
+    .map((alias) => alias.trim())
+    .filter((alias) => alias.length > 0 && !isChemicalAlias(alias))
+    .slice(0, 3);
+}
+
 function SubstanceCard({ item }: { item: LocalSubstanceSummary }) {
   const colors = useThemeColors();
   const riskColor = getRiskColor(item.riskLevel, colors);
+  const aliases = visibleAliases(item.aliases);
 
   return (
     <Pressable
@@ -143,9 +238,9 @@ function SubstanceCard({ item }: { item: LocalSubstanceSummary }) {
 
       <View style={styles.metaRow}>
         <Pill label={item.quickFacts.duration} icon="time-outline" />
-        {item.aliases && item.aliases.length > 0 && (
+        {aliases.length > 0 && (
           <Text style={[Typography.caption, styles.aliases, { color: colors.textTertiary }]} numberOfLines={1}>
-            Aliasse: {item.aliases.slice(0, 3).join(', ')}
+            Aliasse: {aliases.join(', ')}
           </Text>
         )}
       </View>
@@ -159,7 +254,6 @@ const styles = StyleSheet.create({
   },
   list: {
     padding: Spacing.page,
-    gap: Spacing.sm,
   },
   header: {
     paddingTop: Spacing.lg,
@@ -190,12 +284,44 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
     flexWrap: 'wrap',
   },
+  catalogNote: {
+    minHeight: 40,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderRadius: Radius.md,
+    borderWidth: StyleSheet.hairlineWidth,
+    marginBottom: Spacing.lg,
+  },
+  catalogNoteText: {
+    flex: 1,
+  },
+  sectionHeader: {
+    paddingTop: Spacing.lg,
+    paddingBottom: Spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: Spacing.md,
+  },
+  sectionTitleBlock: {
+    flex: 1,
+    gap: Spacing.xs,
+  },
+  paginationNote: {
+    borderTopWidth: StyleSheet.hairlineWidth,
+    marginTop: Spacing.md,
+    paddingTop: Spacing.md,
+  },
   card: {
     padding: Spacing.md,
     borderRadius: Radius.xl,
     borderWidth: StyleSheet.hairlineWidth,
     gap: Spacing.md,
     ...Elevation.subtle,
+    marginBottom: Spacing.sm,
   },
   cardHeader: {
     flexDirection: 'column',

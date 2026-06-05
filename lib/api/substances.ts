@@ -78,6 +78,23 @@ export type ApiSubstanceListSummary = {
   };
 };
 
+export type ApiSubstanceListMeta = {
+  total?: number;
+  limit?: number;
+  query?: string | null;
+  page?: number;
+  offset?: number;
+  hasMore?: boolean;
+  nextPage?: number;
+  nextOffset?: number;
+};
+
+export type ApiSubstanceListResult = {
+  items: ApiSubstanceListSummary[];
+  source?: string;
+  meta: ApiSubstanceListMeta;
+};
+
 export type ApiSubstanceDetailResult = {
   item: Substance;
   source?: string;
@@ -178,9 +195,26 @@ function normalizeContentText(value: string | undefined): string | undefined {
   if (isTimestamp(trimmed)) return undefined;
   if (isSourceLikeFragment(trimmed)) return undefined;
   if (isSingleWordArtifact(trimmed)) return undefined;
+  if (isChemicalIdentifierHeavy(trimmed)) return undefined;
   if (trimmed.length < 24 && !SHORT_CONTENT_ALLOWLIST.has(lower)) return undefined;
 
   return trimmed;
+}
+
+function isChemicalIdentifierHeavy(value: string): boolean {
+  const compact = value.replace(/\s+/g, '');
+  if (/^\([0-9A-Z,+-]+\)-[A-Za-z0-9()[\],-]{12,}/.test(compact)) return true;
+  if ((compact.match(/[()[\]]/g)?.length ?? 0) >= 6 && (compact.match(/\d/g)?.length ?? 0) >= 8) return true;
+  return false;
+}
+
+function cleanDisplayName(value: string): string {
+  const cleaned = value
+    .replace(/^\((?:\+|-|±)\)-\s*/u, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!cleaned) return value;
+  return cleaned.charAt(0).toLocaleUpperCase('de-DE') + cleaned.slice(1);
 }
 
 function formatDate(value: string | undefined): string | undefined {
@@ -282,7 +316,7 @@ export function normalizeMobileSubstanceSummary(item: MobileSubstanceItem): ApiS
 
   return {
     slug,
-    name,
+    name: cleanDisplayName(name),
     aliases: stringArray(item.aliases),
     primaryClass,
     summary: makeSummary(item, primaryClass, effects, risks),
@@ -299,14 +333,50 @@ export function normalizeMobileSubstanceSummary(item: MobileSubstanceItem): ApiS
   };
 }
 
-function normalizeMobileListResponse(response: MobileListResponse): ApiSubstanceListSummary[] {
+function numberValue(value: unknown): number | undefined {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  const fromString = Number(stringValue(value));
+  return Number.isFinite(fromString) ? fromString : undefined;
+}
+
+function booleanValue(value: unknown): boolean | undefined {
+  if (typeof value === 'boolean') return value;
+  const normalized = stringValue(value)?.toLowerCase();
+  if (normalized === 'true') return true;
+  if (normalized === 'false') return false;
+  return undefined;
+}
+
+function normalizeListMeta(value: unknown): ApiSubstanceListMeta {
+  const record = asRecord(value);
+  if (!record) return {};
+
+  return {
+    total: numberValue(record.total),
+    limit: numberValue(record.limit),
+    query: stringValue(record.query) ?? null,
+    page: numberValue(record.page),
+    offset: numberValue(record.offset),
+    hasMore: booleanValue(record.hasMore ?? record.has_more),
+    nextPage: numberValue(record.nextPage ?? record.next_page),
+    nextOffset: numberValue(record.nextOffset ?? record.next_offset),
+  };
+}
+
+function normalizeMobileListResponse(response: MobileListResponse): ApiSubstanceListResult {
   if (!Array.isArray(response.items)) {
     throw new SynapediaApiError('Ungueltige Substanzliste.', 200, 'INVALID_RESPONSE');
   }
 
-  return response.items
+  const items = response.items
     .map((item) => normalizeMobileSubstanceSummary(item as MobileSubstanceItem))
     .filter((item): item is ApiSubstanceListSummary => item !== null);
+
+  return {
+    items,
+    source: normalizeSource(response.source),
+    meta: normalizeListMeta(response.meta),
+  };
 }
 
 function normalizeSource(value: unknown): string | undefined {
@@ -610,14 +680,28 @@ function normalizeDetailItem(item: MobileSubstanceItem, enrichment?: Substance):
   };
 }
 
-export async function fetchMobileSubstances(query: string): Promise<ApiSubstanceListSummary[]> {
+export async function fetchMobileSubstanceList({
+  query = '',
+  limit = 20,
+}: {
+  query?: string;
+  limit?: number;
+} = {}): Promise<ApiSubstanceListResult> {
   const trimmed = query.trim();
   const response = await getJson<MobileListResponse>(
     '/api/mobile/substances',
-    trimmed ? { q: trimmed, limit: 20 } : { limit: 20 },
+    trimmed ? { q: trimmed, limit } : { limit },
   );
 
   return normalizeMobileListResponse(response);
+}
+
+export async function fetchMobileSubstances(query: string): Promise<ApiSubstanceListSummary[]> {
+  const result = await fetchMobileSubstanceList({
+    query,
+    limit: query.trim() ? 50 : 100,
+  });
+  return result.items;
 }
 
 export async function fetchMobileSubstanceDetail(

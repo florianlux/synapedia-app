@@ -6,10 +6,10 @@ import { useThemeColors } from '@/hooks/use-theme';
 export type SourceBadgeState = 'live' | 'mixed' | 'local' | 'offline';
 
 function sourceMeta(source: SourceBadgeState, colors: ThemeColors): { label: string; tint: string } {
-  if (source === 'live') return { label: 'Live-Daten', tint: colors.accent };
-  if (source === 'mixed') return { label: 'Live + Fallback', tint: colors.accent };
+  if (source === 'live') return { label: 'Live-Katalog', tint: colors.accent };
+  if (source === 'mixed') return { label: 'Live-Daten + lokaler Fallback', tint: colors.accent };
   if (source === 'offline') return { label: 'Offline-Fallback', tint: colors.severityRisky };
-  return { label: 'Lokal', tint: colors.textTertiary };
+  return { label: 'Lokale MVP-Daten', tint: colors.textTertiary };
 }
 
 export function SourceBadge({
@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.xs,
-    maxWidth: 174,
+    maxWidth: 236,
   },
   dot: {
     width: 6,
