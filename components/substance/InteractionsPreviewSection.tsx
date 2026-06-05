@@ -8,6 +8,7 @@ import type { Interaction, InteractionSeverity } from '@/types/substance';
 
 interface Props {
   interactions: Interaction[];
+  onOpenMixCheck?: () => void;
 }
 
 function getSeverityColor(
@@ -43,13 +44,43 @@ const SEVERITY_ORDER: InteractionSeverity[] = [
   'low-risk',
 ];
 
-export function InteractionsPreviewSection({ interactions }: Props) {
+export function InteractionsPreviewSection({ interactions, onOpenMixCheck }: Props) {
   const colors = useThemeColors();
 
   const sorted = [...interactions].sort(
     (a, b) =>
       SEVERITY_ORDER.indexOf(a.severity) - SEVERITY_ORDER.indexOf(b.severity),
   );
+
+  if (sorted.length === 0) {
+    return (
+      <View
+        style={[
+          styles.emptyState,
+          { backgroundColor: colors.backgroundSecondary, borderColor: colors.border },
+        ]}>
+        <Ionicons name="git-compare-outline" size={22} color={colors.accent} />
+        <View style={styles.textContainer}>
+          <Text style={[Typography.bodyBold, { color: colors.textPrimary }]}>
+            Keine Vorschau gespeichert
+          </Text>
+          <Text style={[Typography.caption, { color: colors.textSecondary, marginTop: 2 }]}>
+            Pruefe konkrete Kombinationen im MixCheck.
+          </Text>
+        </View>
+        <Pressable
+          onPress={onOpenMixCheck}
+          style={({ pressed }) => [
+            styles.ctaButton,
+            { backgroundColor: pressed ? '#0066D6' : colors.accent },
+          ]}>
+          <Text style={[Typography.captionBold, { color: '#FFFFFF' }]}>
+            Oeffnen
+          </Text>
+        </Pressable>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.list}>
@@ -115,5 +146,19 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     flex: 1,
+  },
+  emptyState: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    padding: Spacing.md,
+    borderRadius: Radius.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+  },
+  ctaButton: {
+    minHeight: 34,
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.md,
+    borderRadius: Radius.md,
   },
 });

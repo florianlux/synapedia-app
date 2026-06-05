@@ -78,6 +78,16 @@ export default function SubstanceDetailScreen() {
     if (slug && substanceState.status === 'success') addRecentlyViewed(slug);
   }, [slug, substanceState.status, addRecentlyViewed]);
 
+  useEffect(() => {
+    if (!__DEV__ || substanceState.status !== 'success') return;
+
+    debugSubstanceRender({
+      slug,
+      source: substanceState.source,
+      data: substanceState.data,
+    });
+  }, [slug, substanceState]);
+
   // ---- Loading state ----
   if (substanceState.status === 'loading') {
     return (
@@ -126,6 +136,9 @@ export default function SubstanceDetailScreen() {
   const substance = substanceState.data;
   const source = substanceState.source;
   const refreshing = substanceState.refreshing;
+  const interactionsPreview = substance.interactionsPreview ?? substance.interactions;
+  const hasDuration = hasSubstanceDuration(substance);
+  const scrollBottomPadding = insets.bottom + Spacing.screenBottom + 72;
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
@@ -166,7 +179,7 @@ export default function SubstanceDetailScreen() {
 
       {/* ── Z2–Z4: Scrollable Content ── */}
       <ScrollView
-        contentContainerStyle={{ paddingBottom: insets.bottom + Spacing.screenBottom }}
+        contentContainerStyle={{ paddingBottom: scrollBottomPadding }}
         showsVerticalScrollIndicator={false}>
         {/* Z2: Hero Header */}
         <HeroHeader substance={substance} />
@@ -184,20 +197,23 @@ export default function SubstanceDetailScreen() {
         </View>
 
         {/* Z4: Expandable Sections */}
-        <ExpandableSection title="Überblick">
+        <ExpandableSection title="Überblick" initialExpanded>
           <OverviewContent
             summary={substance.summary}
             aliases={substance.aliases}
             primaryClass={substance.primaryClass}
             categories={substance.categories}
+            riskLabel={substance.riskLabel}
             mechanisms={substance.mechanisms}
           />
         </ExpandableSection>
 
-        <ExpandableSection title="Wirkdauer" hidden={substance.duration.phases.length === 0 && (substance.duration.total === '—' || substance.duration.total === '-')}>
+        <ExpandableSection title="Wirkdauer" hidden={!hasDuration}>
           <DurationSection
             phases={substance.duration.phases}
             total={substance.duration.total}
+            quickFacts={substance.quickFacts}
+            notes={['Zeitangaben sind Richtwerte und koennen je nach Dosis, Person, Route und Setting variieren.']}
           />
         </ExpandableSection>
 
@@ -227,9 +243,11 @@ export default function SubstanceDetailScreen() {
 
         <ExpandableSection
           title="Interaktionen"
-          badge={(substance.interactionsPreview ?? substance.interactions).length}
-          hidden={(substance.interactionsPreview ?? substance.interactions).length === 0}>
-          <InteractionsPreviewSection interactions={substance.interactionsPreview ?? substance.interactions} />
+          badge={interactionsPreview.length}>
+          <InteractionsPreviewSection
+            interactions={interactionsPreview}
+            onOpenMixCheck={() => router.push('/(tabs)/check')}
+          />
         </ExpandableSection>
 
         <ExpandableSection title="Evidenz & Quellen" hidden={substance.sources.length === 0 && !substance.lastUpdated}>
@@ -274,6 +292,64 @@ function normalizeRouteRiskLevel(value: string | undefined): RiskLevel | undefin
   return undefined;
 }
 
+function hasUsefulValue(value: string | undefined): boolean {
+  return !!value && value !== '-' && value !== '—';
+}
+
+function hasSubstanceDuration(substance: {
+  duration: { phases: { value: string }[]; total: string };
+  quickFacts: { onset: string; peak: string; duration: string; afterEffects: string };
+}): boolean {
+  return (
+    substance.duration.phases.some((phase) => hasUsefulValue(phase.value)) ||
+    hasUsefulValue(substance.duration.total) ||
+    hasUsefulValue(substance.quickFacts.onset) ||
+    hasUsefulValue(substance.quickFacts.peak) ||
+    hasUsefulValue(substance.quickFacts.duration) ||
+    hasUsefulValue(substance.quickFacts.afterEffects)
+  );
+}
+
+function debugSubstanceRender({
+  slug,
+  source,
+  data,
+}: {
+  slug: string | undefined;
+  source: string;
+  data: {
+    summary?: string;
+    effects: { positive: string[]; neutral: string[]; negative: string[] };
+    risks: { acute: unknown[]; longterm: unknown[] };
+    saferUse: unknown[];
+    warnings: unknown[];
+    mechanisms: unknown[];
+    duration: { phases: unknown[]; total?: string };
+    interactionsPreview?: unknown[];
+    interactions: unknown[];
+  };
+}) {
+  console.debug('[substance-detail]', {
+    slug,
+    source,
+    summaryLength: data.summary?.length ?? 0,
+    effectsCount:
+      data.effects.positive.length +
+      data.effects.neutral.length +
+      data.effects.negative.length,
+    risksCount: data.risks.acute.length + data.risks.longterm.length,
+    saferUseCount: data.saferUse.length,
+    warningsCount: data.warnings.length,
+    mechanismsCount: data.mechanisms.length,
+    durationObjectPresence: {
+      hasObject: !!data.duration,
+      phasesCount: data.duration.phases.length,
+      hasTotal: hasUsefulValue(data.duration.total),
+    },
+    interactionsPreviewCount: (data.interactionsPreview ?? data.interactions).length,
+  });
+}
+
 // ---------------------------------------------------------------------------
 // Inline section-content components (simple enough to live here for now)
 // ---------------------------------------------------------------------------
@@ -296,27 +372,32 @@ function OverviewContent({
   aliases,
   primaryClass,
   categories,
+  riskLabel,
   mechanisms,
 }: {
   summary?: string;
   aliases?: string[];
   primaryClass?: string;
   categories: string[];
+  riskLabel: string;
   mechanisms: string[];
 }) {
   const colors = useThemeColors();
+  const categoryText = categories.length ? categories.join(', ') : 'Keine Klasse angegeben';
 
   return (
     <View style={{ gap: Spacing.md }}>
-      {summary && (
-        <Text style={[Typography.body, { color: colors.textPrimary }]}>
-          {summary}
-        </Text>
-      )}
+      <Text style={[Typography.body, { color: colors.textPrimary }]}>
+        {summary || 'Noch keine Zusammenfassung verfuegbar.'}
+      </Text>
       <View style={inlineStyles.overviewGrid}>
         <InfoTile label="Klasse" value={primaryClass ?? categories[0] ?? '—'} />
         <InfoTile label="Aliasse" value={aliases?.length ? aliases.join(', ') : '—'} />
+        <InfoTile label="Risiko" value={riskLabel} />
       </View>
+      <Text style={[Typography.caption, { color: colors.textSecondary }]}>
+        Kontext: {categoryText}
+      </Text>
       {mechanisms.length > 0 && (
         <View>
           <Text style={[Typography.captionBold, { color: colors.textSecondary, marginBottom: Spacing.sm }]}>
@@ -552,6 +633,9 @@ function SaferUseContent({
           </View>
         </View>
       ))}
+      <Text style={[Typography.caption, { color: colors.textTertiary, marginTop: Spacing.xs }]}>
+        Hinweise reduzieren Risiken, machen Konsum aber nicht risikofrei.
+      </Text>
     </View>
   );
 }
@@ -660,6 +744,7 @@ const inlineStyles = StyleSheet.create({
   },
   overviewGrid: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: Spacing.sm,
   },
   sourceRow: {
@@ -669,6 +754,7 @@ const inlineStyles = StyleSheet.create({
   },
   infoTile: {
     flex: 1,
+    minWidth: 128,
     minHeight: 72,
     padding: Spacing.md,
     borderRadius: Radius.md,

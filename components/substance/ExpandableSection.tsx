@@ -1,12 +1,5 @@
 import { useCallback, useState } from 'react';
-import { LayoutChangeEvent, Pressable, StyleSheet, Text, View } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  interpolate,
-  Easing,
-} from 'react-native-reanimated';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import * as Haptics from 'expo-haptics';
 
@@ -19,52 +12,23 @@ interface Props {
   children: React.ReactNode;
   /** When true, the section is not rendered at all (e.g. no data available). */
   hidden?: boolean;
+  initialExpanded?: boolean;
 }
 
-export function ExpandableSection({ title, badge, children, hidden }: Props) {
+export function ExpandableSection({
+  title,
+  badge,
+  children,
+  hidden,
+  initialExpanded = false,
+}: Props) {
   const colors = useThemeColors();
-  const [expanded, setExpanded] = useState(false);
-  const contentHeight = useSharedValue(0);
-  const progress = useSharedValue(0);
+  const [expanded, setExpanded] = useState(initialExpanded);
 
   const toggle = useCallback(() => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setExpanded((prev) => {
-      const next = !prev;
-      progress.value = withTiming(next ? 1 : 0, {
-        duration: 280,
-        easing: Easing.out(Easing.cubic),
-      });
-      return next;
-    });
-  }, [progress]);
-
-  const onContentLayout = useCallback(
-    (e: LayoutChangeEvent) => {
-      const h = e.nativeEvent.layout.height;
-      if (h > 0) {
-        contentHeight.value = h;
-      }
-    },
-    [contentHeight],
-  );
-
-  const bodyStyle = useAnimatedStyle(() => {
-    if (contentHeight.value === 0) {
-      return { height: 0, overflow: 'hidden' as const };
-    }
-    return {
-      height: interpolate(progress.value, [0, 1], [0, contentHeight.value]),
-      opacity: interpolate(progress.value, [0, 0.15, 1], [0, 1, 1]),
-      overflow: 'hidden' as const,
-    };
-  });
-
-  const chevronStyle = useAnimatedStyle(() => ({
-    transform: [
-      { rotate: `${interpolate(progress.value, [0, 1], [0, 90])}deg` },
-    ],
-  }));
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setExpanded((prev) => !prev);
+  }, []);
 
   if (hidden) return null;
 
@@ -85,15 +49,19 @@ export function ExpandableSection({ title, badge, children, hidden }: Props) {
             </View>
           )}
         </View>
-        <Animated.View style={chevronStyle}>
-          <Ionicons name="chevron-forward" size={20} color={colors.textTertiary} />
-        </Animated.View>
+        <Ionicons
+          name={expanded ? 'chevron-up' : 'chevron-down'}
+          size={20}
+          color={colors.textTertiary}
+        />
       </Pressable>
-      <Animated.View style={bodyStyle}>
-        <View onLayout={onContentLayout} style={styles.content}>
-          {children}
+      {expanded && (
+        <View style={[styles.contentWrap, { borderTopColor: colors.separator }]}>
+          <View style={styles.content}>
+            {children}
+          </View>
         </View>
-      </Animated.View>
+      )}
     </View>
   );
 }
@@ -104,7 +72,6 @@ const styles = StyleSheet.create({
     marginTop: Spacing.md,
     borderWidth: StyleSheet.hairlineWidth,
     borderRadius: Radius.xl,
-    overflow: 'hidden',
     ...Elevation.subtle,
   },
   header: {
@@ -120,6 +87,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.sm,
     flex: 1,
+    paddingRight: Spacing.md,
   },
   badge: {
     borderRadius: 10,
@@ -134,8 +102,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
   },
+  contentWrap: {
+    borderTopWidth: StyleSheet.hairlineWidth,
+  },
   content: {
     paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.md,
     paddingBottom: Spacing.lg,
   },
 });
