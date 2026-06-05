@@ -67,7 +67,12 @@ export default function GuideDetailScreen() {
         <View style={styles.navButton} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: insets.bottom + Spacing.screenBottom },
+        ]}
+        showsVerticalScrollIndicator={false}>
         <View style={styles.hero}>
           <Text style={[Typography.captionBold, { color: guide.accent }]}>{guide.category}</Text>
           <Text style={[Typography.heroTitle, styles.title, { color: colors.textPrimary }]}>
@@ -83,20 +88,20 @@ export default function GuideDetailScreen() {
 
         {(guide.safetyDisclaimer || GUIDE_DISCLAIMER) && (
           <View style={[styles.disclaimer, { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder }]}>
-          <Ionicons name="warning-outline" size={18} color={colors.severityRisky} />
-          <View style={styles.disclaimerText}>
-            <Text style={[Typography.captionBold, { color: colors.textPrimary }]}>
-              Wichtiger Sicherheitshinweis
-            </Text>
-            {guide.safetyDisclaimer && (
-              <Text style={[Typography.caption, { color: colors.textSecondary, marginTop: Spacing.xs }]}>
-                {guide.safetyDisclaimer}
+            <Ionicons name="warning-outline" size={18} color={colors.severityRisky} />
+            <View style={styles.disclaimerText}>
+              <Text style={[Typography.captionBold, { color: colors.textPrimary }]}>
+                Wichtiger Sicherheitshinweis
               </Text>
-            )}
-            <Text style={[Typography.caption, { color: colors.textSecondary, marginTop: Spacing.xs }]}>
-              {GUIDE_DISCLAIMER}
-            </Text>
-          </View>
+              {guide.safetyDisclaimer && (
+                <Text style={[Typography.caption, { color: colors.textSecondary, marginTop: Spacing.xs }]}>
+                  {guide.safetyDisclaimer}
+                </Text>
+              )}
+              <Text style={[Typography.caption, { color: colors.textSecondary, marginTop: Spacing.xs }]}>
+                {GUIDE_DISCLAIMER}
+              </Text>
+            </View>
           </View>
         )}
 
@@ -205,7 +210,14 @@ function BulletSection({
   const accent = danger ? colors.severityDangerous : colors.accent;
 
   return (
-    <View style={[styles.bulletSection, { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder }]}>
+    <View
+      style={[
+        styles.bulletSection,
+        {
+          backgroundColor: danger ? `${colors.severityDangerous}10` : colors.backgroundElevated,
+          borderColor: danger ? `${colors.severityDangerous}45` : colors.cardBorder,
+        },
+      ]}>
       <View style={styles.sectionTitleRow}>
         <Ionicons name={icon} size={18} color={accent} />
         <Text style={[Typography.sectionTitle, { color: colors.textPrimary, flex: 1 }]}>
@@ -272,7 +284,6 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: Spacing.page,
-    paddingBottom: Spacing.screenBottom,
   },
   hero: {
     paddingTop: Spacing.md,
@@ -307,7 +318,7 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   infoCard: {
-    padding: Spacing.lg,
+    padding: Spacing.md,
     borderRadius: Radius.xl,
     borderWidth: StyleSheet.hairlineWidth,
     gap: Spacing.md,
@@ -320,7 +331,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: Spacing.md,
-    padding: Spacing.lg,
+    padding: Spacing.md,
     borderRadius: Radius.xl,
     borderWidth: StyleSheet.hairlineWidth,
     ...Elevation.subtle,
@@ -335,7 +346,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   bulletSection: {
-    padding: Spacing.lg,
+    padding: Spacing.md,
     borderRadius: Radius.xl,
     borderWidth: StyleSheet.hairlineWidth,
     gap: Spacing.md,

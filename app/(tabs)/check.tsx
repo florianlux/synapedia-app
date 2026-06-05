@@ -94,7 +94,10 @@ export default function CheckScreen() {
       {/* ── Result area ── */}
       <ScrollView
         style={styles.resultScroll}
-        contentContainerStyle={styles.resultContent}
+        contentContainerStyle={[
+          styles.resultContent,
+          { paddingBottom: insets.bottom + Spacing.screenBottom + Spacing.lg },
+        ]}
         showsVerticalScrollIndicator={false}>
         <View style={styles.popularSection}>
           <Text style={[Typography.captionBold, { color: colors.textSecondary }]}>
@@ -206,7 +209,7 @@ export default function CheckScreen() {
                   marginTop: Spacing.sm,
                 },
               ]}>
-              {interactionState.message}
+              MixCheck ist gerade nicht erreichbar. Lokale Fallback-Daten bleiben aktiv, wenn sie vorhanden sind.
             </Text>
           </View>
         )}

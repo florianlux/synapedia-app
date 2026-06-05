@@ -124,7 +124,10 @@ export function SubstancePicker({
         <FlatList
           data={data}
           keyExtractor={(item) => item.slug}
-          contentContainerStyle={styles.list}
+          contentContainerStyle={[
+            styles.list,
+            { paddingBottom: Math.max(insets.bottom, Spacing.lg) + Spacing.lg },
+          ]}
           keyboardShouldPersistTaps="handled"
           ListEmptyComponent={
             !isLoading ? (
@@ -143,7 +146,7 @@ export function SubstancePicker({
               <Pressable
                 disabled={isDisabled}
                 onPress={() => {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                  void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                   setQuery('');
                   onSelect(item.slug);
                 }}
@@ -170,7 +173,8 @@ export function SubstancePicker({
                       style={[
                         Typography.caption,
                         { color: colors.textSecondary },
-                      ]}>
+                      ]}
+                      numberOfLines={1}>
                       {item.categories.join(' · ')}
                     </Text>
                   )}
@@ -206,7 +210,7 @@ const styles = StyleSheet.create({
   sheet: {
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    maxHeight: '75%',
+    maxHeight: '82%',
     borderTopWidth: StyleSheet.hairlineWidth,
   },
   handleRow: {
@@ -233,7 +237,7 @@ const styles = StyleSheet.create({
     marginHorizontal: Spacing.page,
     marginBottom: Spacing.sm,
     paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
+    minHeight: 44,
     borderRadius: Radius.md,
     gap: Spacing.sm,
     borderWidth: StyleSheet.hairlineWidth,
@@ -248,7 +252,6 @@ const styles = StyleSheet.create({
   list: {
     paddingHorizontal: Spacing.page,
     gap: Spacing.sm,
-    paddingBottom: Spacing.lg,
   },
   row: {
     flexDirection: 'row',

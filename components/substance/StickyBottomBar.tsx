@@ -36,7 +36,7 @@ export function StickyBottomBar({
             backgroundColor: pressed ? '#0066D6' : colors.accent,
           },
         ]}>
-        <Text style={[Typography.bodyBold, { color: '#FFFFFF' }]}>
+        <Text style={[Typography.bodyBold, { color: '#FFFFFF' }]} numberOfLines={1}>
           Kombination checken
         </Text>
       </Pressable>
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     paddingHorizontal: Spacing.page,
-    paddingTop: Spacing.md,
+    paddingTop: Spacing.sm,
     borderTopWidth: StyleSheet.hairlineWidth,
     gap: Spacing.sm,
   },
@@ -77,14 +77,18 @@ const styles = StyleSheet.create({
     flex: 2,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: Spacing.md,
+    minHeight: 44,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
     borderRadius: Radius.md,
   },
   secondaryButton: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: Spacing.md,
+    minHeight: 44,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.sm,
     borderRadius: Radius.md,
     borderWidth: 1,
   },

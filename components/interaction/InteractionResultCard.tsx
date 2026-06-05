@@ -121,6 +121,20 @@ function displaySubstanceName(slug: string, fallback: string): string {
     .join(' ');
 }
 
+function usefulText(value: string | undefined): string | undefined {
+  const text = value?.replace(/\s+/g, ' ').trim();
+  if (!text) return undefined;
+  const lower = text.toLowerCase();
+  if (lower === 'null' || lower === 'undefined' || lower === '[object object]') return undefined;
+  return text;
+}
+
+function usefulList(items: string[]): string[] {
+  return items
+    .map(usefulText)
+    .filter((item, index, array): item is string => !!item && array.indexOf(item) === index);
+}
+
 export function InteractionResultCard({ interaction, source, refreshing = false }: Props) {
   const colors = useThemeColors();
   const risk = getRiskMeta(interaction.riskLevel, colors);
@@ -129,7 +143,16 @@ export function InteractionResultCard({ interaction, source, refreshing = false 
   const hasDetailB = knownSlugs.has(interaction.substanceB);
   const nameA = displaySubstanceName(interaction.substanceA, 'Substanz A');
   const nameB = displaySubstanceName(interaction.substanceB, 'Substanz B');
-  const hasEvidence = Boolean(interaction.evidenceNote || interaction.sourceNote);
+  const title = usefulText(interaction.title) ?? `${nameA} + ${nameB}`;
+  const summary =
+    usefulText(interaction.summary) ??
+    'Für diese Kombination liegen nur begrenzte Angaben vor. Unbekannt bedeutet nicht sicher.';
+  const mechanisms = usefulList(interaction.mechanisms);
+  const saferUseNotes = usefulList(interaction.saferUseNotes);
+  const redFlags = usefulList(interaction.redFlags);
+  const evidenceNote = usefulText(interaction.evidenceNote);
+  const sourceNote = usefulText(interaction.sourceNote);
+  const hasEvidence = Boolean(evidenceNote || sourceNote);
 
   return (
     <View style={styles.container}>
@@ -140,7 +163,7 @@ export function InteractionResultCard({ interaction, source, refreshing = false 
           </View>
           <View style={styles.heroText}>
             <Text style={[Typography.sectionTitle, { color: colors.textPrimary }]}>
-              {interaction.title}
+              {title}
             </Text>
             <Text style={[Typography.bodyBold, { color: risk.color }]}>
               Risikostufe: {risk.label}
@@ -148,7 +171,7 @@ export function InteractionResultCard({ interaction, source, refreshing = false 
           </View>
         </View>
         <Text style={[Typography.body, styles.summary, { color: colors.textPrimary }]}>
-          {interaction.summary}
+          {summary}
         </Text>
       </View>
 
@@ -157,7 +180,7 @@ export function InteractionResultCard({ interaction, source, refreshing = false 
         substanceB={nameB}
         riskLevel={interaction.riskLevel}
         riskLabel={risk.label}
-        mechanisms={interaction.mechanisms}
+        mechanisms={mechanisms}
       />
 
       {source && (
@@ -166,34 +189,34 @@ export function InteractionResultCard({ interaction, source, refreshing = false 
         </View>
       )}
 
-      {interaction.mechanisms.length > 0 && (
+      {mechanisms.length > 0 && (
         <Section title="Risikomechanismen" icon="git-network-outline">
-          <BulletList items={interaction.mechanisms} />
+          <BulletList items={mechanisms} />
         </Section>
       )}
 
-      {interaction.saferUseNotes.length > 0 && (
+      {saferUseNotes.length > 0 && (
         <Section title="Safer-Use-Hinweise" icon="shield-checkmark-outline">
-          <BulletList items={interaction.saferUseNotes} />
+          <BulletList items={saferUseNotes} />
         </Section>
       )}
 
-      {interaction.redFlags.length > 0 && (
+      {redFlags.length > 0 && (
         <Section title="Wann Hilfe holen?" icon="alert-circle-outline" danger>
-          <BulletList items={interaction.redFlags} danger />
+          <BulletList items={redFlags} danger />
         </Section>
       )}
 
       {hasEvidence && (
         <Section title="Evidenz / Quellen" icon="document-text-outline">
-          {interaction.evidenceNote && (
+          {evidenceNote && (
             <Text style={[Typography.bodyBold, { color: colors.textPrimary }]}>
-              {interaction.evidenceNote}
+              {evidenceNote}
             </Text>
           )}
-          {interaction.sourceNote && (
+          {sourceNote && (
             <Text style={[Typography.caption, styles.sourceText, { color: colors.textSecondary }]}>
-              {interaction.sourceNote}
+              {sourceNote}
             </Text>
           )}
         </Section>

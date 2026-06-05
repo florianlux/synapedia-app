@@ -36,7 +36,10 @@ export default function WikiScreen() {
       <FlatList
         data={substances}
         keyExtractor={(item) => item.slug}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[
+          styles.list,
+          { paddingBottom: insets.bottom + Spacing.screenBottom + Spacing.lg },
+        ]}
         keyboardDismissMode="on-drag"
         keyboardShouldPersistTaps="handled"
         ListHeaderComponent={
@@ -132,7 +135,9 @@ function SubstanceCard({ item }: { item: LocalSubstanceSummary }) {
         <Pill label={item.riskLabel} tint={riskColor} icon="pulse-outline" />
       </View>
 
-      <Text style={[Typography.body, styles.summary, { color: colors.textSecondary }]}>
+      <Text
+        style={[Typography.body, styles.summary, { color: colors.textSecondary }]}
+        numberOfLines={3}>
         {item.summary}
       </Text>
 
@@ -154,7 +159,6 @@ const styles = StyleSheet.create({
   },
   list: {
     padding: Spacing.page,
-    paddingBottom: Spacing.screenBottom,
     gap: Spacing.sm,
   },
   header: {
@@ -165,7 +169,7 @@ const styles = StyleSheet.create({
     marginTop: Spacing.xs,
   },
   searchBar: {
-    minHeight: 50,
+    minHeight: 44,
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
@@ -187,7 +191,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   card: {
-    padding: Spacing.lg,
+    padding: Spacing.md,
     borderRadius: Radius.xl,
     borderWidth: StyleSheet.hairlineWidth,
     gap: Spacing.md,
@@ -206,6 +210,7 @@ const styles = StyleSheet.create({
   },
   summary: {
     marginRight: Spacing.sm,
+    minHeight: 0,
   },
   metaRow: {
     flexDirection: 'row',

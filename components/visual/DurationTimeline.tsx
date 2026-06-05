@@ -28,7 +28,7 @@ export function DurationTimeline({ quickFacts }: Props) {
   return (
     <View style={[styles.card, { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder }]}>
       <View style={styles.header}>
-        <Text style={[Typography.sectionTitle, { color: colors.textPrimary }]}>Wirkverlauf</Text>
+        <Text style={[Typography.bodyBold, { color: colors.textPrimary }]}>Wirkverlauf</Text>
         <Text style={[Typography.quickFactLabel, { color: colors.textTertiary }]}>lokale Angaben</Text>
       </View>
 
@@ -60,8 +60,8 @@ const styles = StyleSheet.create({
     marginTop: Spacing.md,
     borderRadius: Radius.xl,
     borderWidth: StyleSheet.hairlineWidth,
-    padding: Spacing.lg,
-    gap: Spacing.lg,
+    padding: Spacing.md,
+    gap: Spacing.md,
   },
   header: {
     flexDirection: 'row',
@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
   },
   timeline: {
-    minHeight: 86,
+    minHeight: 76,
     flexDirection: 'row',
     justifyContent: 'space-between',
     position: 'relative',

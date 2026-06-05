@@ -19,7 +19,12 @@ export default function GuidesScreen() {
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background, paddingTop: insets.top }]}>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: insets.bottom + Spacing.screenBottom + Spacing.lg },
+        ]}
+        showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <Text style={[Typography.heroTitle, { color: colors.textPrimary }]}>Guides</Text>
           <Text style={[Typography.body, styles.subtitle, { color: colors.textSecondary }]}>
@@ -55,7 +60,7 @@ export default function GuidesScreen() {
                   numberOfLines={2}>
                   {guide.title}
                 </Text>
-                <Text style={[Typography.caption, { color: colors.textSecondary }]} numberOfLines={3}>
+                <Text style={[Typography.caption, { color: colors.textSecondary }]} numberOfLines={2}>
                   {guide.summary}
                 </Text>
               </View>
@@ -81,7 +86,6 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: Spacing.page,
-    paddingBottom: Spacing.screenBottom,
   },
   header: {
     paddingTop: Spacing.lg,
@@ -103,7 +107,7 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
     borderRadius: Radius.xl,
     borderWidth: StyleSheet.hairlineWidth,
-    padding: Spacing.lg,
+    padding: Spacing.md,
     ...Elevation.subtle,
   },
   iconBox: {

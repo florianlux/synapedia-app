@@ -7,9 +7,9 @@ export type SourceBadgeState = 'live' | 'mixed' | 'local' | 'offline';
 
 function sourceMeta(source: SourceBadgeState, colors: ThemeColors): { label: string; tint: string } {
   if (source === 'live') return { label: 'Live-Daten', tint: colors.accent };
-  if (source === 'mixed') return { label: 'Live-Daten + lokaler Fallback', tint: colors.accent };
+  if (source === 'mixed') return { label: 'Live + Fallback', tint: colors.accent };
   if (source === 'offline') return { label: 'Offline-Fallback', tint: colors.severityRisky };
-  return { label: 'Lokale MVP-Daten', tint: colors.textTertiary };
+  return { label: 'Lokal', tint: colors.textTertiary };
 }
 
 export function SourceBadge({
@@ -36,13 +36,14 @@ export function SourceBadge({
 
 const styles = StyleSheet.create({
   badge: {
-    minHeight: 24,
+    minHeight: 22,
     borderRadius: Radius.full,
     borderWidth: StyleSheet.hairlineWidth,
     paddingHorizontal: Spacing.sm,
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.xs,
+    maxWidth: 174,
   },
   dot: {
     width: 6,

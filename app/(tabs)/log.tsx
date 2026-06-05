@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
+  Alert,
+  KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
@@ -237,7 +239,18 @@ export default function LogScreen() {
   }
 
   function deleteEntry(id: string) {
-    setEntries((current) => current.filter((entry) => entry.id !== id));
+    Alert.alert(
+      'Eintrag löschen?',
+      'Der lokale Dose-Log-Eintrag wird von diesem Gerät entfernt.',
+      [
+        { text: 'Abbrechen', style: 'cancel' },
+        {
+          text: 'Löschen',
+          style: 'destructive',
+          onPress: () => setEntries((current) => current.filter((entry) => entry.id !== id)),
+        },
+      ],
+    );
   }
 
   async function exportCsv() {
@@ -312,7 +325,18 @@ export default function LogScreen() {
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background, paddingTop: insets.top }]}>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoider}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={insets.top}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: insets.bottom + Spacing.screenBottom + Spacing.xl },
+        ]}
+        keyboardDismissMode="on-drag"
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <Text style={[Typography.heroTitle, { color: colors.textPrimary }]}>Dose Log</Text>
           <Text style={[Typography.body, styles.subtitle, { color: colors.textSecondary }]}>
@@ -416,10 +440,8 @@ export default function LogScreen() {
         <View style={[styles.localNote, { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder }]}>
           <Ionicons name="lock-closed-outline" size={18} color={colors.accent} />
           <Text style={[Typography.caption, styles.localNoteText, { color: colors.textSecondary }]}>
-            Einträge werden nur auf diesem Gerät gespeichert; es ist keine Cloud-Synchronisierung aktiv.
-            Die lokale Speicherung ist in der App nicht Ende-zu-Ende-verschlüsselt und kann je nach
-            OS-Einstellungen in Geräte-Backups enthalten sein. CSV-Exporte verlassen die App und
-            sollten bewusst geteilt werden.
+            Einträge bleiben auf diesem Gerät; es gibt keinen Account und keine Cloud-Synchronisierung.
+            Geräte-Backups oder CSV-Exporte können Daten außerhalb der App speichern.
           </Text>
         </View>
 
@@ -477,6 +499,7 @@ export default function LogScreen() {
           </View>
         )}
       </ScrollView>
+      </KeyboardAvoidingView>
     </View>
   );
 }
@@ -597,9 +620,11 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
   },
+  keyboardAvoider: {
+    flex: 1,
+  },
   content: {
     padding: Spacing.page,
-    paddingBottom: Spacing.screenBottom,
   },
   header: {
     paddingTop: Spacing.lg,
@@ -630,7 +655,7 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   input: {
-    minHeight: 46,
+    minHeight: 48,
     borderRadius: Radius.md,
     borderWidth: StyleSheet.hairlineWidth,
     paddingHorizontal: Spacing.md,

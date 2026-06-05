@@ -86,7 +86,7 @@ export function RiskProfileBars({ substance }: Props) {
   return (
     <View style={[styles.card, { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder }]}>
       <View style={styles.header}>
-        <Text style={[Typography.sectionTitle, { color: colors.textPrimary }]}>Risikoprofil</Text>
+        <Text style={[Typography.bodyBold, { color: colors.textPrimary }]}>Risikoprofil</Text>
         <Text style={[Typography.quickFactLabel, { color: colors.textTertiary }]}>orientierend</Text>
       </View>
       <View style={styles.rows}>
@@ -122,8 +122,8 @@ const styles = StyleSheet.create({
     marginTop: Spacing.md,
     borderRadius: Radius.xl,
     borderWidth: StyleSheet.hairlineWidth,
-    padding: Spacing.lg,
-    gap: Spacing.md,
+    padding: Spacing.md,
+    gap: Spacing.sm,
   },
   header: {
     flexDirection: 'row',
@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   row: {
-    minHeight: 28,
+    minHeight: 24,
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
   },
   track: {
     flex: 1,
-    height: 8,
+    height: 7,
     borderRadius: Radius.full,
     overflow: 'hidden',
     borderWidth: StyleSheet.hairlineWidth,

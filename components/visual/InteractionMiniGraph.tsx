@@ -113,8 +113,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderRadius: Radius.xl,
     borderWidth: StyleSheet.hairlineWidth,
-    padding: Spacing.md,
-    gap: Spacing.md,
+    padding: Spacing.sm,
+    gap: Spacing.sm,
   },
   glow: {
     position: 'absolute',
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     opacity: 0.05,
   },
   graphRow: {
-    minHeight: 60,
+    minHeight: 52,
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
   node: {
     flex: 1,
     minWidth: 0,
-    minHeight: 42,
+    minHeight: 38,
     borderRadius: Radius.lg,
     borderWidth: StyleSheet.hairlineWidth,
     alignItems: 'center',
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
   riskNode: {
     flex: 1.18,
     minWidth: 0,
-    minHeight: 52,
+    minHeight: 46,
     borderRadius: Radius.lg,
     borderWidth: StyleSheet.hairlineWidth,
     alignItems: 'center',

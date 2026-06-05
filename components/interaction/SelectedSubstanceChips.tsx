@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   },
   slot: {
     flex: 1,
-    minHeight: 72,
+    minHeight: 64,
     borderRadius: Radius.xl,
     padding: Spacing.md,
     justifyContent: 'center',
