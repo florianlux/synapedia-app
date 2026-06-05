@@ -76,9 +76,14 @@ export function useGuide(slug: string | undefined): GuideState {
     }
 
     fetchMobileGuideDetail(slug, localGuide)
-      .then((guide) => {
+      .then((result) => {
         if (!active) return;
-        setState({ status: 'success', data: guide, source: 'live', refreshing: false });
+        setState({
+          status: 'success',
+          data: result.guide,
+          source: result.mergedWithLocal ? 'mixed' : 'live',
+          refreshing: false,
+        });
       })
       .catch(() => {
         if (!active) return;

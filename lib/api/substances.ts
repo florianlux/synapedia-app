@@ -20,7 +20,11 @@ export type MobileSubstanceItem = {
   receptor_targets?: unknown;
   receptors?: unknown;
   effects?: unknown;
+  effectsSummary?: unknown;
+  effects_summary?: unknown;
   duration?: unknown;
+  durationSummary?: unknown;
+  duration_summary?: unknown;
   risks?: unknown;
   saferUse?: unknown;
   safer_use?: unknown;
@@ -86,12 +90,17 @@ function asRecord(value: unknown): Record<string, unknown> | null {
 }
 
 function stringValue(value: unknown): string | undefined {
-  if (typeof value === 'string' && value.trim()) return value.trim();
+  if (typeof value === 'string' && value.trim()) {
+    const normalized = value.trim();
+    const lower = normalized.toLowerCase();
+    if (lower === 'null' || lower === 'undefined' || lower === '[object object]') return undefined;
+    return normalized;
+  }
   if (typeof value === 'number' && Number.isFinite(value)) return String(value);
   return undefined;
 }
 
-function stringArray(value: unknown): string[] {
+function stringArray(value: unknown, options: { content?: boolean } = {}): string[] {
   if (!Array.isArray(value)) return [];
   return value
     .map((item) => {
@@ -100,7 +109,9 @@ function stringArray(value: unknown): string[] {
       const record = asRecord(item);
       return firstString(record?.title, record?.name, record?.label, record?.text, record?.summary, record?.description);
     })
-    .filter((item): item is string => typeof item === 'string' && item.length > 0);
+    .map((item) => (options.content ? normalizeContentText(item) : item))
+    .filter((item): item is string => typeof item === 'string' && item.length > 0)
+    .filter((item, index, array) => array.indexOf(item) === index);
 }
 
 function firstString(...values: unknown[]): string | undefined {
@@ -127,6 +138,56 @@ function normalizeDuration(value: unknown): string {
   }
 
   return '-';
+}
+
+const RAW_CONTENT_TOKENS = new Set([
+  'strong',
+  'possible',
+  'low',
+  'moderate',
+  'high',
+  'unknown',
+  'reviewed',
+  'class_based',
+  'none_known',
+]);
+
+const SHORT_CONTENT_ALLOWLIST = new Set<string>();
+
+function isTimestamp(value: string): boolean {
+  return /^\d{4}-\d{2}-\d{2}(?:[tT ][\d:.+-]+Z?)?$/.test(value.trim());
+}
+
+function isSingleWordArtifact(value: string): boolean {
+  const normalized = value.trim();
+  if (SHORT_CONTENT_ALLOWLIST.has(normalized.toLowerCase())) return false;
+  if (/^[A-Z0-9-]{2,18}$/.test(normalized)) return true;
+  return /^[\p{L}\d-]{2,18}$/u.test(normalized) && !/[,:;.()]/.test(normalized);
+}
+
+function isSourceLikeFragment(value: string): boolean {
+  return /\bet al\./i.test(value) || /\b(?:journal|pharmacol|addiction|toxicol|psychiatry)\b/i.test(value);
+}
+
+function normalizeContentText(value: string | undefined): string | undefined {
+  const trimmed = value?.replace(/\s+/g, ' ').trim();
+  if (!trimmed) return undefined;
+
+  const lower = trimmed.toLowerCase();
+  if (RAW_CONTENT_TOKENS.has(lower)) return undefined;
+  if (isTimestamp(trimmed)) return undefined;
+  if (isSourceLikeFragment(trimmed)) return undefined;
+  if (isSingleWordArtifact(trimmed)) return undefined;
+  if (trimmed.length < 24 && !SHORT_CONTENT_ALLOWLIST.has(lower)) return undefined;
+
+  return trimmed;
+}
+
+function formatDate(value: string | undefined): string | undefined {
+  if (!value) return undefined;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toISOString().slice(0, 10);
 }
 
 function quickFactValue(item: MobileSubstanceItem, key: string): string | undefined {
@@ -185,7 +246,7 @@ function riskLabel(level: RiskLevel, raw?: unknown): string {
 }
 
 function makeSummary(item: MobileSubstanceItem, primaryClass: string, effects: string[], risks: string[]): string {
-  const summary = stringValue(item.summary);
+  const summary = normalizeContentText(stringValue(item.summary));
   if (summary) return summary;
 
   const effectText = effects.slice(0, 2).join(', ');
@@ -204,15 +265,20 @@ export function normalizeMobileSubstanceSummary(item: MobileSubstanceItem): ApiS
   const name = stringValue(item.name);
   if (!slug || !name) return null;
 
-  const effects = stringArray(item.effects);
-  const risks = stringArray(item.risks);
+  const effects = stringArray(item.effects ?? item.effectsSummary ?? item.effects_summary, { content: true });
+  const risks = stringArray(item.risks, { content: true });
   const mechanisms = stringArray(item.mechanisms);
   const receptors = stringArray(item.receptor_targets).concat(stringArray(item.receptors));
   const tags = stringArray(item.tags);
   const apiCategories = stringArray(item.categories);
   const primaryClass = firstString(item.primaryClass, item.classPrimary, item.class_primary, item.class) ?? 'Substanz';
   const riskLevel = normalizeRiskLevel(firstString(item.riskLevel, item.risk_level), risks);
-  const duration = normalizeDuration(firstString(quickFactValue(item, 'duration'), item.duration));
+  const duration = normalizeDuration(firstString(
+    quickFactValue(item, 'duration'),
+    item.durationSummary,
+    item.duration_summary,
+    item.duration,
+  ));
 
   return {
     slug,
@@ -273,9 +339,9 @@ function normalizeEffects(value: unknown, enrichment?: Substance): Substance['ef
   const record = asRecord(value);
   if (record) {
     const remote = {
-      positive: stringArray(record.positive),
-      neutral: stringArray(record.neutral),
-      negative: stringArray(record.negative),
+      positive: stringArray(record.positive, { content: true }),
+      neutral: stringArray(record.neutral, { content: true }),
+      negative: stringArray(record.negative, { content: true }),
     };
     return {
       positive: remote.positive.length ? remote.positive : enrichment?.effects.positive ?? [],
@@ -284,7 +350,7 @@ function normalizeEffects(value: unknown, enrichment?: Substance): Substance['ef
     };
   }
 
-  const effects = stringArray(value);
+  const effects = stringArray(value, { content: true });
   if (effects.length) {
     return {
       positive: effects,
@@ -297,16 +363,21 @@ function normalizeEffects(value: unknown, enrichment?: Substance): Substance['ef
 }
 
 function normalizeRiskEntry(value: unknown, fallbackSeverity: RiskLevel): Substance['risks']['acute'][number] | null {
-  const direct = stringValue(value);
+  const direct = normalizeContentText(stringValue(value));
   if (direct) {
-    return { name: direct, severity: fallbackSeverity, description: direct };
+    const name = direct.includes(':')
+      ? direct.split(':')[0]
+      : direct.length > 82
+        ? `${direct.slice(0, 79).trim()}...`
+        : direct;
+    return { name, severity: fallbackSeverity, description: direct };
   }
 
   const record = asRecord(value);
   if (!record) return null;
 
-  const name = firstString(record.name, record.title, record.label, record.risk, record.summary);
-  const description = firstString(record.description, record.text, record.summary, record.detail) ?? name;
+  const name = normalizeContentText(firstString(record.name, record.title, record.label, record.risk, record.summary));
+  const description = normalizeContentText(firstString(record.description, record.text, record.summary, record.detail)) ?? name;
   if (!name || !description) return null;
 
   return {
@@ -353,13 +424,18 @@ function normalizeSaferUse(value: unknown, enrichment?: Substance): Substance['s
 
   const tips = value
     .map((item) => {
-      const direct = stringValue(item);
-      if (direct) return { title: direct, description: direct };
+      const direct = normalizeContentText(stringValue(item));
+      if (direct) {
+        return {
+          title: direct.includes(':') ? direct.split(':')[0] : direct,
+          description: direct,
+        };
+      }
 
       const record = asRecord(item);
       if (!record) return null;
-      const title = firstString(record.title, record.name, record.label, record.summary);
-      const description = firstString(record.description, record.text, record.detail, record.summary) ?? title;
+      const title = normalizeContentText(firstString(record.title, record.name, record.label, record.summary));
+      const description = normalizeContentText(firstString(record.description, record.text, record.detail, record.summary)) ?? title;
       if (!title || !description) return null;
       return { title, description };
     })
@@ -386,13 +462,13 @@ function normalizeInteractions(value: unknown, enrichment?: Substance): Substanc
     .map((item) => {
       const record = asRecord(item);
       if (!record) {
-        const substance = stringValue(item);
+        const substance = normalizeContentText(stringValue(item));
         return substance ? { substance, severity: 'caution' as const, description: 'Interaktion lokal noch nicht detailliert.' } : null;
       }
 
       const pair = Array.isArray(record.pair) ? record.pair : undefined;
       const substance = firstString(record.substance, record.name, record.title, record.label, pair?.[1]);
-      const description = firstString(record.description, record.summary, record.text, record.risk) ?? substance;
+      const description = normalizeContentText(firstString(record.description, record.summary, record.text, record.risk)) ?? substance;
       if (!substance || !description) return null;
 
       return {
@@ -459,15 +535,15 @@ function normalizeDetailItem(item: MobileSubstanceItem, enrichment?: Substance):
   if (!summary) return null;
 
   const remoteClass = firstString(item.primaryClass, item.classPrimary, item.class_primary, item.class);
-  const remoteSummary = stringValue(item.summary);
+  const remoteSummary = normalizeContentText(stringValue(item.summary));
   const remoteRiskLevel = firstString(item.riskLevel, item.risk_level);
-  const riskLevel = remoteRiskLevel ? summary.riskLevel : enrichment?.riskLevel ?? summary.riskLevel;
+  const hasUsefulRemoteRisk = !!remoteRiskLevel && summary.riskLevel !== 'unknown';
+  const riskLevel = hasUsefulRemoteRisk ? summary.riskLevel : enrichment?.riskLevel ?? summary.riskLevel;
   const primaryClass = remoteClass ?? enrichment?.primaryClass ?? summary.primaryClass ?? 'Substanz';
   const remoteCategories = [
     primaryClass,
     ...stringArray(item.categories),
     ...stringArray(item.tags),
-    ...stringArray(item.mechanisms).slice(0, 1),
     ...stringArray(item.receptor_targets).slice(0, 1),
     ...stringArray(item.receptors).slice(0, 1),
   ].filter((value, index, array): value is string => !!value && array.indexOf(value) === index);
@@ -475,8 +551,8 @@ function normalizeDetailItem(item: MobileSubstanceItem, enrichment?: Substance):
   const effects = normalizeEffects(item.effects, enrichment);
   const risks = normalizeRisks(item.risks, riskLevel, enrichment);
   const saferUse = normalizeSaferUse(item.saferUse ?? item.safer_use, enrichment);
-  const remoteWarnings = stringArray(item.warnings);
-  const remoteMechanisms = stringArray(item.mechanisms);
+  const remoteWarnings = stringArray(item.warnings, { content: true });
+  const remoteMechanisms = stringArray(item.mechanisms, { content: true });
   const warnings = mergeUnique(remoteWarnings, enrichment?.warnings);
   const mechanisms = mergeUnique(remoteMechanisms, enrichment?.mechanisms);
   const remoteInteractions = item.interactionsPreview ?? item.interactions_preview ?? item.interactions;
@@ -487,10 +563,10 @@ function normalizeDetailItem(item: MobileSubstanceItem, enrichment?: Substance):
   const mergedWithLocal = !!enrichment && (
     !remoteClass ||
     !remoteSummary ||
-    !remoteRiskLevel ||
-    stringArray(item.effects).length === 0 && !asRecord(item.effects) ||
-    stringArray(item.risks).length === 0 && !asRecord(item.risks) ||
-    stringArray(item.saferUse ?? item.safer_use).length === 0 ||
+    !hasUsefulRemoteRisk ||
+    stringArray(item.effects, { content: true }).length === 0 && !asRecord(item.effects) ||
+    stringArray(item.risks, { content: true }).length === 0 && !asRecord(item.risks) ||
+    stringArray(item.saferUse ?? item.safer_use, { content: true }).length === 0 ||
     remoteWarnings.length === 0 ||
     remoteMechanisms.length === 0 ||
     !Array.isArray(remoteInteractions) ||
@@ -500,13 +576,13 @@ function normalizeDetailItem(item: MobileSubstanceItem, enrichment?: Substance):
   const normalized: Substance = {
     slug: summary.slug,
     name: summary.name,
-    aliases: summary.aliases?.length ? summary.aliases : enrichment?.aliases ?? [],
+    aliases: enrichment?.aliases?.length ? enrichment.aliases : summary.aliases ?? [],
     chemicalName: enrichment?.chemicalName ?? '',
     primaryClass,
     summary: remoteSummary ?? enrichment?.summary ?? summary.summary,
     categories: remoteCategories.length > 1 || remoteClass ? remoteCategories : enrichment?.categories ?? summary.categories,
     riskLevel,
-    riskLabel: remoteRiskLevel ? summary.riskLabel : enrichment?.riskLabel ?? summary.riskLabel,
+    riskLabel: hasUsefulRemoteRisk ? summary.riskLabel : enrichment?.riskLabel ?? summary.riskLabel,
     riskChips: remoteCategories.length > 1 || remoteClass ? remoteCategories.slice(0, 3) : enrichment?.riskChips ?? summary.categories.slice(0, 3),
     quickFacts,
     dosage: { routes: [] },
@@ -522,7 +598,10 @@ function normalizeDetailItem(item: MobileSubstanceItem, enrichment?: Substance):
     evidenceNote:
       firstString(item.evidenceNote, item.evidence_note, evidence?.note, evidence?.summary) ??
       enrichment?.evidenceNote,
-    lastUpdated: stringValue(item.lastUpdated) ?? enrichment?.lastUpdated ?? '',
+    lastUpdated:
+      formatDate(stringValue(item.lastUpdated) ?? stringValue(evidence?.lastReviewedAt)) ??
+      enrichment?.lastUpdated ??
+      '',
   };
 
   return {

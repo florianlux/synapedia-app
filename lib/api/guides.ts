@@ -27,7 +27,12 @@ type GuideItem = {
   evidence_note?: unknown;
 };
 
-export type GuideSource = 'live' | 'local' | 'offline';
+export type GuideSource = 'live' | 'mixed' | 'local' | 'offline';
+
+export type GuideDetailResult = {
+  guide: Guide;
+  mergedWithLocal: boolean;
+};
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
@@ -43,8 +48,69 @@ function stringValue(value: unknown): string | undefined {
 function stringArray(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
   return value
-    .map(stringValue)
+    .map((item) => normalizeGuideText(stringValue(item)))
     .filter((item): item is string => typeof item === 'string' && item.length > 0);
+}
+
+function isTruncatedText(value: string): boolean {
+  const trimmed = value.trim();
+  return /(?:…|\.\.\.)$/.test(trimmed);
+}
+
+function normalizeGuideText(value: string | undefined): string | undefined {
+  const normalized = value
+    ?.replace(/\r/g, '')
+    .replace(/\s+/g, ' ')
+    .replace(/^[-*]\s+/, '')
+    .replace(/^#{1,6}\s*/, '')
+    .trim();
+
+  if (!normalized || normalized === '...' || normalized === '…') return undefined;
+  if (isTruncatedText(normalized)) return undefined;
+  if (/^\|?\s*:?-{3,}:?\s*(?:\|\s*:?-{3,}:?\s*)+\|?$/.test(normalized)) return undefined;
+  if (/^\|.*\|$/.test(normalized)) return undefined;
+
+  return normalized;
+}
+
+function bodyToItems(value: unknown): string[] {
+  const body = stringValue(value);
+  if (!body || isTruncatedText(body)) return [];
+
+  const bulletItems = body
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => /^[-*]\s+/.test(line))
+    .map((line) => normalizeGuideText(line))
+    .filter((line): line is string => !!line);
+
+  if (bulletItems.length > 1) {
+    return bulletItems.slice(0, 8);
+  }
+
+  const paragraphItems = body
+    .split(/\n{2,}/)
+    .map((paragraph) => paragraph.trim())
+    .filter((paragraph) => !/^#{1,6}\s*/.test(paragraph))
+    .map((paragraph) => normalizeGuideText(paragraph))
+    .filter((paragraph): paragraph is string => !!paragraph && paragraph.length > 32);
+
+  if (paragraphItems.length > 0) {
+    return paragraphItems
+      .flatMap((paragraph) => paragraph.split(/(?<=[.!?])\s+(?=[A-ZÄÖÜ0-9])/))
+      .map(normalizeGuideText)
+      .filter((line): line is string => !!line)
+      .slice(0, 8);
+  }
+
+  const normalizedBody = normalizeGuideText(body);
+  if (!normalizedBody) return [];
+
+  return normalizedBody
+    .split(/(?<=[.!?])\s+(?=[A-ZÄÖÜ0-9])/)
+    .map(normalizeGuideText)
+    .filter((item): item is string => !!item)
+    .slice(0, 5);
 }
 
 function normalizeSections(value: unknown): GuideSection[] {
@@ -55,7 +121,7 @@ function normalizeSections(value: unknown): GuideSection[] {
       const record = asRecord(section);
       if (!record) return null;
       const title = stringValue(record.title);
-      const items = stringArray(record.items);
+      const items = stringArray(record.items).length ? stringArray(record.items) : bodyToItems(record.body);
       if (!title || items.length === 0) return null;
       return { title, items };
     })
@@ -70,7 +136,7 @@ function normalizePhases(value: unknown): GuidePhase[] {
       const record = asRecord(phase);
       if (!record) return null;
       const label = stringValue(record.label) ?? stringValue(record.title);
-      const description = stringValue(record.description) ?? stringValue(record.summary);
+      const description = normalizeGuideText(stringValue(record.description) ?? stringValue(record.summary));
       if (!label || !description) return null;
       return { label, description };
     })
@@ -89,12 +155,12 @@ function normalizeGuide(item: GuideItem, fallback?: Guide): Guide | null {
   return {
     slug,
     title,
-    summary: stringValue(item.summary) ?? fallback?.summary ?? '',
+    summary: normalizeGuideText(stringValue(item.summary)) ?? fallback?.summary ?? '',
     category: stringValue(item.category) ?? fallback?.category ?? 'Guide',
     accent: stringValue(item.accent) ?? fallback?.accent ?? '#0A84FF',
     safetyDisclaimer:
-      stringValue(item.safetyDisclaimer) ??
-      stringValue(item.safety_disclaimer) ??
+      normalizeGuideText(stringValue(item.safetyDisclaimer)) ??
+      normalizeGuideText(stringValue(item.safety_disclaimer)) ??
       fallback?.safetyDisclaimer ??
       '',
     symptoms: symptoms.length ? symptoms : fallback?.symptoms ?? [],
@@ -110,11 +176,24 @@ function normalizeGuide(item: GuideItem, fallback?: Guide): Guide | null {
         ? stringArray(item.practical_steps)
         : fallback?.practicalSteps ?? [],
     evidenceNote:
-      stringValue(item.evidenceNote) ??
-      stringValue(item.evidence_note) ??
+      normalizeGuideText(stringValue(item.evidenceNote)) ??
+      normalizeGuideText(stringValue(item.evidence_note)) ??
       fallback?.evidenceNote ??
       'Live-Daten aus Synapedia Mobile.',
   };
+}
+
+function guideUsesFallback(guide: Guide, fallback?: Guide): boolean {
+  if (!fallback) return false;
+  return (
+    guide.summary === fallback.summary ||
+    guide.safetyDisclaimer === fallback.safetyDisclaimer ||
+    guide.symptoms === fallback.symptoms ||
+    guide.phases === fallback.phases ||
+    guide.redFlags === fallback.redFlags ||
+    guide.practicalSteps === fallback.practicalSteps ||
+    guide.evidenceNote === fallback.evidenceNote
+  );
 }
 
 export async function fetchMobileGuides(): Promise<Guide[]> {
@@ -128,11 +207,14 @@ export async function fetchMobileGuides(): Promise<Guide[]> {
     .filter((guide): guide is Guide => guide !== null);
 }
 
-export async function fetchMobileGuideDetail(slug: string, fallback?: Guide): Promise<Guide> {
+export async function fetchMobileGuideDetail(slug: string, fallback?: Guide): Promise<GuideDetailResult> {
   const response = await getJson<GuideResponse>(`/api/mobile/guides/${encodeURIComponent(slug)}`);
   const guide = normalizeGuide(response.item as GuideItem, fallback);
   if (!guide) {
     throw new SynapediaApiError('Ungueltiges Guidedetail.', 200, 'INVALID_RESPONSE');
   }
-  return guide;
+  return {
+    guide,
+    mergedWithLocal: guideUsesFallback(guide, fallback),
+  };
 }

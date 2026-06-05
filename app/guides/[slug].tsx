@@ -128,7 +128,7 @@ export default function GuideDetailScreen() {
             <Ionicons name="document-text-outline" size={18} color={colors.accent} />
             <View style={styles.evidenceText}>
               <Text style={[Typography.captionBold, { color: colors.textPrimary }]}>
-                Evidenz / Quellen-Platzhalter
+                Evidenz / Quellen
               </Text>
               <Text style={[Typography.caption, { color: colors.textSecondary, marginTop: Spacing.xs }]}>
                 {guide.evidenceNote}

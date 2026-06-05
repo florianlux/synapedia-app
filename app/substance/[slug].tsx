@@ -558,13 +558,15 @@ function SourcesContent({
 
   return (
     <View>
-      <Text
-        style={[
-          Typography.caption,
-          { color: colors.textTertiary, marginBottom: Spacing.md },
-        ]}>
-        Letzte Aktualisierung: {lastUpdated}
-      </Text>
+      {lastUpdated && (
+        <Text
+          style={[
+            Typography.caption,
+            { color: colors.textTertiary, marginBottom: Spacing.md },
+          ]}>
+          Letzte Aktualisierung: {lastUpdated}
+        </Text>
+      )}
       <View style={{ gap: Spacing.md }}>
         {sources.map((source, i) => (
           <View key={i}>

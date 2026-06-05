@@ -44,8 +44,7 @@ export default function WikiScreen() {
             <View style={styles.header}>
               <Text style={[Typography.heroTitle, { color: colors.textPrimary }]}>Wiki</Text>
               <Text style={[Typography.body, styles.subtitle, { color: colors.textSecondary }]}>
-                Lokale Substanzprofile durchsuchen, vergleichen und als Harm-Reduction-Kontext
-                nutzen.
+                Substanzprofile durchsuchen, vergleichen und als Harm-Reduction-Kontext nutzen.
               </Text>
             </View>
 
