@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -10,6 +11,8 @@ import {
   type KeyboardTypeOptions,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FileSystem from 'expo-file-system/legacy';
+import * as Sharing from 'expo-sharing';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
@@ -30,7 +33,7 @@ type DoseEntry = {
   timestamp: string;
   notes?: string;
   mood?: string;
-  createdAt: string;
+  createdAt?: string;
 };
 
 type FormState = {
@@ -42,6 +45,8 @@ type FormState = {
   notes: string;
   mood: string;
 };
+
+type ExportStatus = 'info' | 'success' | 'error';
 
 function nowInputValue(): string {
   return new Date().toISOString().slice(0, 16);
@@ -70,7 +75,68 @@ function validateForm(form: FormState): string | null {
 
 function entryTime(entry: DoseEntry): number {
   const parsed = Date.parse(entry.timestamp);
-  return Number.isNaN(parsed) ? Date.parse(entry.createdAt) : parsed;
+  return Number.isNaN(parsed) ? Date.parse(entry.createdAt ?? '') : parsed;
+}
+
+function exportDateStamp(date = new Date()): string {
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, '0');
+  const day = `${date.getDate()}`.padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function csvEscape(value: string | undefined): string {
+  const text = value ?? '';
+  const shouldQuote = /[",\r\n]/.test(text);
+  const escaped = text.replace(/"/g, '""');
+  return shouldQuote ? `"${escaped}"` : escaped;
+}
+
+function doseEntriesToCsv(entries: DoseEntry[]): string {
+  const headers = [
+    'id',
+    'substance',
+    'dose',
+    'unit',
+    'route',
+    'timestamp',
+    'mood/condition',
+    'notes',
+    'createdAt',
+  ];
+  const rows = entries.map((entry) => [
+    entry.id,
+    entry.substance,
+    entry.dose,
+    entry.unit,
+    entry.route,
+    entry.timestamp,
+    entry.mood,
+    entry.notes,
+    entry.createdAt,
+  ]);
+
+  return [headers, ...rows]
+    .map((row) => row.map((value) => csvEscape(value)).join(','))
+    .join('\n');
+}
+
+function downloadCsvOnWeb(csv: string, fileName: string): boolean {
+  if (typeof document === 'undefined' || typeof URL === 'undefined' || typeof Blob === 'undefined') {
+    return false;
+  }
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = fileName;
+  link.style.display = 'none';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+  return true;
 }
 
 export default function LogScreen() {
@@ -83,6 +149,8 @@ export default function LogScreen() {
   const [hydrated, setHydrated] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [exportMessage, setExportMessage] = useState<string | null>(null);
+  const [exportStatus, setExportStatus] = useState<ExportStatus>('info');
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -170,6 +238,73 @@ export default function LogScreen() {
 
   function deleteEntry(id: string) {
     setEntries((current) => current.filter((entry) => entry.id !== id));
+  }
+
+  async function exportCsv() {
+    if (isExporting) return;
+
+    setIsExporting(true);
+    setExportMessage(null);
+    setExportStatus('info');
+
+    try {
+      if (!hydrated) {
+        setExportStatus('error');
+        setExportMessage('Dose Log wird noch geladen. Bitte gleich erneut versuchen.');
+        return;
+      }
+
+      if (sortedEntries.length === 0) {
+        setExportStatus('error');
+        setExportMessage('Keine Einträge zum Exportieren vorhanden.');
+        return;
+      }
+
+      const fileName = `synapedia-dose-log-${exportDateStamp()}.csv`;
+      const csv = doseEntriesToCsv(sortedEntries);
+
+      if (Platform.OS === 'web') {
+        const downloaded = downloadCsvOnWeb(csv, fileName);
+        setExportStatus(downloaded ? 'success' : 'info');
+        setExportMessage(
+          downloaded
+            ? `${fileName} wurde im Browser heruntergeladen.`
+            : 'Nativer Datei-Export ist in dieser Web-Vorschau nicht verfügbar.',
+        );
+        return;
+      }
+
+      if (!FileSystem.documentDirectory) {
+        setExportStatus('error');
+        setExportMessage('Datei-Export ist auf diesem Gerät gerade nicht verfügbar.');
+        return;
+      }
+
+      const fileUri = `${FileSystem.documentDirectory}${fileName}`;
+      await FileSystem.writeAsStringAsync(fileUri, csv, {
+        encoding: FileSystem.EncodingType.UTF8,
+      });
+
+      const sharingAvailable = await Sharing.isAvailableAsync();
+      if (!sharingAvailable) {
+        setExportStatus('info');
+        setExportMessage(`${fileName} wurde lokal erstellt, aber Teilen ist auf diesem Gerät nicht verfügbar.`);
+        return;
+      }
+
+      await Sharing.shareAsync(fileUri, {
+        mimeType: 'text/csv',
+        UTI: 'public.comma-separated-values-text',
+        dialogTitle: 'Synapedia Dose Log exportieren',
+      });
+      setExportStatus('success');
+      setExportMessage(`${fileName} wurde zum Teilen vorbereitet.`);
+    } catch {
+      setExportStatus('error');
+      setExportMessage('CSV-Export fehlgeschlagen. Bitte erneut versuchen.');
+    } finally {
+      setIsExporting(false);
+    }
   }
 
   return (
@@ -285,18 +420,38 @@ export default function LogScreen() {
         <View style={styles.sectionHeader}>
           <Text style={[Typography.sectionTitle, { color: colors.textPrimary }]}>Letzte Einträge</Text>
           <Pressable
-            onPress={() => setExportMessage('CSV-Export ist vorbereitet, aber noch nicht implementiert.')}
+            onPress={exportCsv}
+            accessibilityRole="button"
+            accessibilityState={{ disabled: isExporting }}
             style={({ pressed }) => [
               styles.exportButton,
-              { backgroundColor: pressed ? colors.backgroundTertiary : colors.backgroundElevated, borderColor: colors.cardBorder },
+              {
+                backgroundColor: pressed || isExporting ? colors.backgroundTertiary : colors.backgroundElevated,
+                borderColor: colors.cardBorder,
+                opacity: isExporting ? 0.68 : 1,
+              },
             ]}>
             <Ionicons name="download-outline" size={16} color={colors.accent} />
-            <Text style={[Typography.chip, { color: colors.accent }]}>CSV-Export vorbereiten</Text>
+            <Text style={[Typography.chip, { color: colors.accent }]}>
+              {isExporting ? 'Exportiere...' : 'CSV exportieren'}
+            </Text>
           </Pressable>
         </View>
 
         {exportMessage && (
-          <Text style={[Typography.caption, styles.exportMessage, { color: colors.textSecondary }]}>
+          <Text
+            style={[
+              Typography.caption,
+              styles.exportMessage,
+              {
+                color:
+                  exportStatus === 'success'
+                    ? colors.effectPositive
+                    : exportStatus === 'error'
+                      ? colors.severityDangerous
+                      : colors.textSecondary,
+              },
+            ]}>
             {exportMessage}
           </Text>
         )}
