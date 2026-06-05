@@ -79,7 +79,7 @@ export default function CheckScreen() {
           styles.subtitle,
           { color: colors.textSecondary },
         ]}>
-        Lokaler Interaktions-Check für zwei Substanzen mit kuratierten MVP-Hinweisen.
+        Live-Check fuer zwei Substanzen mit kuratiertem lokalem Fallback.
       </Text>
 
       {/* ── Substance selection ── */}
@@ -137,7 +137,7 @@ export default function CheckScreen() {
                   marginTop: Spacing.md,
                 },
               ]}>
-              Wähle zwei Substanzen für eine{'\n'}lokale MixCheck-Bewertung.
+              Wähle zwei Substanzen für eine{'\n'}MixCheck-Bewertung.
             </Text>
           </View>
         )}
@@ -228,7 +228,7 @@ export default function CheckScreen() {
                 Typography.bodyBold,
                 { color: colors.textPrimary, marginTop: Spacing.md },
               ]}>
-              Keine kuratierte Bewertung vorhanden
+              Kombination unbekannt
             </Text>
             <Text
               style={[
@@ -239,7 +239,7 @@ export default function CheckScreen() {
                   marginTop: Spacing.sm,
                 },
               ]}>
-              Für diese Kombination liegt lokal noch keine kuratierte Bewertung vor.
+              Fuer diese Kombination liegt noch keine belastbare Bewertung vor.
             </Text>
             <View
               style={[

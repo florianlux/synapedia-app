@@ -542,6 +542,53 @@ const seeds: SubstanceSeed[] = [
     ],
   },
   {
+    slug: 'ssri',
+    name: 'SSRI/SNRI',
+    aliases: ['SSRI', 'SNRI', 'Antidepressiva', 'Sertralin', 'Fluoxetin', 'Citalopram', 'Venlafaxin'],
+    chemicalName: 'Selektive Serotonin-/Noradrenalin-Wiederaufnahmehemmer',
+    primaryClass: 'Medikamentenklasse',
+    categories: ['Medikament', 'Serotonerg'],
+    summary:
+      'SSRI/SNRI sind verschreibungspflichtige Antidepressiva. Fuer MixCheck sind vor allem serotonerge Interaktionen, Veraenderungen subjektiver MDMA-Wirkung und Absetzrisiken relevant.',
+    riskLevel: 'moderate',
+    riskChips: ['Serotonin', 'Medikation', 'Interaktionen'],
+    quickFacts: { onset: 'Tage-Wochen', peak: 'regelmaessige Einnahme', duration: 'substanzabhaengig', afterEffects: 'Absetzen nur aerztlich' },
+    effects: {
+      positive: ['Stimmungsstabilisierung bei passender Indikation', 'Reduktion von Angst- oder Depressionssymptomen', 'Therapeutische Wirkung bei regelmaessiger Einnahme'],
+      neutral: ['Wirkaufbau ueber Tage bis Wochen', 'Individuelle Unterschiede je Wirkstoff und Dosis', 'Moegliche Wechselwirkungen ueber serotonerge Systeme'],
+      negative: ['Uebelkeit, Schlaf- oder Sexualfunktionsstoerungen', 'Unruhe oder emotionale Abflachung', 'Absetzsymptome bei abruptem Stoppen'],
+    },
+    acuteRisks: [
+      { name: 'Serotonerge Interaktionen', severity: 'high', description: 'Kombinationen mit MDMA, MAO-Hemmern oder weiteren serotonergen Stoffen koennen unvorhersehbar und gefaehrlich werden.' },
+      { name: 'Maskierte MDMA-Wirkung', severity: 'high', description: 'Abgeschwaechte Wirkung kann zu Nachlegen verleiten, obwohl koerperliche Belastung weiter relevant bleibt.' },
+      { name: 'Eigenmaechtiges Absetzen', severity: 'moderate', description: 'Pausieren oder Absetzen ohne medizinische Begleitung kann Absetzsymptome und Rueckfaelle beguenstigen.' },
+    ],
+    longtermRisks: [
+      { name: 'Absetzsymptome', severity: 'moderate', description: 'Abruptes Stoppen kann Schwindel, Unruhe, Schlafprobleme und Stimmungsschwankungen ausloesen.' },
+      { name: 'Wechselwirkungen', severity: 'moderate', description: 'Andere Medikamente oder Substanzen koennen Wirkung, Nebenwirkungen und Risiko veraendern.' },
+    ],
+    saferUse: [
+      { title: 'Medikation nicht fuer Konsum veraendern', description: 'SSRI/SNRI nicht eigenmaechtig pausieren, absetzen oder hochdosieren, um Substanzeffekte zu steuern.' },
+      { title: 'Serotonerge Mischungen meiden', description: 'MDMA, MAO-Hemmer, bestimmte Medikamente und weitere serotonerge Stoffe koennen kritisch sein.' },
+      { title: 'Warnzeichen ernst nehmen', description: 'Fieber, Verwirrtheit, Muskelzucken, Krampf, starke Unruhe oder Kollaps sind Gruende fuer sofortige Hilfe.' },
+    ],
+    warnings: [
+      'MDMA-Wirkung kann abgeschwaecht sein; Nachlegen bleibt riskant.',
+      'Nicht eigenmaechtig absetzen, um Mischkonsum zu ermoeglichen.',
+      'Serotonerge Warnzeichen sind medizinisch relevant.',
+    ],
+    mechanisms: [
+      'SSRI/SNRI beeinflussen Wiederaufnahme und Verfuegbarkeit von Serotonin beziehungsweise Noradrenalin.',
+      'MDMA nutzt serotonerge Transporter und kann dadurch in Wirkung und Risiko veraendert werden.',
+      'Mehrere serotonerge Einfluesse koennen Toxizitaetszeichen beguenstigen.',
+    ],
+    interactions: [
+      { substance: 'MDMA', severity: 'dangerous', description: 'Kann subjektive Wirkung abschwaechen oder unvorhersehbar machen; serotonerge Risiken und Nachlegen bleiben kritisch.' },
+      { substance: 'MAO-Hemmer', severity: 'lethal', description: 'Potentiell lebensgefaehrliche serotonerge Interaktion.' },
+      { substance: 'Tramadol/O-DSMT', severity: 'dangerous', description: 'Serotonerge und krampfschwellenbezogene Risiken koennen steigen.' },
+    ],
+  },
+  {
     slug: 'alkohol',
     name: 'Alkohol',
     aliases: ['Ethanol', 'Alcohol', 'EtOH'],

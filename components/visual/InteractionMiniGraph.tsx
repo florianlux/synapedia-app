@@ -71,24 +71,26 @@ export function InteractionMiniGraph({
         <GraphNode label={substanceB} tint={colors.accent} />
       </View>
 
-      <View style={styles.mechanismBlock}>
-        <Text style={[Typography.quickFactLabel, { color: colors.textTertiary }]}>Mechanismen</Text>
-        <View style={styles.mechanisms}>
-          {mechanismLabels.map((label) => (
-            <View
-              key={label}
-              style={[
-                styles.mechanismChip,
-                { backgroundColor: colors.backgroundSecondary, borderColor: colors.border },
-              ]}>
-              <View style={[styles.mechanismDot, { backgroundColor: riskColor }]} />
-              <Text style={[Typography.chip, { color: colors.textSecondary }]} numberOfLines={1}>
-                {label}
-              </Text>
-            </View>
-          ))}
+      {mechanismLabels.length > 0 && (
+        <View style={styles.mechanismBlock}>
+          <Text style={[Typography.quickFactLabel, { color: colors.textTertiary }]}>Mechanismen</Text>
+          <View style={styles.mechanisms}>
+            {mechanismLabels.map((label) => (
+              <View
+                key={label}
+                style={[
+                  styles.mechanismChip,
+                  { backgroundColor: colors.backgroundSecondary, borderColor: colors.border },
+                ]}>
+                <View style={[styles.mechanismDot, { backgroundColor: riskColor }]} />
+                <Text style={[Typography.chip, { color: colors.textSecondary }]} numberOfLines={1}>
+                  {label}
+                </Text>
+              </View>
+            ))}
+          </View>
         </View>
-      </View>
+      )}
     </View>
   );
 }

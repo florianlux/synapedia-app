@@ -24,6 +24,8 @@ function makeKey(a: string, b: string): string {
 }
 
 export const POPULAR_INTERACTION_PAIRS = [
+  { label: 'MDMA + SSRI/SNRI', slugs: ['mdma', 'ssri'] },
+  { label: 'MDMA + Alkohol', slugs: ['mdma', 'alkohol'] },
   { label: 'MDMA + LSD', slugs: ['mdma', 'lsd'] },
   { label: 'Kokain + Alkohol', slugs: ['kokain', 'alkohol'] },
   { label: 'Ketamin + Alkohol', slugs: ['ketamin', 'alkohol'] },
@@ -66,6 +68,70 @@ const INTERACTIONS: InteractionDetail[] = [
     evidence: 'moderate',
     evidenceNote: 'Lokale kuratierte MVP-Bewertung; vollstaendige Quellenpruefung folgt.',
     sourceNote: 'Evidence/source placeholder: pharmakologische Plausibilitaet plus Harm-Reduction-Konsens.',
+  },
+  {
+    id: makeKey('mdma', 'ssri'),
+    substanceA: 'mdma',
+    substanceB: 'ssri',
+    title: 'MDMA + SSRI/SNRI',
+    riskLevel: 'critical',
+    severity: 'dangerous',
+    summary:
+      'SSRI/SNRI koennen MDMA-Wirkung abschwaechen oder unvorhersehbar machen; serotonerge Belastung und riskantes Nachlegen bleiben zentrale Risiken.',
+    mechanisms: [
+      'SSRI/SNRI veraendern Serotonintransporter-Signalwege, an denen MDMA wesentlich ansetzt.',
+      'Abgeschwaechte subjektive Wirkung kann zu gefaehrlichem Nachlegen verleiten.',
+      'Serotonerge Mehrfachbelastung kann Unruhe, Ueberhitzung, Verwirrtheit und Serotonin-Toxizitaet beguenstigen.',
+    ],
+    riskFactors: [
+      'Hohe MDMA-Dosis oder wiederholtes Nachlegen',
+      'Weitere serotonerge Medikamente oder MAO-Hemmer',
+      'Hitze, Tanzen, Schlafmangel oder bestehende Kreislaufbelastung',
+    ],
+    saferUseNotes: [
+      'Nicht nachlegen, nur weil MDMA subjektiv schwaecher wirkt.',
+      'Medikamente nicht eigenmaechtig pausieren oder absetzen, um MDMA staerker zu spueren.',
+      'Bei serotonergen Symptomen frueh Hilfe holen und keine weiteren Stimulanzien nehmen.',
+    ],
+    redFlags: [
+      'Verwirrtheit, starke Unruhe, Fieber/Ueberhitzung, Muskelzucken oder Krampf.',
+      'Brustschmerz, Kollaps, Atemnot oder sehr schneller/unregelmaessiger Puls.',
+    ],
+    evidence: 'moderate',
+    evidenceNote: 'Lokale kuratierte MVP-Bewertung; SSRI/SNRI koennen Wirkung und Risiko von MDMA relevant veraendern.',
+    sourceNote: 'Evidence/source placeholder: Pharmakologie des Serotonintransporters plus klinische Warnsignale serotonerger Toxizitaet.',
+  },
+  {
+    id: makeKey('mdma', 'alkohol'),
+    substanceA: 'mdma',
+    substanceB: 'alkohol',
+    title: 'MDMA + Alkohol',
+    riskLevel: 'high',
+    severity: 'risky',
+    summary:
+      'Alkohol kann Urteilsvermoegen, Fluessigkeitshaushalt und Kreislauf unter MDMA verschlechtern und riskantes Nachlegen wahrscheinlicher machen.',
+    mechanisms: [
+      'Alkohol enthemmt und erschwert das Einschaetzen von Dosis, Koerpersignalen und Grenzen.',
+      'MDMA-Stimulation plus Alkoholbelastung kann Puls, Temperaturregulation und Dehydrierung verschlechtern.',
+      'Alkohol kann Uebelkeit, Erbrechen, Stuerze und Blackouts in einem stimulierten Setting riskanter machen.',
+    ],
+    riskFactors: [
+      'Viel Alkohol vor oder waehrend MDMA',
+      'Tanzen, Hitze, wenig Pausen oder wenig Schlaf',
+      'Weitere Stimulanzien oder wiederholtes Nachlegen',
+    ],
+    saferUseNotes: [
+      'Kombination meiden oder Alkohol klar begrenzen; keine Trinkspiele oder Nachlegen unter Alkoholeinfluss.',
+      'Kuehlpausen machen und kleine Mengen Wasser/Elektrolyte ueber Zeit nutzen.',
+      'Nicht allein bleiben, wenn Uebelkeit, Verwirrung oder Kreislaufprobleme auftreten.',
+    ],
+    redFlags: [
+      'Ueberhitzung, Verwirrtheit, Kollaps, Krampf oder nicht mehr ansprechbar.',
+      'Brustschmerz, Atemnot, wiederholtes Erbrechen oder starke Dehydrierungszeichen.',
+    ],
+    evidence: 'moderate',
+    evidenceNote: 'Lokale kuratierte MVP-Bewertung; Mischkonsumrisiko ist pharmakologisch plausibel und harm-reduction-relevant.',
+    sourceNote: 'Evidence/source placeholder: MDMA-Stimulation, Alkoholintoxikation, Temperatur- und Kreislaufbelastung.',
   },
   {
     id: makeKey('kokain', 'alkohol'),

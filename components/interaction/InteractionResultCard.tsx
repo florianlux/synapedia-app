@@ -104,14 +104,32 @@ function BulletList({ items, danger }: { items: string[]; danger?: boolean }) {
   );
 }
 
+function displaySubstanceName(slug: string, fallback: string): string {
+  const mapped = SUBSTANCE_NAME_MAP[slug];
+  if (mapped) return mapped;
+
+  const cleaned = slug.trim();
+  const lower = cleaned.toLowerCase();
+  if (!cleaned || lower === 'null' || lower === 'undefined' || lower === '[object object]') {
+    return fallback;
+  }
+
+  return cleaned
+    .split(/[\s_-]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
 export function InteractionResultCard({ interaction, source, refreshing = false }: Props) {
   const colors = useThemeColors();
   const risk = getRiskMeta(interaction.riskLevel, colors);
   const knownSlugs = new Set(SUBSTANCE_LIST.map((substance) => substance.slug));
   const hasDetailA = knownSlugs.has(interaction.substanceA);
   const hasDetailB = knownSlugs.has(interaction.substanceB);
-  const nameA = SUBSTANCE_NAME_MAP[interaction.substanceA] ?? interaction.substanceA;
-  const nameB = SUBSTANCE_NAME_MAP[interaction.substanceB] ?? interaction.substanceB;
+  const nameA = displaySubstanceName(interaction.substanceA, 'Substanz A');
+  const nameB = displaySubstanceName(interaction.substanceB, 'Substanz B');
+  const hasEvidence = Boolean(interaction.evidenceNote || interaction.sourceNote);
 
   return (
     <View style={styles.container}>
@@ -166,14 +184,20 @@ export function InteractionResultCard({ interaction, source, refreshing = false 
         </Section>
       )}
 
-      <Section title="Evidenz / Quellen-Platzhalter" icon="document-text-outline">
-        <Text style={[Typography.bodyBold, { color: colors.textPrimary }]}>
-          {interaction.evidenceNote}
-        </Text>
-        <Text style={[Typography.caption, styles.sourceText, { color: colors.textSecondary }]}>
-          {interaction.sourceNote}
-        </Text>
-      </Section>
+      {hasEvidence && (
+        <Section title="Evidenz / Quellen" icon="document-text-outline">
+          {interaction.evidenceNote && (
+            <Text style={[Typography.bodyBold, { color: colors.textPrimary }]}>
+              {interaction.evidenceNote}
+            </Text>
+          )}
+          {interaction.sourceNote && (
+            <Text style={[Typography.caption, styles.sourceText, { color: colors.textSecondary }]}>
+              {interaction.sourceNote}
+            </Text>
+          )}
+        </Section>
+      )}
 
       <View style={[styles.disclaimer, { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder }]}>
         <Ionicons name="information-circle-outline" size={18} color={colors.accent} />

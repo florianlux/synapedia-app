@@ -259,8 +259,8 @@ export default function HomeScreen() {
           „Keine Daten“ bedeutet nicht „sicher“.
         </Text>
         <Text style={[Typography.caption, { color: colors.textSecondary }]}>
-          MixCheck zeigt nur lokal kuratierte Bewertungen. Unbekannte Kombinationen können trotzdem
-          riskant oder unvorhersehbar sein.
+          MixCheck nutzt Live-Daten und lokale kuratierte Fallbacks. Unbekannte Kombinationen koennen
+          trotzdem riskant oder unvorhersehbar sein.
         </Text>
       </PremiumCard>
 
