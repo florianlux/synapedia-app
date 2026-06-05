@@ -297,8 +297,11 @@ export default function LogScreen() {
         UTI: 'public.comma-separated-values-text',
         dialogTitle: 'Synapedia Dose Log exportieren',
       });
+      await FileSystem.deleteAsync(fileUri, { idempotent: true }).catch(() => {
+        // Sharing succeeded; a stale temp export is harmless and can be overwritten next time.
+      });
       setExportStatus('success');
-      setExportMessage(`${fileName} wurde zum Teilen vorbereitet.`);
+      setExportMessage(`${fileName} wurde geteilt. Die temporäre Exportdatei wurde danach entfernt.`);
     } catch {
       setExportStatus('error');
       setExportMessage('CSV-Export fehlgeschlagen. Bitte erneut versuchen.');
@@ -413,7 +416,10 @@ export default function LogScreen() {
         <View style={[styles.localNote, { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder }]}>
           <Ionicons name="lock-closed-outline" size={18} color={colors.accent} />
           <Text style={[Typography.caption, styles.localNoteText, { color: colors.textSecondary }]}>
-            Konsumprotokoll zur Selbstreflexion und Dokumentation. Keine medizinische Beratung.
+            Einträge werden nur auf diesem Gerät gespeichert; es ist keine Cloud-Synchronisierung aktiv.
+            Die lokale Speicherung ist in der App nicht Ende-zu-Ende-verschlüsselt und kann je nach
+            OS-Einstellungen in Geräte-Backups enthalten sein. CSV-Exporte verlassen die App und
+            sollten bewusst geteilt werden.
           </Text>
         </View>
 

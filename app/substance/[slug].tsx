@@ -24,6 +24,15 @@ import type { RiskLevel } from '@/types/substance';
 // Screen
 // ---------------------------------------------------------------------------
 
+function goBackToWiki() {
+  if (router.canGoBack()) {
+    router.back();
+    return;
+  }
+
+  router.replace('/wiki');
+}
+
 export default function SubstanceDetailScreen() {
   const {
     slug,
@@ -105,7 +114,7 @@ export default function SubstanceDetailScreen() {
           ]}>
           {substanceState.notFound ? 'Substanz nicht gefunden' : substanceState.message}
         </Text>
-        <Pressable onPress={() => router.back()} style={styles.retryButton}>
+        <Pressable onPress={goBackToWiki} style={styles.retryButton}>
           <Text style={[Typography.bodyBold, { color: colors.accent }]}>
             Zurück
           </Text>
@@ -126,7 +135,7 @@ export default function SubstanceDetailScreen() {
           styles.navBar,
           { paddingTop: insets.top, backgroundColor: colors.backgroundGlass, borderBottomColor: colors.separator },
         ]}>
-        <Pressable onPress={() => router.back()} hitSlop={8} style={styles.navButton}>
+        <Pressable onPress={goBackToWiki} hitSlop={8} style={styles.navButton}>
           <Ionicons name="chevron-back" size={28} color={colors.accent} />
         </Pressable>
         <Text

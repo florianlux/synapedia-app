@@ -1,13 +1,16 @@
 import { Tabs } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { HapticTab } from '@/components/haptic-tab';
 import { Colors, Radius } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme() ?? 'light';
+  const colorScheme = useColorScheme() ?? 'dark';
   const colors = Colors[colorScheme];
+  const insets = useSafeAreaInsets();
+  const bottomInset = Math.max(insets.bottom, 8);
 
   return (
     <Tabs
@@ -35,11 +38,11 @@ export default function TabLayout() {
           position: 'absolute',
           left: 10,
           right: 10,
-          bottom: 8,
-          height: 78,
+          bottom: bottomInset,
+          height: 68 + bottomInset,
           paddingTop: 6,
           paddingHorizontal: 8,
-          paddingBottom: 10,
+          paddingBottom: Math.max(bottomInset - 2, 10),
           backgroundColor: colors.backgroundGlass,
           borderTopColor: `${colors.accent}25`,
           borderTopWidth: 1,

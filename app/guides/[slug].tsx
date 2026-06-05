@@ -9,6 +9,15 @@ import { useGuide } from '@/hooks/use-guides';
 import { useThemeColors } from '@/hooks/use-theme';
 import { SourceBadge } from '@/components/ui/SourceBadge';
 
+function goBackToGuides() {
+  if (router.canGoBack()) {
+    router.back();
+    return;
+  }
+
+  router.replace('/guides');
+}
+
 export default function GuideDetailScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const colors = useThemeColors();
@@ -33,7 +42,7 @@ export default function GuideDetailScreen() {
         <Text style={[Typography.body, styles.centeredText, { color: colors.textSecondary }]}>
           {guideState.notFound ? 'Guide nicht gefunden.' : 'Guide konnte nicht geladen werden.'}
         </Text>
-        <Pressable onPress={() => router.back()} style={styles.backTextButton}>
+        <Pressable onPress={goBackToGuides} style={styles.backTextButton}>
           <Text style={[Typography.bodyBold, { color: colors.accent }]}>Zurück</Text>
         </Pressable>
       </View>
@@ -49,7 +58,7 @@ export default function GuideDetailScreen() {
           styles.navBar,
           { paddingTop: insets.top, borderBottomColor: colors.separator },
         ]}>
-        <Pressable onPress={() => router.back()} hitSlop={8} style={styles.navButton}>
+        <Pressable onPress={goBackToGuides} hitSlop={8} style={styles.navButton}>
           <Ionicons name="chevron-back" size={28} color={colors.accent} />
         </Pressable>
         <Text style={[Typography.navTitle, styles.navTitle, { color: colors.textPrimary }]} numberOfLines={1}>
