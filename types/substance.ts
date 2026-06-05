@@ -83,7 +83,11 @@ export interface Substance {
     longterm: Risk[];
   };
   saferUse: SaferUseTip[];
+  warnings: string[];
+  mechanisms: string[];
   interactions: Interaction[];
+  interactionsPreview?: Interaction[];
   sources: Source[];
+  evidenceNote?: string;
   lastUpdated: string;
 }

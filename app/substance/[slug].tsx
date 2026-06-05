@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -12,12 +12,12 @@ import { useAppContext } from '@/contexts/AppContext';
 import { HeroHeader } from '@/components/substance/HeroHeader';
 import { QuickFactsStrip } from '@/components/substance/QuickFactsStrip';
 import { ExpandableSection } from '@/components/substance/ExpandableSection';
-import { DosageSection } from '@/components/substance/DosageSection';
 import { DurationSection } from '@/components/substance/DurationSection';
 import { InteractionsPreviewSection } from '@/components/substance/InteractionsPreviewSection';
 import { StickyBottomBar } from '@/components/substance/StickyBottomBar';
 import { RiskProfileBars } from '@/components/visual/RiskProfileBars';
 import { DurationTimeline } from '@/components/visual/DurationTimeline';
+import { SourceBadge } from '@/components/ui/SourceBadge';
 import type { RiskLevel } from '@/types/substance';
 
 // ---------------------------------------------------------------------------
@@ -47,20 +47,22 @@ export default function SubstanceDetailScreen() {
   const { isFavorite, toggleFavorite, addRecentlyViewed } = useAppContext();
 
   const fallbackRiskLevel = normalizeRouteRiskLevel(riskLevel);
-  const substanceState = useSubstance(
-    slug,
-    name
-      ? {
-          slug,
-          name,
-          primaryClass,
-          summary,
-          duration,
-          riskLevel: fallbackRiskLevel,
-          riskLabel,
-        }
-      : null,
+  const routeFallback = useMemo(
+    () =>
+      name
+        ? {
+            slug,
+            name,
+            primaryClass,
+            summary,
+            duration,
+            riskLevel: fallbackRiskLevel,
+            riskLabel,
+          }
+        : null,
+    [slug, name, primaryClass, summary, duration, fallbackRiskLevel, riskLabel],
   );
+  const substanceState = useSubstance(slug, routeFallback);
   const isSaved = slug ? isFavorite(slug) : false;
 
   useEffect(() => {
@@ -113,6 +115,8 @@ export default function SubstanceDetailScreen() {
   }
 
   const substance = substanceState.data;
+  const source = substanceState.source;
+  const refreshing = substanceState.refreshing;
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
@@ -166,6 +170,10 @@ export default function SubstanceDetailScreen() {
 
         <DisclaimerCard />
 
+        <View style={inlineStyles.sourceRow}>
+          <SourceBadge source={source} refreshing={refreshing} />
+        </View>
+
         {/* Z4: Expandable Sections */}
         <ExpandableSection title="Überblick">
           <OverviewContent
@@ -173,26 +181,35 @@ export default function SubstanceDetailScreen() {
             aliases={substance.aliases}
             primaryClass={substance.primaryClass}
             categories={substance.categories}
+            mechanisms={substance.mechanisms}
           />
         </ExpandableSection>
 
-        <ExpandableSection title="Dosierung" hidden={substance.dosage.routes.length === 0}>
-          <DosageSection routes={substance.dosage.routes} />
-        </ExpandableSection>
-
-        <ExpandableSection title="Wirkdauer" hidden={substance.duration.phases.length === 0 && substance.duration.total === '—'}>
+        <ExpandableSection title="Wirkdauer" hidden={substance.duration.phases.length === 0 && (substance.duration.total === '—' || substance.duration.total === '-')}>
           <DurationSection
             phases={substance.duration.phases}
             total={substance.duration.total}
           />
         </ExpandableSection>
 
-        <ExpandableSection title="Wirkung" hidden={substance.effects.positive.length === 0 && substance.effects.negative.length === 0}>
+        <ExpandableSection
+          title="Wirkung"
+          hidden={
+            substance.effects.positive.length === 0 &&
+            substance.effects.neutral.length === 0 &&
+            substance.effects.negative.length === 0
+          }>
           <EffectsContent effects={substance.effects} />
         </ExpandableSection>
 
-        <ExpandableSection title="Risiken" hidden={substance.risks.acute.length === 0 && substance.risks.longterm.length === 0}>
-          <RisksContent risks={substance.risks} />
+        <ExpandableSection
+          title="Risiken"
+          hidden={
+            substance.risks.acute.length === 0 &&
+            substance.risks.longterm.length === 0 &&
+            substance.warnings.length === 0
+          }>
+          <RisksContent risks={substance.risks} warnings={substance.warnings} />
         </ExpandableSection>
 
         <ExpandableSection title="Safer Use" hidden={substance.saferUse.length === 0}>
@@ -201,9 +218,9 @@ export default function SubstanceDetailScreen() {
 
         <ExpandableSection
           title="Interaktionen"
-          badge={substance.interactions.length}
-          hidden={substance.interactions.length === 0}>
-          <InteractionsPreviewSection interactions={substance.interactions} />
+          badge={(substance.interactionsPreview ?? substance.interactions).length}
+          hidden={(substance.interactionsPreview ?? substance.interactions).length === 0}>
+          <InteractionsPreviewSection interactions={substance.interactionsPreview ?? substance.interactions} />
         </ExpandableSection>
 
         <ExpandableSection title="Evidenz & Quellen" hidden={substance.sources.length === 0 && !substance.lastUpdated}>
@@ -270,11 +287,13 @@ function OverviewContent({
   aliases,
   primaryClass,
   categories,
+  mechanisms,
 }: {
   summary?: string;
   aliases?: string[];
   primaryClass?: string;
   categories: string[];
+  mechanisms: string[];
 }) {
   const colors = useThemeColors();
 
@@ -289,6 +308,14 @@ function OverviewContent({
         <InfoTile label="Klasse" value={primaryClass ?? categories[0] ?? '—'} />
         <InfoTile label="Aliasse" value={aliases?.length ? aliases.join(', ') : '—'} />
       </View>
+      {mechanisms.length > 0 && (
+        <View>
+          <Text style={[Typography.captionBold, { color: colors.textSecondary, marginBottom: Spacing.sm }]}>
+            Mechanismen
+          </Text>
+          <BulletList items={mechanisms.slice(0, 4)} />
+        </View>
+      )}
     </View>
   );
 }
@@ -338,7 +365,7 @@ function EffectsContent({
 
   return (
     <View style={{ gap: Spacing.lg }}>
-      {groups.map((group) => (
+      {groups.filter((group) => group.items.length > 0).map((group) => (
         <View key={group.label}>
           <Text
             style={[
@@ -367,11 +394,13 @@ function EffectsContent({
 
 function RisksContent({
   risks,
+  warnings,
 }: {
   risks: {
     acute: { name: string; severity: string; description: string }[];
     longterm: { name: string; severity: string; description: string }[];
   };
+  warnings: string[];
 }) {
   const colors = useThemeColors();
 
@@ -445,6 +474,35 @@ function RisksContent({
           </View>
         </View>
       )}
+      {warnings.length > 0 && (
+        <View>
+          <Text
+            style={[
+              Typography.captionBold,
+              { color: colors.severityRisky, marginBottom: Spacing.sm },
+            ]}>
+            Warnhinweise
+          </Text>
+          <BulletList items={warnings} />
+        </View>
+      )}
+    </View>
+  );
+}
+
+function BulletList({ items }: { items: string[] }) {
+  const colors = useThemeColors();
+
+  return (
+    <View style={{ gap: Spacing.sm }}>
+      {items.map((item) => (
+        <View key={item} style={inlineStyles.bulletRow}>
+          <View style={[inlineStyles.smallDot, { backgroundColor: colors.textTertiary }]} />
+          <Text style={[Typography.body, { color: colors.textPrimary, flex: 1 }]}>
+            {item}
+          </Text>
+        </View>
+      ))}
     </View>
   );
 }
@@ -593,6 +651,11 @@ const inlineStyles = StyleSheet.create({
     flexDirection: 'row',
     gap: Spacing.sm,
   },
+  sourceRow: {
+    alignItems: 'flex-start',
+    paddingHorizontal: Spacing.page,
+    marginBottom: Spacing.sm,
+  },
   infoTile: {
     flex: 1,
     minHeight: 72,
@@ -615,6 +678,17 @@ const inlineStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
+  },
+  bulletRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.sm,
+  },
+  smallDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    marginTop: 8,
   },
   dot: {
     width: 10,

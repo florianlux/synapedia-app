@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { SUBSTANCES } from '@/constants/mock-data';
-import { fetchLabsSubstances } from '@/lib/api/substances';
+import { fetchMobileSubstances } from '@/lib/api/substances';
 import type { Substance } from '@/types/substance';
 
 export type LocalSubstanceSummary = Pick<
@@ -9,7 +9,7 @@ export type LocalSubstanceSummary = Pick<
   'slug' | 'name' | 'aliases' | 'primaryClass' | 'summary' | 'categories' | 'riskLevel' | 'riskLabel' | 'quickFacts'
 >;
 
-export type SubstanceSource = 'live' | 'local' | 'offline';
+export type SubstanceSource = 'live' | 'mixed' | 'local' | 'offline';
 
 export type SubstancesState =
   | { status: 'loading' }
@@ -79,9 +79,18 @@ export function useSubstances(query: string): SubstancesState {
       refreshing: true,
     });
 
-    fetchLabsSubstances(query)
+    fetchMobileSubstances(query)
       .then((remoteData) => {
         if (!active) return;
+        if (remoteData.length === 0 && localData.length > 0) {
+          setState({
+            status: 'success',
+            data: localData,
+            source: 'offline',
+            refreshing: false,
+          });
+          return;
+        }
         setState({
           status: 'success',
           data: remoteData,

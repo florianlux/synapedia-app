@@ -268,7 +268,11 @@ export default function CheckScreen() {
 
         {/* Result */}
         {interactionState.status === 'success' && (
-          <InteractionResultCard interaction={interactionState.data} />
+          <InteractionResultCard
+            interaction={interactionState.data}
+            source={interactionState.source}
+            refreshing={interactionState.refreshing}
+          />
         )}
       </ScrollView>
 

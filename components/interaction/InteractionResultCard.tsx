@@ -6,13 +6,17 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Elevation, Radius, Spacing, Typography, type ThemeColors } from '@/constants/theme';
 import { SUBSTANCE_LIST, SUBSTANCE_NAME_MAP } from '@/constants/interactions';
 import { useThemeColors } from '@/hooks/use-theme';
+import type { InteractionSource } from '@/hooks/use-interaction';
 import type { InteractionDetail, MixCheckRiskLevel } from '@/types/interaction';
 import { InteractionMiniGraph } from '@/components/visual/InteractionMiniGraph';
+import { SourceBadge } from '@/components/ui/SourceBadge';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
 interface Props {
   interaction: InteractionDetail;
+  source?: InteractionSource;
+  refreshing?: boolean;
 }
 
 function getRiskMeta(
@@ -100,7 +104,7 @@ function BulletList({ items, danger }: { items: string[]; danger?: boolean }) {
   );
 }
 
-export function InteractionResultCard({ interaction }: Props) {
+export function InteractionResultCard({ interaction, source, refreshing = false }: Props) {
   const colors = useThemeColors();
   const risk = getRiskMeta(interaction.riskLevel, colors);
   const knownSlugs = new Set(SUBSTANCE_LIST.map((substance) => substance.slug));
@@ -138,17 +142,29 @@ export function InteractionResultCard({ interaction }: Props) {
         mechanisms={interaction.mechanisms}
       />
 
-      <Section title="Risikomechanismen" icon="git-network-outline">
-        <BulletList items={interaction.mechanisms} />
-      </Section>
+      {source && (
+        <View style={styles.sourceRow}>
+          <SourceBadge source={source} refreshing={refreshing} />
+        </View>
+      )}
 
-      <Section title="Safer-Use-Hinweise" icon="shield-checkmark-outline">
-        <BulletList items={interaction.saferUseNotes} />
-      </Section>
+      {interaction.mechanisms.length > 0 && (
+        <Section title="Risikomechanismen" icon="git-network-outline">
+          <BulletList items={interaction.mechanisms} />
+        </Section>
+      )}
 
-      <Section title="Wann Hilfe holen?" icon="alert-circle-outline" danger>
-        <BulletList items={interaction.redFlags} danger />
-      </Section>
+      {interaction.saferUseNotes.length > 0 && (
+        <Section title="Safer-Use-Hinweise" icon="shield-checkmark-outline">
+          <BulletList items={interaction.saferUseNotes} />
+        </Section>
+      )}
+
+      {interaction.redFlags.length > 0 && (
+        <Section title="Wann Hilfe holen?" icon="alert-circle-outline" danger>
+          <BulletList items={interaction.redFlags} danger />
+        </Section>
+      )}
 
       <Section title="Evidenz / Quellen-Platzhalter" icon="document-text-outline">
         <Text style={[Typography.bodyBold, { color: colors.textPrimary }]}>
@@ -257,6 +273,9 @@ const styles = StyleSheet.create({
   },
   sourceText: {
     marginTop: Spacing.xs,
+  },
+  sourceRow: {
+    alignItems: 'flex-start',
   },
   disclaimer: {
     flexDirection: 'row',

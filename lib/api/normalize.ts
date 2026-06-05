@@ -128,8 +128,12 @@ export function normalizeSubstanceDetail(
     },
     risks: enrichment?.risks ?? { acute: [], longterm: [] },
     saferUse: enrichment?.saferUse ?? [],
+    warnings: enrichment?.warnings ?? [],
+    mechanisms: enrichment?.mechanisms ?? (raw.mechanisms ?? []),
     interactions: enrichment?.interactions ?? [],
+    interactionsPreview: enrichment?.interactionsPreview ?? enrichment?.interactions ?? [],
     sources: enrichment?.sources ?? [],
+    evidenceNote: enrichment?.evidenceNote,
     lastUpdated: enrichment?.lastUpdated ?? '',
   };
 }

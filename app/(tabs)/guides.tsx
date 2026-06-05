@@ -3,13 +3,19 @@ import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-import { GUIDE_DISCLAIMER, GUIDES } from '@/constants/guides';
+import { GUIDE_DISCLAIMER } from '@/constants/guides';
 import { Elevation, Radius, Spacing, Typography } from '@/constants/theme';
+import { useGuides } from '@/hooks/use-guides';
 import { useThemeColors } from '@/hooks/use-theme';
+import { SourceBadge } from '@/components/ui/SourceBadge';
 
 export default function GuidesScreen() {
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
+  const guidesState = useGuides();
+  const guides = guidesState.status === 'success' ? guidesState.data : [];
+  const source = guidesState.status === 'success' ? guidesState.source : 'local';
+  const refreshing = guidesState.status === 'success' ? guidesState.refreshing : false;
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background, paddingTop: insets.top }]}>
@@ -19,10 +25,13 @@ export default function GuidesScreen() {
           <Text style={[Typography.body, styles.subtitle, { color: colors.textSecondary }]}>
             Ruhige, lokal kuratierte Einstiege zu Recovery, Entzug und Harm Reduction.
           </Text>
+          <View style={styles.sourceRow}>
+            <SourceBadge source={source} refreshing={refreshing} />
+          </View>
         </View>
 
         <View style={styles.guideList}>
-          {GUIDES.map((guide) => (
+          {guides.map((guide) => (
             <Pressable
               key={guide.slug}
               onPress={() => router.push({ pathname: '/guides/[slug]', params: { slug: guide.slug } })}
@@ -80,6 +89,10 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     marginTop: Spacing.xs,
+  },
+  sourceRow: {
+    alignItems: 'flex-start',
+    marginTop: Spacing.md,
   },
   guideList: {
     gap: Spacing.sm,

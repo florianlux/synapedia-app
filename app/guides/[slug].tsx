@@ -1,24 +1,37 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-import { GUIDE_DISCLAIMER, GUIDES_MAP, type GuidePhase, type GuideSection } from '@/constants/guides';
+import { GUIDE_DISCLAIMER, type GuidePhase, type GuideSection } from '@/constants/guides';
 import { Elevation, Radius, Spacing, Typography } from '@/constants/theme';
+import { useGuide } from '@/hooks/use-guides';
 import { useThemeColors } from '@/hooks/use-theme';
+import { SourceBadge } from '@/components/ui/SourceBadge';
 
 export default function GuideDetailScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
-  const guide = slug ? GUIDES_MAP[slug] : undefined;
+  const guideState = useGuide(slug);
 
-  if (!guide) {
+  if (guideState.status === 'loading') {
+    return (
+      <View style={[styles.centered, { backgroundColor: colors.background, paddingTop: insets.top }]}>
+        <ActivityIndicator size="large" color={colors.accent} />
+        <Text style={[Typography.body, styles.centeredText, { color: colors.textSecondary }]}>
+          Lade Guide...
+        </Text>
+      </View>
+    );
+  }
+
+  if (guideState.status === 'error') {
     return (
       <View style={[styles.centered, { backgroundColor: colors.background, paddingTop: insets.top }]}>
         <Ionicons name="alert-circle-outline" size={44} color={colors.textTertiary} />
         <Text style={[Typography.body, styles.centeredText, { color: colors.textSecondary }]}>
-          Guide nicht gefunden.
+          {guideState.notFound ? 'Guide nicht gefunden.' : 'Guide konnte nicht geladen werden.'}
         </Text>
         <Pressable onPress={() => router.back()} style={styles.backTextButton}>
           <Text style={[Typography.bodyBold, { color: colors.accent }]}>Zurück</Text>
@@ -26,6 +39,8 @@ export default function GuideDetailScreen() {
       </View>
     );
   }
+
+  const guide = guideState.data;
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
@@ -52,24 +67,31 @@ export default function GuideDetailScreen() {
           <Text style={[Typography.body, { color: colors.textSecondary }]}>
             {guide.summary}
           </Text>
+          <View style={styles.sourceRow}>
+            <SourceBadge source={guideState.source} refreshing={guideState.refreshing} />
+          </View>
         </View>
 
-        <View style={[styles.disclaimer, { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder }]}>
+        {(guide.safetyDisclaimer || GUIDE_DISCLAIMER) && (
+          <View style={[styles.disclaimer, { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder }]}>
           <Ionicons name="warning-outline" size={18} color={colors.severityRisky} />
           <View style={styles.disclaimerText}>
             <Text style={[Typography.captionBold, { color: colors.textPrimary }]}>
               Wichtiger Sicherheitshinweis
             </Text>
-            <Text style={[Typography.caption, { color: colors.textSecondary, marginTop: Spacing.xs }]}>
-              {guide.safetyDisclaimer}
-            </Text>
+            {guide.safetyDisclaimer && (
+              <Text style={[Typography.caption, { color: colors.textSecondary, marginTop: Spacing.xs }]}>
+                {guide.safetyDisclaimer}
+              </Text>
+            )}
             <Text style={[Typography.caption, { color: colors.textSecondary, marginTop: Spacing.xs }]}>
               {GUIDE_DISCLAIMER}
             </Text>
           </View>
-        </View>
+          </View>
+        )}
 
-        <GuideSections sections={guide.symptoms} />
+        {guide.symptoms.length > 0 && <GuideSections sections={guide.symptoms} />}
 
         {guide.phases.length > 0 && (
           <View style={styles.section}>
@@ -84,30 +106,36 @@ export default function GuideDetailScreen() {
           </View>
         )}
 
-        <BulletSection
-          title="Red Flags / Wann Hilfe holen?"
-          icon="alert-circle-outline"
-          items={guide.redFlags}
-          danger
-        />
+        {guide.redFlags.length > 0 && (
+          <BulletSection
+            title="Red Flags / Wann Hilfe holen?"
+            icon="alert-circle-outline"
+            items={guide.redFlags}
+            danger
+          />
+        )}
 
-        <BulletSection
-          title="Praktische Harm-Reduction-Schritte"
-          icon="shield-checkmark-outline"
-          items={guide.practicalSteps}
-        />
+        {guide.practicalSteps.length > 0 && (
+          <BulletSection
+            title="Praktische Harm-Reduction-Schritte"
+            icon="shield-checkmark-outline"
+            items={guide.practicalSteps}
+          />
+        )}
 
-        <View style={[styles.evidenceCard, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
-          <Ionicons name="document-text-outline" size={18} color={colors.accent} />
-          <View style={styles.evidenceText}>
-            <Text style={[Typography.captionBold, { color: colors.textPrimary }]}>
-              Evidenz / Quellen-Platzhalter
-            </Text>
-            <Text style={[Typography.caption, { color: colors.textSecondary, marginTop: Spacing.xs }]}>
-              {guide.evidenceNote}
-            </Text>
+        {guide.evidenceNote && (
+          <View style={[styles.evidenceCard, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
+            <Ionicons name="document-text-outline" size={18} color={colors.accent} />
+            <View style={styles.evidenceText}>
+              <Text style={[Typography.captionBold, { color: colors.textPrimary }]}>
+                Evidenz / Quellen-Platzhalter
+              </Text>
+              <Text style={[Typography.caption, { color: colors.textSecondary, marginTop: Spacing.xs }]}>
+                {guide.evidenceNote}
+              </Text>
+            </View>
           </View>
-        </View>
+        )}
       </ScrollView>
     </View>
   );
@@ -244,6 +272,10 @@ const styles = StyleSheet.create({
   title: {
     marginTop: Spacing.xs,
     marginBottom: Spacing.sm,
+  },
+  sourceRow: {
+    alignItems: 'flex-start',
+    marginTop: Spacing.md,
   },
   disclaimer: {
     flexDirection: 'row',

@@ -29,7 +29,7 @@ function isAbortError(error: unknown): boolean {
 }
 
 function buildReadOnlyUrl(path: string, params?: Record<string, string | number | boolean>): string {
-  if (!path.startsWith('/api/labs/')) {
+  if (!path.startsWith('/api/mobile/')) {
     throw new SynapediaApiError('Unsicherer API-Pfad.', 0, 'UNSAFE_PATH');
   }
 
@@ -66,6 +66,54 @@ export async function getJson<T>(
     const response = await fetch(buildReadOnlyUrl(path, params), {
       method: 'GET',
       headers: { Accept: 'application/json' },
+      signal: controller.signal,
+    });
+
+    const data = await parseJsonSafely(response);
+
+    if (!response.ok) {
+      throw new SynapediaApiError(
+        `Synapedia API Fehler (${response.status}).`,
+        response.status,
+        'HTTP_ERROR',
+      );
+    }
+
+    return data as T;
+  } catch (error) {
+    if (error instanceof SynapediaApiError) throw error;
+    if (isAbortError(error)) {
+      throw new SynapediaApiError('Zeitueberschreitung beim Laden.', 408, 'TIMEOUT');
+    }
+    throw new SynapediaApiError('Synapedia API nicht erreichbar.', 503, 'NETWORK_ERROR');
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export async function postJson<T>(
+  path: string,
+  body: Record<string, unknown>,
+  options: { timeoutMs?: number } = {},
+): Promise<T> {
+  if (path !== '/api/mobile/interactions/check') {
+    throw new SynapediaApiError('Unsicherer API-Pfad.', 0, 'UNSAFE_PATH');
+  }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(
+    () => controller.abort(),
+    options.timeoutMs ?? DEFAULT_TIMEOUT_MS,
+  );
+
+  try {
+    const response = await fetch(buildReadOnlyUrl(path), {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
       signal: controller.signal,
     });
 
