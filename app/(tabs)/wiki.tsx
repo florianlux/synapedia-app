@@ -5,7 +5,7 @@ import { router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { Elevation, Radius, Spacing, Typography, type ThemeColors } from '@/constants/theme';
-import { useSubstances, type LocalSubstanceSummary } from '@/hooks/use-substances';
+import { useSubstances, type LocalSubstanceSummary, type SubstanceSource } from '@/hooks/use-substances';
 import { useThemeColors } from '@/hooks/use-theme';
 import type { RiskLevel } from '@/types/substance';
 import { EmptyState, Pill } from '@/components/ui/premium';
@@ -27,6 +27,8 @@ export default function WikiScreen() {
   const [query, setQuery] = useState('');
   const substancesState = useSubstances(query);
   const substances = substancesState.status === 'success' ? substancesState.data : [];
+  const source = substancesState.status === 'success' ? substancesState.source : 'local';
+  const refreshing = substancesState.status === 'success' ? substancesState.refreshing : false;
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background, paddingTop: insets.top }]}>
@@ -71,8 +73,9 @@ export default function WikiScreen() {
 
             <View style={styles.resultHeader}>
               <Text style={[Typography.captionBold, { color: colors.textSecondary }]}>
-                {substances.length} lokale Profile
+                {substances.length} Profile
               </Text>
+              <SourceBadge source={source} refreshing={refreshing} />
             </View>
           </>
         }
@@ -89,13 +92,46 @@ export default function WikiScreen() {
   );
 }
 
+function sourceMeta(source: SubstanceSource, colors: ThemeColors): { label: string; tint: string } {
+  if (source === 'live') return { label: 'Live-Daten', tint: colors.accent };
+  if (source === 'offline') return { label: 'Offline-Fallback', tint: colors.severityRisky };
+  return { label: 'Lokale MVP-Daten', tint: colors.textTertiary };
+}
+
+function SourceBadge({ source, refreshing }: { source: SubstanceSource; refreshing: boolean }) {
+  const colors = useThemeColors();
+  const meta = sourceMeta(source, colors);
+
+  return (
+    <View style={[styles.sourceBadge, { backgroundColor: `${meta.tint}12`, borderColor: `${meta.tint}28` }]}>
+      <View style={[styles.sourceDot, { backgroundColor: refreshing ? colors.textTertiary : meta.tint }]} />
+      <Text style={[Typography.quickFactLabel, { color: meta.tint }]} numberOfLines={1}>
+        {refreshing ? 'Synchronisiere' : meta.label}
+      </Text>
+    </View>
+  );
+}
+
 function SubstanceCard({ item }: { item: LocalSubstanceSummary }) {
   const colors = useThemeColors();
   const riskColor = getRiskColor(item.riskLevel, colors);
 
   return (
     <Pressable
-      onPress={() => router.push({ pathname: '/substance/[slug]', params: { slug: item.slug } })}
+      onPress={() =>
+        router.push({
+          pathname: '/substance/[slug]',
+          params: {
+            slug: item.slug,
+            name: item.name,
+            primaryClass: item.primaryClass ?? item.categories[0] ?? '',
+            summary: item.summary ?? '',
+            duration: item.quickFacts.duration,
+            riskLevel: item.riskLevel,
+            riskLabel: item.riskLabel,
+          },
+        })
+      }
       style={({ pressed }) => [
         styles.card,
         {
@@ -164,6 +200,25 @@ const styles = StyleSheet.create({
   resultHeader: {
     paddingTop: Spacing.lg,
     paddingBottom: Spacing.xs,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: Spacing.md,
+    flexWrap: 'wrap',
+  },
+  sourceBadge: {
+    minHeight: 24,
+    borderRadius: Radius.full,
+    borderWidth: StyleSheet.hairlineWidth,
+    paddingHorizontal: Spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+  },
+  sourceDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
   },
   card: {
     padding: Spacing.lg,

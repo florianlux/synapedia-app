@@ -1,150 +1,92 @@
-import type {
-  ApiSearchResponse,
-  ApiSubstanceDetailResponse,
-  ApiInteractionCheckResponse,
-} from './types';
+const DEFAULT_API_URL = 'https://synapedia.com';
+const DEFAULT_TIMEOUT_MS = 8_000;
 
-// ── Config ─────────────────────────────────────────────────────────────────
-// Set EXPO_PUBLIC_SYNAPEDIA_API_URL and EXPO_PUBLIC_SYNAPEDIA_API_KEY
-// in your .env.local file (or .env for Expo Go).
+const configuredUrl =
+  process.env.EXPO_PUBLIC_SYNAPEDIA_API_URL?.trim() || DEFAULT_API_URL;
 
-const API_URL =
-  process.env.EXPO_PUBLIC_SYNAPEDIA_API_URL ?? '';
-const API_KEY =
-  process.env.EXPO_PUBLIC_SYNAPEDIA_API_KEY ?? '';
-
-const DEFAULT_TIMEOUT = 10_000;
-const MAX_RETRIES = 1;
-
-/** Returns true when real API credentials are configured. */
-export function isApiConfigured(): boolean {
-  return Boolean(API_URL && API_KEY);
-}
-
-// ── Error class ─────────────────────────────────────────────────────────────
+export const SYNAPEDIA_API_URL = configuredUrl.replace(/\/+$/, '');
 
 export class SynapediaApiError extends Error {
   constructor(
     message: string,
     public readonly status: number,
-    public readonly code?: string,
+    public readonly code:
+      | 'HTTP_ERROR'
+      | 'INVALID_JSON'
+      | 'INVALID_RESPONSE'
+      | 'NETWORK_ERROR'
+      | 'TIMEOUT'
+      | 'UNSAFE_PATH',
   ) {
     super(message);
     this.name = 'SynapediaApiError';
   }
 }
 
-// ── Core fetch helper ───────────────────────────────────────────────────────
+function isAbortError(error: unknown): boolean {
+  if (error instanceof Error && error.name === 'AbortError') return true;
+  return typeof error === 'object' && error !== null && 'name' in error && error.name === 'AbortError';
+}
 
-async function apiFetch<T>(
-  path: string,
-  options: {
-    method?: 'GET' | 'POST';
-    body?: Record<string, unknown>;
-    timeout?: number;
-  } = {},
-): Promise<T> {
-  const { method = 'GET', body, timeout = DEFAULT_TIMEOUT } = options;
-  const url = `${API_URL}${path}`;
-
-  let lastError: SynapediaApiError | undefined;
-
-  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-    if (attempt > 0) await new Promise((r) => setTimeout(r, 500 * attempt));
-
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeout);
-
-    try {
-      const res = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${API_KEY}`,
-        },
-        ...(body && { body: JSON.stringify(body) }),
-        signal: controller.signal,
-      });
-
-      if (!res.ok) {
-        let errorMessage = `Synapedia API Fehler (${res.status})`;
-        let errorCode: string | undefined;
-        try {
-          const errorBody = await res.json();
-          if (errorBody.error && typeof errorBody.error === 'object') {
-            errorMessage = errorBody.error.message ?? errorMessage;
-            errorCode = errorBody.error.code;
-          } else if (typeof errorBody.error === 'string') {
-            errorMessage = errorBody.error;
-          } else if (errorBody.message) {
-            errorMessage = errorBody.message;
-          }
-        } catch {
-          // Unparsable error body — use default
-        }
-        const err = new SynapediaApiError(
-          errorMessage,
-          res.status,
-          errorCode ?? (res.status === 404 ? 'NOT_FOUND' : undefined),
-        );
-        // 4xx errors are not retryable
-        if (res.status >= 400 && res.status < 500) throw err;
-        lastError = err;
-        continue;
-      }
-
-      return (await res.json()) as T;
-    } catch (err) {
-      if (err instanceof SynapediaApiError) {
-        if (err.status >= 400 && err.status < 500) throw err;
-        lastError = err;
-        continue;
-      }
-      if (err instanceof DOMException && err.name === 'AbortError') {
-        lastError = new SynapediaApiError(
-          'Zeitüberschreitung. Bitte erneut versuchen.',
-          408,
-          'TIMEOUT',
-        );
-        continue;
-      }
-      lastError = new SynapediaApiError(
-        'Synapedia API nicht erreichbar. Bitte später erneut versuchen.',
-        503,
-        'NETWORK_ERROR',
-      );
-      continue;
-    } finally {
-      clearTimeout(timer);
-    }
+function buildReadOnlyUrl(path: string, params?: Record<string, string | number | boolean>): string {
+  if (!path.startsWith('/api/labs/')) {
+    throw new SynapediaApiError('Unsicherer API-Pfad.', 0, 'UNSAFE_PATH');
   }
 
-  throw lastError!;
-}
-
-// ── Public API functions ────────────────────────────────────────────────────
-
-export async function searchSubstances(
-  query: string,
-): Promise<ApiSearchResponse> {
-  return apiFetch<ApiSearchResponse>(
-    `/substances?q=${encodeURIComponent(query)}`,
-  );
-}
-
-export async function getSubstanceDetail(
-  slug: string,
-): Promise<ApiSubstanceDetailResponse> {
-  return apiFetch<ApiSubstanceDetailResponse>(
-    `/substances/${encodeURIComponent(slug)}`,
-  );
-}
-
-export async function checkInteraction(
-  slugs: string[],
-): Promise<ApiInteractionCheckResponse> {
-  return apiFetch<ApiInteractionCheckResponse>('/interaction-check', {
-    method: 'POST',
-    body: { substances: slugs },
+  const url = new URL(path, SYNAPEDIA_API_URL);
+  Object.entries(params ?? {}).forEach(([key, value]) => {
+    url.searchParams.set(key, String(value));
   });
+  return url.toString();
+}
+
+async function parseJsonSafely(response: Response): Promise<unknown> {
+  const text = await response.text();
+  if (!text) return null;
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new SynapediaApiError('API-Antwort ist kein gueltiges JSON.', response.status, 'INVALID_JSON');
+  }
+}
+
+export async function getJson<T>(
+  path: string,
+  params?: Record<string, string | number | boolean>,
+  options: { timeoutMs?: number } = {},
+): Promise<T> {
+  const controller = new AbortController();
+  const timeout = setTimeout(
+    () => controller.abort(),
+    options.timeoutMs ?? DEFAULT_TIMEOUT_MS,
+  );
+
+  try {
+    const response = await fetch(buildReadOnlyUrl(path, params), {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+      signal: controller.signal,
+    });
+
+    const data = await parseJsonSafely(response);
+
+    if (!response.ok) {
+      throw new SynapediaApiError(
+        `Synapedia API Fehler (${response.status}).`,
+        response.status,
+        'HTTP_ERROR',
+      );
+    }
+
+    return data as T;
+  } catch (error) {
+    if (error instanceof SynapediaApiError) throw error;
+    if (isAbortError(error)) {
+      throw new SynapediaApiError('Zeitueberschreitung beim Laden.', 408, 'TIMEOUT');
+    }
+    throw new SynapediaApiError('Synapedia API nicht erreichbar.', 503, 'NETWORK_ERROR');
+  } finally {
+    clearTimeout(timeout);
+  }
 }

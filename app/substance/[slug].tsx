@@ -18,18 +18,49 @@ import { InteractionsPreviewSection } from '@/components/substance/InteractionsP
 import { StickyBottomBar } from '@/components/substance/StickyBottomBar';
 import { RiskProfileBars } from '@/components/visual/RiskProfileBars';
 import { DurationTimeline } from '@/components/visual/DurationTimeline';
+import type { RiskLevel } from '@/types/substance';
 
 // ---------------------------------------------------------------------------
 // Screen
 // ---------------------------------------------------------------------------
 
 export default function SubstanceDetailScreen() {
-  const { slug } = useLocalSearchParams<{ slug: string }>();
+  const {
+    slug,
+    name,
+    primaryClass,
+    summary,
+    duration,
+    riskLevel,
+    riskLabel,
+  } = useLocalSearchParams<{
+    slug: string;
+    name?: string;
+    primaryClass?: string;
+    summary?: string;
+    duration?: string;
+    riskLevel?: string;
+    riskLabel?: string;
+  }>();
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
   const { isFavorite, toggleFavorite, addRecentlyViewed } = useAppContext();
 
-  const substanceState = useSubstance(slug);
+  const fallbackRiskLevel = normalizeRouteRiskLevel(riskLevel);
+  const substanceState = useSubstance(
+    slug,
+    name
+      ? {
+          slug,
+          name,
+          primaryClass,
+          summary,
+          duration,
+          riskLevel: fallbackRiskLevel,
+          riskLabel,
+        }
+      : null,
+  );
   const isSaved = slug ? isFavorite(slug) : false;
 
   useEffect(() => {
@@ -202,6 +233,19 @@ export default function SubstanceDetailScreen() {
       />
     </View>
   );
+}
+
+function normalizeRouteRiskLevel(value: string | undefined): RiskLevel | undefined {
+  if (
+    value === 'low' ||
+    value === 'moderate' ||
+    value === 'high' ||
+    value === 'extreme' ||
+    value === 'unknown'
+  ) {
+    return value;
+  }
+  return undefined;
 }
 
 // ---------------------------------------------------------------------------

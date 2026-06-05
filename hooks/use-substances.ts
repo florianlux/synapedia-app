@@ -1,6 +1,7 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { SUBSTANCES } from '@/constants/mock-data';
+import { fetchLabsSubstances } from '@/lib/api/substances';
 import type { Substance } from '@/types/substance';
 
 export type LocalSubstanceSummary = Pick<
@@ -8,9 +9,11 @@ export type LocalSubstanceSummary = Pick<
   'slug' | 'name' | 'aliases' | 'primaryClass' | 'summary' | 'categories' | 'riskLevel' | 'riskLabel' | 'quickFacts'
 >;
 
+export type SubstanceSource = 'live' | 'local' | 'offline';
+
 export type SubstancesState =
   | { status: 'loading' }
-  | { status: 'success'; data: LocalSubstanceSummary[] };
+  | { status: 'success'; data: LocalSubstanceSummary[]; source: SubstanceSource; refreshing: boolean };
 
 function matchesSubstance(substance: Substance, query: string): boolean {
   const term = query.trim().toLowerCase();
@@ -32,7 +35,7 @@ function matchesSubstance(substance: Substance, query: string): boolean {
 }
 
 export function useSubstances(query: string): SubstancesState {
-  const data = useMemo(
+  const localData = useMemo(
     () =>
       SUBSTANCES.filter((substance) => matchesSubstance(substance, query)).map(
         ({
@@ -59,6 +62,47 @@ export function useSubstances(query: string): SubstancesState {
       ),
     [query],
   );
+  const [state, setState] = useState<SubstancesState>({
+    status: 'success',
+    data: localData,
+    source: 'local',
+    refreshing: true,
+  });
 
-  return { status: 'success', data };
+  useEffect(() => {
+    let active = true;
+
+    setState({
+      status: 'success',
+      data: localData,
+      source: 'local',
+      refreshing: true,
+    });
+
+    fetchLabsSubstances(query)
+      .then((remoteData) => {
+        if (!active) return;
+        setState({
+          status: 'success',
+          data: remoteData,
+          source: 'live',
+          refreshing: false,
+        });
+      })
+      .catch(() => {
+        if (!active) return;
+        setState({
+          status: 'success',
+          data: localData,
+          source: 'offline',
+          refreshing: false,
+        });
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [query, localData]);
+
+  return state;
 }
