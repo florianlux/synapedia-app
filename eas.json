@@ -10,6 +10,9 @@
     },
     "preview": {
       "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "https://synapedia.com"
+      },
       "android": {
         "buildType": "apk"
       },
@@ -25,7 +28,13 @@
       }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "https://synapedia.com"
+      },
+      "android": {
+        "buildType": "app-bundle"
+      }
     }
   }
 }
