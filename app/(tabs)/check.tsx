@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   popularChip: {
-    minHeight: 34,
+    minHeight: 44,
     borderRadius: Radius.full,
     paddingHorizontal: Spacing.md,
     alignItems: 'center',

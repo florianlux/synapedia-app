@@ -75,6 +75,57 @@ function validateForm(form: FormState): string | null {
   return null;
 }
 
+function asRecord(value: unknown): Record<string, unknown> | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  return value as Record<string, unknown>;
+}
+
+function stringValue(value: unknown): string | undefined {
+  return typeof value === 'string' && value.trim() ? value.trim() : undefined;
+}
+
+function isUnit(value: string | undefined): value is DoseEntry['unit'] {
+  return value === 'mg' || value === 'ug' || value === 'g' || value === 'ml';
+}
+
+function isRoute(value: string | undefined): value is DoseEntry['route'] {
+  return value === 'oral' || value === 'nasal' || value === 'smoked' || value === 'sublingual' || value === 'other';
+}
+
+function normalizeDoseEntries(value: unknown): DoseEntry[] {
+  if (!Array.isArray(value)) return [];
+
+  return value
+    .map((item, index): DoseEntry | null => {
+      const record = asRecord(item);
+      const substance = stringValue(record?.substance);
+      const timestamp = stringValue(record?.timestamp);
+      if (!record || !substance || !timestamp) return null;
+
+      const unit = stringValue(record.unit);
+      const route = stringValue(record.route);
+      const entry: DoseEntry = {
+        id: stringValue(record.id) ?? `${timestamp}-${substance}-${index}`,
+        substance,
+        unit: isUnit(unit) ? unit : 'mg',
+        route: isRoute(route) ? route : 'other',
+        timestamp,
+      };
+      const dose = stringValue(record.dose);
+      const notes = stringValue(record.notes);
+      const mood = stringValue(record.mood);
+      const createdAt = stringValue(record.createdAt);
+
+      if (dose) entry.dose = dose;
+      if (notes) entry.notes = notes;
+      if (mood) entry.mood = mood;
+      if (createdAt) entry.createdAt = createdAt;
+
+      return entry;
+    })
+    .filter((entry): entry is DoseEntry => entry !== null);
+}
+
 function entryTime(entry: DoseEntry): number {
   const parsed = Date.parse(entry.timestamp);
   return Number.isNaN(parsed) ? Date.parse(entry.createdAt ?? '') : parsed;
@@ -160,8 +211,7 @@ export default function LogScreen() {
     AsyncStorage.getItem(STORAGE_KEY)
       .then((value) => {
         if (!mounted || !value) return;
-        const parsed = JSON.parse(value) as DoseEntry[];
-        if (Array.isArray(parsed)) setEntries(parsed);
+        setEntries(normalizeDoseEntries(JSON.parse(value) as unknown));
       })
       .catch(() => {
         if (mounted) setError('Could not load local log entries.');
@@ -594,7 +644,8 @@ function EntryCard({ entry, onDelete }: { entry: DoseEntry; onDelete: () => void
           onPress={onDelete}
           hitSlop={8}
           accessibilityRole="button"
-          accessibilityLabel={`${entry.substance}-Eintrag löschen`}>
+          accessibilityLabel={`${entry.substance}-Eintrag löschen`}
+          style={styles.deleteButton}>
           <Ionicons name="trash-outline" size={19} color={colors.textTertiary} />
         </Pressable>
       </View>
@@ -670,7 +721,7 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   suggestionChip: {
-    minHeight: 32,
+    minHeight: 44,
     borderRadius: Radius.full,
     paddingHorizontal: Spacing.md,
     alignItems: 'center',
@@ -683,7 +734,7 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   chip: {
-    minHeight: 34,
+    minHeight: 44,
     borderRadius: Radius.full,
     paddingHorizontal: Spacing.md,
     alignItems: 'center',
@@ -720,7 +771,7 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
   },
   exportButton: {
-    minHeight: 34,
+    minHeight: 44,
     borderRadius: Radius.full,
     borderWidth: StyleSheet.hairlineWidth,
     paddingHorizontal: Spacing.md,
@@ -758,6 +809,14 @@ const styles = StyleSheet.create({
   },
   entryTitleBlock: {
     flex: 1,
+  },
+  deleteButton: {
+    width: 44,
+    height: 44,
+    marginTop: -Spacing.sm,
+    marginRight: -Spacing.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   entryMeta: {
     marginTop: Spacing.sm,

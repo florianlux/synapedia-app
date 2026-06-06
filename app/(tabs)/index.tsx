@@ -1,5 +1,5 @@
 import type { ComponentProps } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
@@ -84,6 +84,8 @@ function getRiskColor(level: RiskLevel, colors: ThemeColors): string {
 
 export default function HomeScreen() {
   const colors = useThemeColors();
+  const { width } = useWindowDimensions();
+  const isCompact = width < 380;
   const featured = FEATURED_SUBSTANCES.map((slug) =>
     SUBSTANCES.find((substance) => substance.slug === slug),
   ).filter(Boolean);
@@ -143,13 +145,13 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        <View style={styles.heroTop}>
+        <View style={[styles.heroTop, isCompact && styles.heroTopCompact]}>
           <View style={[styles.mark, { backgroundColor: colors.backgroundSecondary, borderColor: `${colors.accent}35` }]}>
             <View style={[styles.markInner, { backgroundColor: colors.accentLight }]}>
               <Ionicons name="pulse-outline" size={28} color={colors.accent} />
             </View>
           </View>
-          <View style={styles.heroStatus}>
+          <View style={[styles.heroStatus, isCompact && styles.heroTopCompactStatus]}>
             <HeroBadge label="Knowledge Graph" icon="git-network-outline" tint={colors.accent} />
             <HeroBadge label="Harm Reduction" icon="shield-outline" tint={colors.riskModerate} />
           </View>
@@ -176,7 +178,7 @@ export default function HomeScreen() {
             onPress={() => router.push(action.route)}
             accessibilityLabel={action.title}>
             {({ pressed }) => (
-              <PremiumCard pressed={pressed} style={styles.actionCard}>
+              <PremiumCard pressed={pressed} style={[styles.actionCard, isCompact && styles.actionCardCompact]}>
                 <View style={[styles.actionAccent, { backgroundColor: action.tint }]} />
                 <View style={[styles.actionIcon, { backgroundColor: `${action.tint}1F` }]}>
                   <Ionicons name={action.icon} size={22} color={action.tint} />
@@ -318,6 +320,9 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
     marginBottom: Spacing.lg,
   },
+  heroTopCompact: {
+    flexDirection: 'column',
+  },
   mark: {
     width: 54,
     height: 54,
@@ -337,6 +342,9 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     gap: Spacing.xs,
     flexShrink: 1,
+  },
+  heroTopCompactStatus: {
+    alignItems: 'flex-start',
   },
   heroBadge: {
     minHeight: 24,
@@ -394,11 +402,14 @@ const styles = StyleSheet.create({
   actionCard: {
     position: 'relative',
     overflow: 'hidden',
-    minHeight: 68,
+    minHeight: 72,
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.md,
     paddingVertical: Spacing.sm,
+  },
+  actionCardCompact: {
+    minHeight: 76,
   },
   actionAccent: {
     position: 'absolute',
@@ -411,8 +422,8 @@ const styles = StyleSheet.create({
     opacity: 0.9,
   },
   actionIcon: {
-    width: 38,
-    height: 38,
+    width: 44,
+    height: 44,
     borderRadius: Radius.md,
     alignItems: 'center',
     justifyContent: 'center',
@@ -431,6 +442,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     overflow: 'hidden',
     flexDirection: 'row',
+    alignItems: 'flex-start',
     gap: Spacing.md,
     marginTop: Spacing.xl,
     paddingLeft: Spacing.xl,
@@ -449,6 +461,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.lg,
     alignItems: 'center',
     justifyContent: 'center',
+    flexShrink: 0,
   },
   warningText: {
     flex: 1,

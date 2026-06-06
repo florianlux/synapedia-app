@@ -30,7 +30,7 @@ function goBackToWiki() {
     return;
   }
 
-  router.replace('/wiki');
+  router.replace('/(tabs)/wiki');
 }
 
 export default function SubstanceDetailScreen() {
@@ -93,17 +93,10 @@ export default function SubstanceDetailScreen() {
     return (
       <View
         style={[
-          styles.centeredContainer,
+          styles.screen,
           { backgroundColor: colors.background, paddingTop: insets.top },
         ]}>
-        <ActivityIndicator size="large" color={colors.accent} />
-        <Text
-          style={[
-            Typography.body,
-            { color: colors.textSecondary, marginTop: Spacing.md },
-          ]}>
-          Lade Substanz…
-        </Text>
+        <DetailSkeleton />
       </View>
     );
   }
@@ -117,6 +110,9 @@ export default function SubstanceDetailScreen() {
           { backgroundColor: colors.background, paddingTop: insets.top },
         ]}>
         <Ionicons name="alert-circle-outline" size={48} color={colors.textTertiary} />
+        <Text style={[Typography.sectionTitle, styles.errorTitle, { color: colors.textPrimary }]}>
+          Detail nicht erreichbar
+        </Text>
         <Text
           style={[
             Typography.body,
@@ -124,9 +120,13 @@ export default function SubstanceDetailScreen() {
           ]}>
           {substanceState.notFound ? 'Substanz nicht gefunden' : substanceState.message}
         </Text>
-        <Pressable onPress={goBackToWiki} style={styles.retryButton}>
+        <Pressable
+          onPress={goBackToWiki}
+          accessibilityRole="button"
+          style={[styles.retryButton, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
+          <Ionicons name="chevron-back" size={18} color={colors.accent} />
           <Text style={[Typography.bodyBold, { color: colors.accent }]}>
-            Zurück
+            Zurueck zum Wiki
           </Text>
         </Pressable>
       </View>
@@ -196,6 +196,13 @@ export default function SubstanceDetailScreen() {
           <SourceBadge source={source} refreshing={refreshing} />
         </View>
 
+        <DataQualityNote
+          source={source}
+          evidenceNote={substance.evidenceNote}
+          sourceCount={substance.sources.length}
+          lastUpdated={substance.lastUpdated}
+        />
+
         {/* Z4: Expandable Sections */}
         <ExpandableSection title="Überblick" initialExpanded>
           <OverviewContent
@@ -208,13 +215,17 @@ export default function SubstanceDetailScreen() {
           />
         </ExpandableSection>
 
-        <ExpandableSection title="Wirkdauer" hidden={!hasDuration}>
-          <DurationSection
-            phases={substance.duration.phases}
-            total={substance.duration.total}
-            quickFacts={substance.quickFacts}
-            notes={['Zeitangaben sind Richtwerte und koennen je nach Dosis, Person, Route und Setting variieren.']}
-          />
+        <ExpandableSection title="Wirkdauer">
+          {hasDuration ? (
+            <DurationSection
+              phases={substance.duration.phases}
+              total={substance.duration.total}
+              quickFacts={substance.quickFacts}
+              notes={['Zeitangaben sind Richtwerte und koennen je nach Dosis, Person, Route und Setting variieren.']}
+            />
+          ) : (
+            <DurationFallbackContent />
+          )}
         </ExpandableSection>
 
         <ExpandableSection
@@ -250,18 +261,17 @@ export default function SubstanceDetailScreen() {
           />
         </ExpandableSection>
 
-        <ExpandableSection title="Evidenz & Quellen" hidden={substance.sources.length === 0 && !substance.lastUpdated}>
+        <ExpandableSection
+          title="Evidenz & Quellen"
+          hidden={substance.sources.length === 0 && !substance.lastUpdated && !substance.evidenceNote}>
           <SourcesContent
             sources={substance.sources}
             lastUpdated={substance.lastUpdated}
+            evidenceNote={substance.evidenceNote}
           />
         </ExpandableSection>
 
-        <View style={inlineStyles.bottomDisclaimer}>
-          <Text style={[Typography.caption, { color: colors.textTertiary, textAlign: 'center' }]}>
-            Informations- und Harm-Reduction-Tool. Keine medizinische Beratung.
-          </Text>
-        </View>
+        <HarmReductionBox riskLevel={substance.riskLevel} />
       </ScrollView>
 
       {/* ── Z5: Sticky Bottom Bar ── */}
@@ -275,6 +285,35 @@ export default function SubstanceDetailScreen() {
         }}
         isSaved={isSaved}
       />
+    </View>
+  );
+}
+
+function DetailSkeleton() {
+  const colors = useThemeColors();
+
+  return (
+    <View style={styles.skeletonWrap}>
+      <View style={[styles.skeletonNav, { backgroundColor: colors.backgroundGlass, borderBottomColor: colors.separator }]}>
+        <View style={[styles.skeletonIcon, { backgroundColor: colors.backgroundTertiary }]} />
+        <View style={[styles.skeletonLine, styles.skeletonTitleLine, { backgroundColor: colors.backgroundTertiary }]} />
+        <ActivityIndicator size="small" color={colors.accent} />
+      </View>
+      <View style={[styles.skeletonHero, { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder }]}>
+        <View style={[styles.skeletonLine, styles.skeletonLargeLine, { backgroundColor: colors.backgroundTertiary }]} />
+        <View style={[styles.skeletonLine, styles.skeletonMediumLine, { backgroundColor: colors.backgroundTertiary }]} />
+        <View style={styles.skeletonChipRow}>
+          {[0, 1, 2].map((item) => (
+            <View key={item} style={[styles.skeletonChip, { backgroundColor: colors.backgroundTertiary }]} />
+          ))}
+        </View>
+      </View>
+      {[0, 1, 2].map((item) => (
+        <View key={item} style={[styles.skeletonCard, { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder }]}>
+          <View style={[styles.skeletonLine, styles.skeletonMediumLine, { backgroundColor: colors.backgroundTertiary }]} />
+          <View style={[styles.skeletonLine, styles.skeletonFullLine, { backgroundColor: colors.backgroundTertiary }]} />
+        </View>
+      ))}
     </View>
   );
 }
@@ -406,6 +445,50 @@ function OverviewContent({
           <BulletList items={mechanisms.slice(0, 4)} />
         </View>
       )}
+    </View>
+  );
+}
+
+function DataQualityNote({
+  source,
+  evidenceNote,
+  sourceCount,
+  lastUpdated,
+}: {
+  source: string;
+  evidenceNote?: string;
+  sourceCount: number;
+  lastUpdated: string;
+}) {
+  const colors = useThemeColors();
+  const details = [
+    evidenceNote,
+    sourceCount > 0 ? `${sourceCount} Quellen erfasst` : undefined,
+    lastUpdated ? `Stand ${lastUpdated}` : undefined,
+  ].filter((item): item is string => Boolean(item));
+  const fallback = source === 'offline'
+    ? 'Offline-Fallback: Detaildaten koennen unvollstaendig sein.'
+    : 'Datenqualitaet: mobile Vorschau, konservativ interpretieren.';
+
+  return (
+    <View style={[inlineStyles.dataQualityNote, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
+      <Ionicons name="shield-outline" size={16} color={colors.accent} />
+      <Text style={[Typography.caption, inlineStyles.dataQualityText, { color: colors.textSecondary }]}>
+        {details.length ? details.join(' · ') : fallback}
+      </Text>
+    </View>
+  );
+}
+
+function DurationFallbackContent() {
+  const colors = useThemeColors();
+
+  return (
+    <View style={[inlineStyles.fallbackBox, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
+      <Ionicons name="time-outline" size={18} color={colors.textTertiary} />
+      <Text style={[Typography.caption, inlineStyles.fallbackText, { color: colors.textSecondary }]}>
+        Fuer diese Substanz liegen noch keine belastbaren mobilen Zeitangaben vor. Wirkungseintritt und Dauer koennen je nach Route, Dosis, Person und Setting deutlich variieren.
+      </Text>
     </View>
   );
 }
@@ -643,14 +726,25 @@ function SaferUseContent({
 function SourcesContent({
   sources,
   lastUpdated,
+  evidenceNote,
 }: {
   sources: { author: string; year: number; title: string; doi?: string }[];
   lastUpdated: string;
+  evidenceNote?: string;
 }) {
   const colors = useThemeColors();
 
   return (
     <View>
+      {evidenceNote && (
+        <Text
+          style={[
+            Typography.caption,
+            { color: colors.textSecondary, marginBottom: Spacing.md },
+          ]}>
+          {evidenceNote}
+        </Text>
+      )}
       {lastUpdated && (
         <Text
           style={[
@@ -689,6 +783,36 @@ function SourcesContent({
   );
 }
 
+function HarmReductionBox({ riskLevel }: { riskLevel: RiskLevel }) {
+  const colors = useThemeColors();
+  const highRisk = riskLevel === 'high' || riskLevel === 'extreme';
+
+  return (
+    <View
+      style={[
+        inlineStyles.harmReductionBox,
+        {
+          backgroundColor: highRisk ? 'rgba(214,58,74,0.10)' : colors.backgroundSecondary,
+          borderColor: highRisk ? `${colors.riskExtreme}55` : colors.border,
+        },
+      ]}>
+      <Ionicons
+        name={highRisk ? 'warning-outline' : 'information-circle-outline'}
+        size={20}
+        color={highRisk ? colors.riskExtreme : colors.accent}
+      />
+      <View style={inlineStyles.harmReductionText}>
+        <Text style={[Typography.bodyBold, { color: colors.textPrimary }]}>
+          {highRisk ? 'Erhoehten Risikokontext beachten' : 'Harm-Reduction-Hinweis'}
+        </Text>
+        <Text style={[Typography.caption, { color: colors.textSecondary, marginTop: Spacing.xs }]}>
+          Keine medizinische Beratung. Bei Bewusstlosigkeit, Atemproblemen, Brustschmerz, Krampfanfall oder ungewoehnlich schweren Symptomen sofort medizinische Hilfe holen. Fehlende Daten bedeuten nicht sicher.
+        </Text>
+      </View>
+    </View>
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Styles
 // ---------------------------------------------------------------------------
@@ -714,6 +838,10 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
   },
+  errorTitle: {
+    marginTop: Spacing.lg,
+    textAlign: 'center',
+  },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -723,10 +851,80 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: Spacing.xl,
   },
   retryButton: {
     marginTop: Spacing.lg,
-    padding: Spacing.md,
+    minHeight: 44,
+    minWidth: 156,
+    paddingHorizontal: Spacing.lg,
+    borderRadius: Radius.md,
+    borderWidth: StyleSheet.hairlineWidth,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.sm,
+  },
+  skeletonWrap: {
+    flex: 1,
+  },
+  skeletonNav: {
+    minHeight: 52,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    paddingHorizontal: Spacing.page,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  skeletonIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: Radius.md,
+  },
+  skeletonHero: {
+    marginHorizontal: Spacing.page,
+    marginTop: Spacing.lg,
+    padding: Spacing.lg,
+    borderRadius: Radius.xl,
+    borderWidth: StyleSheet.hairlineWidth,
+    gap: Spacing.md,
+  },
+  skeletonCard: {
+    marginHorizontal: Spacing.page,
+    marginTop: Spacing.md,
+    padding: Spacing.lg,
+    borderRadius: Radius.xl,
+    borderWidth: StyleSheet.hairlineWidth,
+    gap: Spacing.md,
+  },
+  skeletonLine: {
+    height: 14,
+    borderRadius: Radius.full,
+    opacity: 0.72,
+  },
+  skeletonTitleLine: {
+    flex: 1,
+    maxWidth: 160,
+  },
+  skeletonLargeLine: {
+    width: '72%',
+    height: 28,
+  },
+  skeletonMediumLine: {
+    width: '48%',
+  },
+  skeletonFullLine: {
+    width: '100%',
+  },
+  skeletonChipRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.sm,
+  },
+  skeletonChip: {
+    width: 76,
+    height: 28,
+    borderRadius: Radius.full,
   },
 });
 
@@ -751,6 +949,30 @@ const inlineStyles = StyleSheet.create({
     alignItems: 'flex-start',
     paddingHorizontal: Spacing.page,
     marginBottom: Spacing.sm,
+  },
+  dataQualityNote: {
+    marginHorizontal: Spacing.page,
+    marginBottom: Spacing.sm,
+    borderRadius: Radius.md,
+    borderWidth: StyleSheet.hairlineWidth,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.sm,
+    padding: Spacing.md,
+  },
+  dataQualityText: {
+    flex: 1,
+  },
+  fallbackBox: {
+    borderRadius: Radius.md,
+    borderWidth: StyleSheet.hairlineWidth,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.sm,
+    padding: Spacing.md,
+  },
+  fallbackText: {
+    flex: 1,
   },
   infoTile: {
     flex: 1,
@@ -802,5 +1024,18 @@ const inlineStyles = StyleSheet.create({
   bottomDisclaimer: {
     paddingHorizontal: Spacing.page,
     paddingTop: Spacing.lg,
+  },
+  harmReductionBox: {
+    marginHorizontal: Spacing.page,
+    marginTop: Spacing.lg,
+    padding: Spacing.md,
+    borderRadius: Radius.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.sm,
+  },
+  harmReductionText: {
+    flex: 1,
   },
 });

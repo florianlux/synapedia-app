@@ -1,3 +1,4 @@
+import type { ComponentProps } from 'react';
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, SectionList, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -58,6 +59,7 @@ export default function WikiScreen() {
   const loadingMore = substancesState.status === 'success' ? substancesState.loadingMore : false;
   const liveLoaded = substancesState.status === 'success' ? substancesState.liveLoaded : 0;
   const liveTotal = substancesState.status === 'success' ? substancesState.liveTotal : undefined;
+  const errorMessage = substancesState.status === 'success' ? substancesState.errorMessage : undefined;
   const pagination = substancesState.status === 'success' ? substancesState.pagination : EMPTY_PAGINATION;
   const loadMoreLiveCatalog =
     substancesState.status === 'success' ? substancesState.loadMoreLiveCatalog : undefined;
@@ -99,7 +101,7 @@ export default function WikiScreen() {
     <View style={[styles.screen, { backgroundColor: colors.background, paddingTop: insets.top }]}>
       <SectionList
         sections={sections}
-        keyExtractor={(item, index) => `${item.slug}-${index}`}
+        keyExtractor={(item) => item.slug}
         contentContainerStyle={[
           styles.list,
           { paddingBottom: insets.bottom + Spacing.screenBottom + Spacing.lg },
@@ -132,7 +134,7 @@ export default function WikiScreen() {
                 style={[Typography.body, styles.searchInput, { color: colors.textPrimary }]}
               />
               {query.length > 0 && (
-                <Pressable onPress={() => setQuery('')} hitSlop={8}>
+                <Pressable onPress={() => setQuery('')} hitSlop={8} style={styles.clearButton}>
                   <Ionicons name="close-circle" size={18} color={colors.textTertiary} />
                 </Pressable>
               )}
@@ -148,7 +150,7 @@ export default function WikiScreen() {
             <View style={[styles.catalogNote, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
               <Ionicons name="cloud-outline" size={16} color={colors.accent} />
               <Text style={[Typography.caption, styles.catalogNoteText, { color: colors.textSecondary }]}>
-                Suche durchsucht den Live-Katalog.
+                {errorMessage ?? 'Suche durchsucht den Live-Katalog.'}
               </Text>
             </View>
           </>
@@ -167,7 +169,30 @@ export default function WikiScreen() {
           </View>
         )}
         renderSectionFooter={({ section }) => {
-          if (section.key !== 'live' || !pagination.hasMore || !loadMoreLiveCatalog) return null;
+          if (section.key !== 'live') return null;
+
+          if (liveCatalog.length === 0 && refreshing) {
+            return (
+              <CatalogStatusCard
+                icon="cloud-download-outline"
+                title="Live-Katalog lädt"
+                body="Die erste Katalogseite wird geladen. Schnellzugriff bleibt nutzbar."
+                loading
+              />
+            );
+          }
+
+          if (liveCatalog.length === 0 && errorMessage) {
+            return (
+              <CatalogStatusCard
+                icon="cloud-offline-outline"
+                title="Live-Katalog nicht erreichbar"
+                body="Lokale Profile bleiben sichtbar. Versuche es spaeter erneut oder nutze die Suche lokal."
+              />
+            );
+          }
+
+          if (!pagination.hasMore || !loadMoreLiveCatalog) return null;
 
           return (
             <LoadMoreButton
@@ -186,6 +211,38 @@ export default function WikiScreen() {
         renderItem={({ item }) => <SubstanceCard item={item} />}
         stickySectionHeadersEnabled={false}
       />
+    </View>
+  );
+}
+
+function CatalogStatusCard({
+  icon,
+  title,
+  body,
+  loading,
+}: {
+  icon: ComponentProps<typeof Ionicons>['name'];
+  title: string;
+  body: string;
+  loading?: boolean;
+}) {
+  const colors = useThemeColors();
+
+  return (
+    <View style={[styles.statusCard, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
+      {loading ? (
+        <ActivityIndicator size="small" color={colors.accent} />
+      ) : (
+        <Ionicons name={icon} size={19} color={colors.textTertiary} />
+      )}
+      <View style={styles.statusText}>
+        <Text style={[Typography.captionBold, { color: colors.textPrimary }]}>
+          {title}
+        </Text>
+        <Text style={[Typography.caption, { color: colors.textSecondary }]}>
+          {body}
+        </Text>
+      </View>
     </View>
   );
 }
@@ -243,6 +300,9 @@ function SubstanceCard({ item }: { item: LocalSubstanceSummary }) {
   const colors = useThemeColors();
   const riskColor = getRiskColor(item.riskLevel, colors);
   const aliases = visibleAliases(item.aliases);
+  const primaryClass = item.primaryClass ?? item.categories[0] ?? 'Substanz';
+  const summary = item.summary || 'Noch keine mobile Zusammenfassung verfuegbar.';
+  const duration = item.quickFacts?.duration || 'Dauer unbekannt';
 
   return (
     <Pressable
@@ -252,9 +312,9 @@ function SubstanceCard({ item }: { item: LocalSubstanceSummary }) {
           params: {
             slug: item.slug,
             name: item.name,
-            primaryClass: item.primaryClass ?? item.categories[0] ?? '',
-            summary: item.summary ?? '',
-            duration: item.quickFacts.duration,
+            primaryClass,
+            summary,
+            duration,
             riskLevel: item.riskLevel,
             riskLabel: item.riskLabel,
           },
@@ -274,7 +334,7 @@ function SubstanceCard({ item }: { item: LocalSubstanceSummary }) {
             {item.name}
           </Text>
           <Text style={[Typography.caption, { color: colors.textSecondary }]}>
-            {item.primaryClass ?? item.categories[0] ?? 'Substanz'}
+            {primaryClass}
           </Text>
         </View>
         <Pill label={item.riskLabel} tint={riskColor} icon="pulse-outline" />
@@ -283,11 +343,11 @@ function SubstanceCard({ item }: { item: LocalSubstanceSummary }) {
       <Text
         style={[Typography.body, styles.summary, { color: colors.textSecondary }]}
         numberOfLines={3}>
-        {item.summary}
+        {summary}
       </Text>
 
       <View style={styles.metaRow}>
-        <Pill label={item.quickFacts.duration} icon="time-outline" />
+        <Pill label={duration} icon="time-outline" />
         {aliases.length > 0 && (
           <Text style={[Typography.caption, styles.aliases, { color: colors.textTertiary }]} numberOfLines={1}>
             Aliasse: {aliases.join(', ')}
@@ -324,6 +384,13 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     padding: 0,
+  },
+  clearButton: {
+    width: 44,
+    height: 44,
+    marginRight: -Spacing.md,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   resultHeader: {
     paddingTop: Spacing.lg,
@@ -371,6 +438,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: Spacing.sm,
     paddingHorizontal: Spacing.md,
+  },
+  statusCard: {
+    minHeight: 64,
+    marginBottom: Spacing.sm,
+    borderRadius: Radius.md,
+    borderWidth: StyleSheet.hairlineWidth,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.sm,
+    padding: Spacing.md,
+  },
+  statusText: {
+    flex: 1,
+    gap: 2,
   },
   card: {
     padding: Spacing.md,

@@ -46,12 +46,17 @@ export type MobileSubstanceItem = {
 
 type MobileListResponse = {
   items?: unknown;
+  data?: unknown;
+  results?: unknown;
+  substances?: unknown;
   source?: unknown;
   meta?: unknown;
 };
 
 type MobileDetailResponse = {
   item?: unknown;
+  data?: unknown;
+  substance?: unknown;
   source?: unknown;
   meta?: unknown;
 };
@@ -138,6 +143,16 @@ function firstString(...values: unknown[]): string | undefined {
     if (normalized) return normalized;
   }
   return undefined;
+}
+
+function slugify(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 }
 
 function normalizeDuration(value: unknown): string {
@@ -296,8 +311,10 @@ function makeSummary(item: MobileSubstanceItem, primaryClass: string, effects: s
 }
 
 export function normalizeMobileSubstanceSummary(item: MobileSubstanceItem): ApiSubstanceListSummary | null {
-  const slug = stringValue(item.slug);
+  if (!asRecord(item)) return null;
+
   const name = stringValue(item.name);
+  const slug = stringValue(item.slug) ?? stringValue(item.id) ?? (name ? slugify(name) : undefined);
   if (!slug || !name) return null;
 
   const effects = stringArray(item.effects ?? item.effectsSummary ?? item.effects_summary, { content: true });
@@ -366,11 +383,15 @@ function normalizeListMeta(value: unknown): ApiSubstanceListMeta {
 }
 
 function normalizeMobileListResponse(response: MobileListResponse): ApiSubstanceListResult {
-  if (!Array.isArray(response.items)) {
-    throw new SynapediaApiError('Ungueltige Substanzliste.', 200, 'INVALID_RESPONSE');
+  const record = asRecord(response);
+  if (!record) {
+    return { items: [], source: undefined, meta: {} };
   }
 
-  const items = response.items
+  const rawItems = response.items ?? response.data ?? response.results ?? response.substances;
+  const itemsArray = Array.isArray(rawItems) ? rawItems : [];
+
+  const items = itemsArray
     .map((item) => normalizeMobileSubstanceSummary(item as MobileSubstanceItem))
     .filter((item): item is ApiSubstanceListSummary => item !== null);
 
@@ -603,6 +624,8 @@ function normalizeDurationDetail(value: unknown, quickFacts: Substance['quickFac
 }
 
 function normalizeDetailItem(item: MobileSubstanceItem, enrichment?: Substance): NormalizedDetail | null {
+  if (!asRecord(item)) return null;
+
   const summary = normalizeMobileSubstanceSummary(item);
   if (!summary) return null;
 
@@ -717,7 +740,8 @@ export async function fetchMobileSubstanceDetail(
   enrichment?: Substance,
 ): Promise<ApiSubstanceDetailResult> {
   const response = await getJson<MobileDetailResponse>(`/api/mobile/substances/${encodeURIComponent(slug)}`);
-  const result = normalizeDetailItem(response.item as MobileSubstanceItem, enrichment);
+  const rawItem = response.item ?? response.data ?? response.substance;
+  const result = normalizeDetailItem(rawItem as MobileSubstanceItem, enrichment);
 
   if (!result) {
     throw new SynapediaApiError('Ungueltiges Substanzdetail.', 200, 'INVALID_RESPONSE');

@@ -32,6 +32,7 @@ type SubstancesSuccessData = {
   liveTotal?: number;
   pagination: SubstanceCatalogPagination;
   loadedLiveSlugs: string[];
+  errorMessage?: string;
 };
 
 export type SubstancesState =
@@ -135,14 +136,19 @@ function mergeLoadedLiveSlugs(existing: string[], remoteData: LocalSubstanceSumm
   return Array.from(bySlug.values());
 }
 
+function stableItemKey(item: LocalSubstanceSummary): string {
+  return item.slug.trim().toLowerCase() || item.name.trim().toLowerCase();
+}
+
 function mergeLiveCatalog(
   existing: LocalSubstanceSummary[],
   remoteData: LocalSubstanceSummary[],
 ): LocalSubstanceSummary[] {
-  const bySlug = new Map(existing.map((item) => [item.slug, item]));
+  const bySlug = new Map(existing.map((item) => [stableItemKey(item), item]));
   remoteData.forEach((item) => {
-    if (!CURATED_SLUGS.has(item.slug) && !bySlug.has(item.slug)) {
-      bySlug.set(item.slug, item);
+    const key = stableItemKey(item);
+    if (!CURATED_SLUGS.has(item.slug) && !bySlug.has(key)) {
+      bySlug.set(key, item);
     }
   });
   return Array.from(bySlug.values());
@@ -230,11 +236,16 @@ export function useSubstances(query: string): SubstancesState {
     let active = true;
     const queryText = debouncedQuery.trim();
 
-    setState({
-      ...createBaseState(queryText),
-      data: isSearching ? localData : CURATED_SUBSTANCES,
+    setState((current) => ({
+      ...current,
+      data: isSearching ? localData : [...CURATED_SUBSTANCES, ...current.liveCatalog],
+      curated: CURATED_SUBSTANCES,
       searchResults: isSearching ? localData : [],
-    });
+      query: queryText,
+      refreshing: true,
+      loadingMore: false,
+      errorMessage: undefined,
+    }));
 
     fetchMobileSubstanceList({
       query: queryText,
@@ -278,13 +289,19 @@ export function useSubstances(query: string): SubstancesState {
       })
       .catch(() => {
         if (!active) return;
-        setState({
-          ...createBaseState(queryText),
-          data: isSearching ? localData : CURATED_SUBSTANCES,
+        setState((current) => ({
+          ...current,
+          data: isSearching ? localData : [...CURATED_SUBSTANCES, ...current.liveCatalog],
+          curated: CURATED_SUBSTANCES,
           searchResults: isSearching ? localData : [],
-          source: 'offline',
+          source: current.liveCatalog.length > 0 && !isSearching ? current.source : 'offline',
           refreshing: false,
-        });
+          loadingMore: false,
+          query: queryText,
+          errorMessage: isSearching
+            ? 'Live-Suche gerade nicht erreichbar. Lokale Treffer bleiben sichtbar.'
+            : 'Live-Katalog gerade nicht erreichbar. Bereits geladene Daten bleiben sichtbar.',
+        }));
       });
 
     return () => {
@@ -323,6 +340,7 @@ export function useSubstances(query: string): SubstancesState {
             source: result.items.length > 0 ? 'mixed' : current.source,
             refreshing: false,
             loadingMore: false,
+            errorMessage: undefined,
             liveLoaded: loadedCountFromPagination(
               loadedLiveSlugs,
               nextPagination,
@@ -339,6 +357,7 @@ export function useSubstances(query: string): SubstancesState {
           ...current,
           loadingMore: false,
           source: current.liveCatalog.length > 0 ? current.source : 'offline',
+          errorMessage: 'Weitere Live-Daten konnten gerade nicht geladen werden.',
         }));
       });
   }, [isSearching, state.loadingMore, state.pagination.hasMore, state.pagination.page, state.refreshing]);
