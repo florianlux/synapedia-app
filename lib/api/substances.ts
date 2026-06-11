@@ -744,7 +744,7 @@ export async function fetchMobileSubstanceDetail(
   const result = normalizeDetailItem(rawItem as MobileSubstanceItem, enrichment);
 
   if (!result) {
-    throw new SynapediaApiError('Ungueltiges Substanzdetail.', 200, 'INVALID_RESPONSE');
+    throw new SynapediaApiError('Ungültiges Substanzdetail.', 200, 'INVALID_RESPONSE');
   }
 
   return {

@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { GUIDE_DISCLAIMER, type GuidePhase, type GuideSection } from '@/constants/guides';
-import { Elevation, Radius, Spacing, Typography } from '@/constants/theme';
+import { Elevation, Radius, Spacing, Typography, getScreenBottomPadding } from '@/constants/theme';
 import { useGuide } from '@/hooks/use-guides';
 import { useThemeColors } from '@/hooks/use-theme';
 import { SourceBadge } from '@/components/ui/SourceBadge';
@@ -45,7 +45,7 @@ export default function GuideDetailScreen() {
           icon="alert-circle-outline"
           title={guideState.notFound ? 'Guide nicht gefunden' : 'Guide nicht erreichbar'}
           body={guideState.message || 'Lokale und Live-Daten konnten gerade nicht geladen werden.'}
-          actionLabel="Zurueck zu Guides"
+          actionLabel="Zurück zu Guides"
           onAction={goBackToGuides}
           danger
         />
@@ -74,7 +74,7 @@ export default function GuideDetailScreen() {
       <ScrollView
         contentContainerStyle={[
           styles.content,
-          { paddingBottom: insets.bottom + Spacing.screenBottom },
+          { paddingBottom: getScreenBottomPadding(insets.bottom) },
         ]}
         showsVerticalScrollIndicator={false}>
         <View style={styles.hero}>
@@ -157,18 +157,23 @@ export default function GuideDetailScreen() {
 
         <View style={[styles.relatedCard, { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder }]}>
           <Text style={[Typography.captionBold, { color: colors.textSecondary }]}>
-            Related
+            Verwandte Aktionen
           </Text>
           <View style={styles.relatedList}>
             <RelatedButton
               icon="library-outline"
-              label="Substanz-Wiki oeffnen"
+              label="Substanz-Wiki öffnen"
               onPress={() => router.push('/(tabs)/wiki')}
             />
             <RelatedButton
               icon="git-compare-outline"
-              label="Interaktionen im MixCheck pruefen"
+              label="MixCheck öffnen"
               onPress={() => router.push('/(tabs)/check')}
+            />
+            <RelatedButton
+              icon="create-outline"
+              label="Private Notiz erstellen"
+              onPress={() => router.push('/(tabs)/log')}
             />
           </View>
         </View>

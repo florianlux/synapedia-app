@@ -1,6 +1,6 @@
-# Synapedia Mobile Alpha v0.2 Smoke Test
+# Synapedia Mobile MVP Smoke Test
 
-Kurzcheck fuer Android und iOS Preview Builds. Ziel ist interne Alpha-Qualitaet: keine Crashes, klare Fallbacks, ruhiger Harm-Reduction-Ton.
+Kurzcheck für Android, iOS Simulator und iOS Preview-Builds. Ziel ist MVP-Qualität: klare Startlogik, keine Tabbar-Überdeckung, stabile Fallbacks und ruhiger Harm-Reduction-Ton.
 
 ## Setup
 
@@ -10,6 +10,9 @@ npm install
 npm run typecheck
 npm run lint
 npx expo-doctor
+npx expo config --type public
+npx eas config --platform ios --profile preview --json
+npx eas config --platform ios --profile ios-simulator --json
 npx expo start -- --port 8081 --localhost
 ```
 
@@ -17,42 +20,43 @@ npx expo start -- --port 8081 --localhost
 
 ## Android Test
 
-- Fuer Expo Go: `npm run android`
-- Fuer installierbare interne APK: `eas build --platform android --profile preview`
-- API-Basis fuer Preview: `EXPO_PUBLIC_API_BASE_URL=https://synapedia.com`
+- Für Expo Go: `npm run android`
+- Für installierbare interne APK: `eas build --platform android --profile preview`
+- API-Basis für Preview: `EXPO_PUBLIC_API_BASE_URL=https://synapedia.com`
 
 ## iOS Test
 
 - Lokaler Simulator/Expo Start: `npm run ios`
-- Internes iOS Preview Build fuer Geraete: `eas build --platform ios --profile preview`
+- Internes iOS Preview-Build für Geräte: `eas build --platform ios --profile preview`
 - Simulator-Build bei Bedarf: `eas build --platform ios --profile ios-simulator`
 
 ## Kernflows
 
-- Home oeffnen: Hero, Quick Actions, Safety & Privacy, Bottom Navigation pruefen.
-- Wiki oeffnen: kuratierte Profile sichtbar, Live-Katalog synchronisiert, SourceBadge plausibel.
+- Start öffnen: Nutzen nach wenigen Sekunden klar, MixCheck CTA sichtbar, keine Tabbar-Überdeckung.
+- MixCheck öffnen: Substanz A/B wählen, Ergebnis anzeigen, Red Flags und Quelle prüfen.
+- Wiki öffnen: Suche nutzen, kuratierte Profile sichtbar, Live-Katalog synchronisiert, SourceBadge plausibel.
 - Wiki Search testen: `MDMA`, `O-DSMT`, `Kratom`, `THC`, leere Treffer.
-- Substance Detail oeffnen: Hero, Quick Facts, Risiko, Risikokontext, Interaktionen und Related Actions pruefen.
-- Check oeffnen: zwei Substanzen manuell waehlen und Popular Pair antippen.
-- Check Ergebnis pruefen: Risikostufe, Mechanismen, Red Flags, Evidenz/Quelle, lokale/offline SourceBadge.
-- Notes / Private Check-in oeffnen: Validierung, lokales Speichern, Loeschen mit Bestaetigung, CSV-Export pruefen.
-- Guides oeffnen: Liste, Red-Flag-/Phasen-Pills, Detailseite, Red-Flag-Box und Related Actions pruefen.
-- Safety & Privacy oeffnen: Scope, Privacy und API-Hinweise pruefen.
+- Substance Detail öffnen: Kurzüberblick, Risiken, MixCheck-Aktion, Guides-Aktion, Quellenhinweis prüfen.
+- Guides öffnen: Liste, Red-Flag-/Phasen-Pills, Detailseite, Red-Flag-Box und Related Actions prüfen.
+- Guide Detail öffnen: MixCheck öffnen, Wiki öffnen, private Notiz erstellen.
+- Private Notizen öffnen: Validierung, lokales Speichern, Löschen mit Bestätigung, CSV-Export prüfen.
+- Sicherheit & Datenschutz öffnen: Scope, Privacy und API-Hinweise prüfen.
+- Letzten Inhalt auf allen Tabs prüfen: nichts darf hinter der Bottom Tab Bar verschwinden.
 
 ## Offline/Fallback
 
-- Netzwerk am Geraet deaktivieren.
-- Home darf nicht crashen.
+- Netzwerk am Gerät deaktivieren.
+- Start darf nicht crashen.
 - Wiki muss lokale Referenzdaten zeigen.
 - Substance Detail muss lokale oder Route-Fallback-Daten zeigen.
 - Check muss bekannte lokale Paare wie `MDMA + LSD` und `Kokain + Alkohol` anzeigen.
-- Guides muessen lokale Inhalte zeigen.
-- Notes muessen weiterhin lokal funktionieren.
+- Guides müssen lokale Inhalte zeigen.
+- Notizen müssen weiterhin lokal funktionieren.
 - Netzwerk wieder aktivieren und Wiki/Check erneut testen.
 
 ## Bekannte Grenzen
 
-- Educational reference only, keine medizinische Beratung und kein Notfalldienst.
-- Backend-Logging/Retention muss fuer Privacy Labels separat verifiziert werden.
+- Nur Wissens- und Harm-Reduction-Kontext, keine medizinische Beratung und keine Notfallversorgung.
+- Backend-Logging/Retention muss für Privacy Labels separat verifiziert werden.
 - API kann kurzzeitig stale oder nicht erreichbar sein; lokale Fallbacks sind Teil des Produkts.
 - App Store Review und externe TestFlight-Metadaten sind eigene Readiness-Schritte.

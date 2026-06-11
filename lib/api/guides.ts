@@ -199,7 +199,7 @@ function guideUsesFallback(guide: Guide, fallback?: Guide): boolean {
 export async function fetchMobileGuides(): Promise<Guide[]> {
   const response = await getJson<GuideResponse>('/api/mobile/guides', { limit: 20 });
   if (!Array.isArray(response.items)) {
-    throw new SynapediaApiError('Ungueltige Guideliste.', 200, 'INVALID_RESPONSE');
+    throw new SynapediaApiError('Ungültige Guideliste.', 200, 'INVALID_RESPONSE');
   }
 
   return response.items
@@ -211,7 +211,7 @@ export async function fetchMobileGuideDetail(slug: string, fallback?: Guide): Pr
   const response = await getJson<GuideResponse>(`/api/mobile/guides/${encodeURIComponent(slug)}`);
   const guide = normalizeGuide(response.item as GuideItem, fallback);
   if (!guide) {
-    throw new SynapediaApiError('Ungueltiges Guidedetail.', 200, 'INVALID_RESPONSE');
+    throw new SynapediaApiError('Ungültiges Guidedetail.', 200, 'INVALID_RESPONSE');
   }
   return {
     guide,

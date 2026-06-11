@@ -6,7 +6,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import * as Haptics from 'expo-haptics';
 
 import { useThemeColors } from '@/hooks/use-theme';
-import { Typography, Spacing, Radius } from '@/constants/theme';
+import { Typography, Spacing, Radius, getScreenBottomPadding } from '@/constants/theme';
 import { useSubstance } from '@/hooks/use-substance';
 import { useAppContext } from '@/contexts/AppContext';
 import { HeroHeader } from '@/components/substance/HeroHeader';
@@ -114,7 +114,7 @@ export default function SubstanceDetailScreen() {
           icon="alert-circle-outline"
           title={substanceState.notFound ? 'Substanz nicht gefunden' : 'Detail nicht erreichbar'}
           body={substanceState.message || 'Live-Daten und lokale Fallbacks konnten gerade nicht geladen werden.'}
-          actionLabel="Zurueck zum Wiki"
+          actionLabel="Zurück zum Wiki"
           onAction={goBackToWiki}
           danger
         />
@@ -127,7 +127,7 @@ export default function SubstanceDetailScreen() {
   const refreshing = substanceState.refreshing;
   const interactionsPreview = substance.interactionsPreview ?? substance.interactions;
   const hasDuration = hasSubstanceDuration(substance);
-  const scrollBottomPadding = insets.bottom + Spacing.screenBottom + 72;
+  const scrollBottomPadding = getScreenBottomPadding(insets.bottom, 72);
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
@@ -210,7 +210,7 @@ export default function SubstanceDetailScreen() {
               phases={substance.duration.phases}
               total={substance.duration.total}
               quickFacts={substance.quickFacts}
-              notes={['Zeitangaben sind Richtwerte und koennen je nach Person, Kontext, Route und Produktstaerke variieren.']}
+              notes={['Zeitangaben sind Richtwerte und können je nach Person, Kontext, Route und Produktstärke variieren.']}
             />
           ) : (
             <DurationFallbackContent />
@@ -391,7 +391,7 @@ function DisclaimerCard() {
     <View style={[inlineStyles.disclaimerCard, { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder }]}>
       <Ionicons name="information-circle-outline" size={18} color={colors.accent} />
       <Text style={[Typography.caption, { color: colors.textSecondary, flex: 1 }]}>
-        Educational reference only. No medical advice or emergency service.
+        Nur Wissens- und Harm-Reduction-Kontext. Keine medizinische Beratung oder Notfallversorgung.
       </Text>
     </View>
   );
@@ -418,7 +418,7 @@ function OverviewContent({
   return (
     <View style={{ gap: Spacing.md }}>
       <Text style={[Typography.body, { color: colors.textPrimary }]}>
-        {summary || 'Noch keine Zusammenfassung verfuegbar.'}
+        {summary || 'Noch keine Zusammenfassung verfügbar.'}
       </Text>
       <View style={inlineStyles.overviewGrid}>
         <InfoTile label="Klasse" value={primaryClass ?? categories[0] ?? '—'} />
@@ -458,8 +458,8 @@ function DataQualityNote({
     lastUpdated ? `Stand ${lastUpdated}` : undefined,
   ].filter((item): item is string => Boolean(item));
   const fallback = source === 'offline'
-    ? 'Offline-Fallback: Detaildaten koennen unvollstaendig sein.'
-    : 'Datenqualitaet: mobile Vorschau, konservativ interpretieren.';
+    ? 'Offline-Fallback: Detaildaten können unvollständig sein.'
+    : 'Datenqualität: mobile Vorschau, konservativ interpretieren.';
   const tint = source === 'offline' ? colors.severityRisky : colors.accent;
 
   return (
@@ -479,7 +479,7 @@ function DurationFallbackContent() {
     <View style={[inlineStyles.fallbackBox, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
       <Ionicons name="time-outline" size={18} color={colors.textTertiary} />
       <Text style={[Typography.caption, inlineStyles.fallbackText, { color: colors.textSecondary }]}>
-        Fuer diese Substanz liegen noch keine belastbaren mobilen Zeitangaben vor. Wirkungseintritt und Dauer koennen je nach Route, Person, Kontext und Produktstaerke deutlich variieren.
+        Für diese Substanz liegen noch keine belastbaren mobilen Zeitangaben vor. Wirkungseintritt und Dauer können je nach Route, Person, Kontext und Produktstärke deutlich variieren.
       </Text>
     </View>
   );
@@ -728,12 +728,12 @@ function RelatedActions() {
       <View style={inlineStyles.relatedList}>
         <RelatedButton
           icon="git-compare-outline"
-          label="Kombination im MixCheck pruefen"
+          label="Mit MixCheck prüfen"
           onPress={() => router.push('/(tabs)/check')}
         />
         <RelatedButton
           icon="heart-circle-outline"
-          label="Recovery- und Risikokontext lesen"
+          label="Passende Guides öffnen"
           onPress={() => router.push('/(tabs)/guides')}
         />
       </View>
@@ -852,10 +852,10 @@ function HarmReductionBox({ riskLevel }: { riskLevel: RiskLevel }) {
       />
       <View style={inlineStyles.harmReductionText}>
         <Text style={[Typography.bodyBold, { color: colors.textPrimary }]}>
-          {highRisk ? 'Erhoehten Risikokontext beachten' : 'Harm-Reduction-Hinweis'}
+          {highRisk ? 'Erhöhten Risikokontext beachten' : 'Harm-Reduction-Hinweis'}
         </Text>
         <Text style={[Typography.caption, { color: colors.textSecondary, marginTop: Spacing.xs }]}>
-          Educational reference only. Bei Bewusstlosigkeit, Atemproblemen, Brustschmerz, Krampfanfall oder ungewoehnlich schweren Symptomen sofort lokale Notfalldienste kontaktieren. Fehlende Daten bedeuten nicht sicher.
+          Nur Wissens- und Harm-Reduction-Kontext. Bei Bewusstlosigkeit, Atemproblemen, Brustschmerz, Krampfanfall oder ungewöhnlich schweren Symptomen sofort lokale Notfalldienste kontaktieren. Fehlende Daten bedeuten nicht sicher.
         </Text>
       </View>
     </View>

@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-import { Elevation, Radius, Spacing, Typography, type ThemeColors } from '@/constants/theme';
+import { Elevation, Radius, Spacing, Typography, getScreenBottomPadding, type ThemeColors } from '@/constants/theme';
 import {
   useSubstances,
   type LocalSubstanceSummary,
@@ -96,6 +96,10 @@ export default function WikiScreen() {
     : liveTotal
       ? `${curated.length} kuratiert · ${liveLoaded} von ${liveTotal} live geladen`
       : `${curated.length} kuratiert · ${liveLoaded} live geladen`;
+  const catalogNoteText = errorMessage
+    ?? (source === 'offline'
+      ? 'Offline-/Fallback-Daten aktiv. Einige Live-Details können fehlen.'
+      : 'Suche durchsucht den Live-Katalog und ergänzt lokale Vorschläge.');
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background, paddingTop: insets.top }]}>
@@ -104,7 +108,7 @@ export default function WikiScreen() {
         keyExtractor={(item) => item.slug}
         contentContainerStyle={[
           styles.list,
-          { paddingBottom: insets.bottom + Spacing.screenBottom + Spacing.lg },
+          { paddingBottom: getScreenBottomPadding(insets.bottom, Spacing.lg) },
         ]}
         keyboardDismissMode="on-drag"
         keyboardShouldPersistTaps="handled"
@@ -150,7 +154,7 @@ export default function WikiScreen() {
             <View style={[styles.catalogNote, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
               <Ionicons name="cloud-outline" size={16} color={colors.accent} />
               <Text style={[Typography.caption, styles.catalogNoteText, { color: colors.textSecondary }]}>
-                {errorMessage ?? 'Suche durchsucht den Live-Katalog.'}
+                {catalogNoteText}
               </Text>
             </View>
           </>
@@ -173,8 +177,8 @@ export default function WikiScreen() {
             return (
               <CatalogStatusCard
                 icon={errorMessage ? 'cloud-offline-outline' : 'search-outline'}
-                title="Keine Treffer"
-                body={errorMessage ?? 'Passe Suche, Alias oder Substanzklasse an.'}
+                title="Keine Treffer gefunden"
+                body={errorMessage ?? 'Versuche einen anderen Namen oder öffne die lokalen Vorschläge.'}
               />
             );
           }
@@ -197,7 +201,7 @@ export default function WikiScreen() {
               <CatalogStatusCard
                 icon="cloud-offline-outline"
                 title="Live-Katalog nicht erreichbar"
-                body="Lokale Profile bleiben sichtbar. Versuche es spaeter erneut oder nutze die Suche lokal."
+                body="Lokale Profile bleiben sichtbar. Versuche es später erneut oder nutze die Suche lokal."
               />
             );
           }
@@ -215,7 +219,7 @@ export default function WikiScreen() {
           <EmptyState
             icon="library-outline"
             title="Keine Treffer"
-            body="Passe die Suche nach Name, Alias oder Substanzklasse an."
+            body="Versuche einen anderen Namen oder öffne die lokalen Vorschläge."
           />
         }
         renderItem={({ item }) => <SubstanceCard item={item} />}
@@ -311,7 +315,7 @@ function SubstanceCard({ item }: { item: LocalSubstanceSummary }) {
   const riskColor = getRiskColor(item.riskLevel, colors);
   const aliases = visibleAliases(item.aliases);
   const primaryClass = item.primaryClass ?? item.categories[0] ?? 'Substanz';
-  const summary = item.summary || 'Noch keine mobile Zusammenfassung verfuegbar.';
+  const summary = item.summary || 'Noch keine mobile Zusammenfassung verfügbar.';
   const duration = item.quickFacts?.duration || 'Dauer unbekannt';
 
   return (

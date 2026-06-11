@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { GUIDE_DISCLAIMER } from '@/constants/guides';
-import { Elevation, Radius, Spacing, Typography } from '@/constants/theme';
+import { Elevation, Radius, Spacing, Typography, getScreenBottomPadding } from '@/constants/theme';
 import { useGuides } from '@/hooks/use-guides';
 import { useThemeColors } from '@/hooks/use-theme';
 import { SourceBadge } from '@/components/ui/SourceBadge';
@@ -23,7 +23,7 @@ export default function GuidesScreen() {
       <ScrollView
         contentContainerStyle={[
           styles.content,
-          { paddingBottom: insets.bottom + Spacing.screenBottom + Spacing.lg },
+          { paddingBottom: getScreenBottomPadding(insets.bottom, Spacing.lg) },
         ]}
         showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
@@ -78,8 +78,8 @@ export default function GuidesScreen() {
           <View style={styles.stateWrap}>
             <StateCard
               icon="book-outline"
-              title="Keine Guides verfuegbar"
-              body="Lokale Inhalte konnten nicht geladen werden. Bitte App neu starten oder spaeter erneut versuchen."
+              title="Keine Guides verfügbar"
+              body="Lokale Inhalte konnten nicht geladen werden. Bitte App neu starten oder später erneut versuchen."
               danger
             />
           </View>

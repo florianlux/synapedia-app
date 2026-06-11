@@ -4,6 +4,12 @@
  * Typography based on SF Pro (system font).
  */
 
+export const SCREEN_BOTTOM_PADDING = 132;
+
+export function getScreenBottomPadding(bottomInset = 0, extra = 0): number {
+  return Math.max(bottomInset, Spacing.md) + SCREEN_BOTTOM_PADDING + extra;
+}
+
 export const Spacing = {
   xs: 4,
   sm: 8,
@@ -13,7 +19,7 @@ export const Spacing = {
   xxl: 32,
   xxxl: 48,
   page: 20,
-  screenBottom: 140,
+  screenBottom: SCREEN_BOTTOM_PADDING,
 } as const;
 
 export const Typography = {

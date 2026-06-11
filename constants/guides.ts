@@ -23,14 +23,14 @@ export type Guide = {
 };
 
 export const GUIDE_DISCLAIMER =
-  'Educational reference only. No medical advice or emergency service. Bei schweren Symptomen lokale Notfalldienste kontaktieren.';
+  'Nur Wissens- und Harm-Reduction-Kontext. Keine medizinische Beratung oder Notfallversorgung. Bei schweren Symptomen lokale Notfalldienste kontaktieren.';
 
 export const GUIDES: Guide[] = [
   {
     slug: 'opioidentzug-entschaerfen',
     title: 'Opioidentzug entschärfen',
     summary:
-      'Kuratierter Ueberblick zu typischen Entzugssymptomen, Support-Kontext und Eskalationspunkten bei opioidartigem Konsum.',
+      'Kuratierter Überblick zu typischen Entzugssymptomen, Support-Kontext und Eskalationspunkten bei opioidartigem Konsum.',
     category: 'Recovery Guide',
     accent: '#0A84FF',
     safetyDisclaimer:
@@ -57,10 +57,10 @@ export const GUIDES: Guide[] = [
     ],
     practicalSteps: [
       'Nicht allein durch schwere Phasen gehen; eine informierte Person einbinden.',
-      'Naloxon-Zugang und Wissen zu Atemnotfallzeichen im Umfeld pruefen.',
-      'Keine Medikamente ohne aerztliche Ruecksprache kombinieren.',
+      'Naloxon-Zugang und Wissen zu Atemnotfallzeichen im Umfeld prüfen.',
+      'Keine Medikamente ohne ärztliche Rücksprache kombinieren.',
     ],
-    evidenceNote: 'Lokaler kuratierter Inhalt. Quellen werden spaeter transparent ergaenzt.',
+    evidenceNote: 'Lokaler kuratierter Inhalt. Quellen werden später transparent ergänzt.',
   },
   {
     slug: 'benzodiazepin-entzug',
@@ -78,7 +78,7 @@ export const GUIDES: Guide[] = [
       },
       {
         title: 'Support-Fokus',
-        items: ['Keine personalisierten Absetzplaene ohne medizinische Begleitung', 'Reizarmes Umfeld und Schlafschutz planen', 'Verlauf ehrlich dokumentieren'],
+        items: ['Keine personalisierten Absetzpläne ohne medizinische Begleitung', 'Reizarmes Umfeld und Schlafschutz planen', 'Verlauf ehrlich dokumentieren'],
       },
     ],
     phases: [
@@ -89,20 +89,20 @@ export const GUIDES: Guide[] = [
     redFlags: [
       'Krampfanfall, Verwirrtheit, Halluzinationen oder Delirzeichen',
       'Suizidgedanken, starke Panik oder Kontrollverlust',
-      'Abruptes Absetzen nach laengerer oder intensiver Nutzung',
+      'Abruptes Absetzen nach längerer oder intensiver Nutzung',
     ],
     practicalSteps: [
       'Ärztliche oder suchtmedizinische Begleitung suchen.',
-      'Verlauf notieren, aber keine eigenen Absetzplaene erzwingen.',
+      'Verlauf notieren, aber keine eigenen Absetzpläne erzwingen.',
       'Alkohol, Opioide und andere Downer nicht als Selbstmedikation nutzen.',
     ],
-    evidenceNote: 'Lokaler kuratierter Inhalt. Medizinische Leitlinien und Quellen werden spaeter verknuepft.',
+    evidenceNote: 'Lokaler kuratierter Inhalt. Medizinische Leitlinien und Quellen werden später verknüpft.',
   },
   {
     slug: 'phenibut-entzug-verstehen',
     title: 'Phenibut-Entzug verstehen',
     summary:
-      'Kompakter Ueberblick zu Phenibut-Rebound, Entzugssymptomen und Support-Kontext ohne personalisierte Absetzplaene.',
+      'Kompakter Überblick zu Phenibut-Rebound, Entzugssymptomen und Support-Kontext ohne personalisierte Absetzpläne.',
     category: 'Curated Guide',
     accent: '#D63A4A',
     safetyDisclaimer:
@@ -129,10 +129,10 @@ export const GUIDES: Guide[] = [
     ],
     practicalSteps: [
       'Tage, ungefaehre Menge und Mischkonsum ehrlich dokumentieren.',
-      'Professionelle Hilfe besonders bei taeglicher oder intensiver Nutzung einplanen.',
+      'Professionelle Hilfe besonders bei täglicher oder intensiver Nutzung einplanen.',
       'Schlaf, Flüssigkeit, Ernährung und soziale Unterstützung priorisieren.',
     ],
-    evidenceNote: 'Lokaler kuratierter Inhalt. Quellenlage wird spaeter transparent markiert.',
+    evidenceNote: 'Lokaler kuratierter Inhalt. Quellenlage wird später transparent markiert.',
   },
 ];
 

@@ -1,4 +1,4 @@
-# App Privacy Notes
+# App Privacy Notizen
 
 These notes map the current mobile implementation to App Store Connect privacy labels. Backend logging must be verified before public App Store submission.
 
@@ -29,8 +29,8 @@ Not found in code:
 - Identifiers: Not collected by app code; verify backend logs
 - Diagnostics: Not collected by app code; verify build/runtime services
 - Usage Data: Requires backend verification because searches and lookup/check requests contact `synapedia.com`
-- User Content: Not collected by developer in app code; Private Check-in entries stay on-device unless the user exports them
-- Health Data: Not collected by developer in app code; Private Check-in entries are local only
+- User Content: Not collected by developer in app code; Private Notizen entries stay on-device unless the user exports them
+- Health Data: Not collected by developer in app code; Private Notizen entries are local only
 - Location Data: Not collected
 
 ## Backend Verification Required

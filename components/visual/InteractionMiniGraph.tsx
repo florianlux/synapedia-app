@@ -28,7 +28,7 @@ export function compactMechanismLabel(text: string): string {
 
   if (normalized.includes('cocaethylen')) return 'Cocaethylen';
   if (normalized.includes('seroton')) return 'Serotonin';
-  if (normalized.includes('temperatur') || normalized.includes('ueberhitz')) return 'Temperatur';
+  if (normalized.includes('temperatur') || normalized.includes('überhitz')) return 'Temperatur';
   if (normalized.includes('herz') || normalized.includes('blutdruck') || normalized.includes('puls')) {
     return 'Herz-Kreislauf';
   }

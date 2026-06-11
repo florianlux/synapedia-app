@@ -1,4 +1,4 @@
-# Age Rating Notes
+# Age Rating Notizen
 
 Synapedia should use a conservative App Store age-rating stance.
 
@@ -39,7 +39,7 @@ For first external TestFlight/App Review, prefer screenshots that show:
 
 - MixCheck risk context and red-flag language
 - Wiki overview with source/fallback badge
-- Safety & Privacy screen
+- Sicherheit & Datenschutz screen
 - Guide disclaimer
 
 Avoid first-position screenshots that foreground private amount fields, note export, or wording that could look like planning substance use.

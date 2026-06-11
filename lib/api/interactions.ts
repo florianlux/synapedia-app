@@ -156,7 +156,7 @@ function normalizeTitle(nameA: string, nameB: string): string {
 }
 
 function unknownSummary(): string {
-  return 'Fuer diese Kombination liegen keine belastbaren Interaktionsdaten vor. Fehlende Daten bedeuten nicht, dass die Kombination sicher ist.';
+  return 'Für diese Kombination liegen keine belastbaren Interaktionsdaten vor. Fehlende Daten bedeuten nicht, dass die Kombination sicher ist.';
 }
 
 function normalizePair(pair: Record<string, unknown>, slugA: string, slugB: string): InteractionDetail | null {
@@ -270,7 +270,7 @@ function normalizePair(pair: Record<string, unknown>, slugA: string, slugB: stri
         : ['Bei schweren oder ungewoehnlichen Symptomen medizinische Hilfe holen.'],
     evidence: normalizeEvidence(confidence?.evidence_basis ?? confidence?.level ?? pair.evidence ?? pair.evidence_level),
     evidenceNote: references?.length
-      ? `${stringValue(sources?.count) ?? references.length} Quellen verfuegbar.`
+      ? `${stringValue(sources?.count) ?? references.length} Quellen verfügbar.`
       : firstString(pair.evidence_note, pair.evidenceNote, confidence?.note)
         ?? 'Live-Daten aus Synapedia Mobile.',
     sourceNote: firstString(pair.source_note, pair.sourceNote, sources?.summary, sources?.label)
@@ -281,7 +281,7 @@ function normalizePair(pair: Record<string, unknown>, slugA: string, slugB: stri
 function extractInteraction(response: InteractionResponse, slugA: string, slugB: string): InteractionDetail | null {
   const data = firstRecord(response.data, response.item, response.result, response.interaction, response);
   if (!data) {
-    throw new SynapediaApiError('Ungueltige Interaktionsantwort.', 200, 'INVALID_RESPONSE');
+    throw new SynapediaApiError('Ungültige Interaktionsantwort.', 200, 'INVALID_RESPONSE');
   }
 
   const interactions = firstArray(data.interactions, response.interactions);

@@ -1,4 +1,4 @@
-# App Review Notes
+# App Review Notizen
 
 Use this copy as the basis for App Store Connect reviewer notes.
 
@@ -21,12 +21,12 @@ No account is required.
 
 Suggested review steps:
 
-1. Open Home and review the Safety & Privacy screen.
+1. Open Start and review the Sicherheit & Datenschutz screen.
 2. Open MixCheck and choose a common pair such as `MDMA + LSD`.
 3. Confirm that risk language is conservative and includes red-flag context.
 4. Open Wiki and view a substance detail screen.
 5. Open Guides and view a recovery guide.
-6. Open Private Check-in and confirm notes are local and export is user-initiated.
+6. Open Private Notizen and confirm notes are local and export is user-initiated.
 7. Disable network and confirm local fallback content remains available.
 
 ## Content Boundary

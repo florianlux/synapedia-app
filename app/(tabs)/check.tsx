@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { useThemeColors } from '@/hooks/use-theme';
-import { Elevation, Typography, Spacing, Radius } from '@/constants/theme';
+import { Elevation, Typography, Spacing, Radius, getScreenBottomPadding } from '@/constants/theme';
 import { POPULAR_INTERACTION_PAIRS } from '@/constants/interactions';
 import { useInteraction } from '@/hooks/use-interaction';
 import { SubstancePicker } from '@/components/interaction/SubstancePicker';
@@ -77,7 +77,7 @@ export default function CheckScreen() {
                 MixCheck
               </Text>
               <Text style={[Typography.body, styles.subtitle, { color: colors.textSecondary }]}>
-                Zwei Substanzen waehlen, Risiko lesen, Red Flags ernst nehmen.
+                Zwei Substanzen wählen, Risiko lesen, Warnzeichen ernst nehmen.
               </Text>
             </View>
           </View>
@@ -103,7 +103,7 @@ export default function CheckScreen() {
         style={styles.resultScroll}
         contentContainerStyle={[
           styles.resultContent,
-          { paddingBottom: insets.bottom + Spacing.screenBottom + Spacing.lg },
+          { paddingBottom: getScreenBottomPadding(insets.bottom, Spacing.lg) },
         ]}
         showsVerticalScrollIndicator={false}>
         <View style={styles.popularSection}>
@@ -133,8 +133,8 @@ export default function CheckScreen() {
         {filledCount === 0 && (
           <StateCard
             icon="git-network-outline"
-            title="Bereit fuer den Check"
-            body="Waehle zwei Substanzen oder starte mit einer haeufigen Kombination."
+            title="Bereit für den Check"
+            body="Wähle zwei Substanzen oder starte mit einer häufigen Kombination."
           />
         )}
 
@@ -142,14 +142,14 @@ export default function CheckScreen() {
           <StateCard
             icon="add-circle-outline"
             title="Eine zweite Substanz fehlt"
-            body="Der Check laeuft erst mit zwei Eintraegen. Tippe auf den freien Slot."
+            body="Der Check läuft erst mit zwei Einträgen. Tippe auf den freien Slot."
           />
         )}
 
         {showResultState && interactionState.status === 'loading' && (
           <StateCard
             icon="sync-outline"
-            title="Kombination wird geprueft"
+            title="Kombination wird geprüft"
             body="Live-Daten werden abgefragt. Lokale Bewertungen erscheinen sofort, wenn sie vorhanden sind."
             loading
           />

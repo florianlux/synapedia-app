@@ -9,7 +9,6 @@ import {
   Text,
   TextInput,
   View,
-  useWindowDimensions,
   type KeyboardTypeOptions,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -19,19 +18,21 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { SUBSTANCES } from '@/constants/mock-data';
-import { Elevation, Radius, Spacing, Typography } from '@/constants/theme';
+import { Elevation, Radius, Spacing, Typography, getScreenBottomPadding } from '@/constants/theme';
 import { useThemeColors } from '@/hooks/use-theme';
+import { StateCard } from '@/components/ui/StateCard';
 
 const STORAGE_KEY = 'synapedia:dose-log:v1';
-const UNITS = ['mg', 'ug', 'g', 'ml'] as const;
-const ROUTES = ['oral', 'nasal', 'smoked', 'sublingual', 'other'] as const;
+
+type NoteUnit = 'mg' | 'ug' | 'g' | 'ml';
+type NoteRoute = 'oral' | 'nasal' | 'smoked' | 'sublingual' | 'other';
 
 type DoseEntry = {
   id: string;
   substance: string;
   dose?: string;
-  unit: (typeof UNITS)[number];
-  route: (typeof ROUTES)[number];
+  unit: NoteUnit;
+  route: NoteRoute;
   timestamp: string;
   notes?: string;
   mood?: string;
@@ -41,8 +42,8 @@ type DoseEntry = {
 type FormState = {
   substance: string;
   dose: string;
-  unit: (typeof UNITS)[number];
-  route: (typeof ROUTES)[number];
+  unit: NoteUnit;
+  route: NoteRoute;
   timestamp: string;
   notes: string;
   mood: string;
@@ -198,8 +199,6 @@ function downloadCsvOnWeb(csv: string, fileName: string): boolean {
 export default function LogScreen() {
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
-  const { width } = useWindowDimensions();
-  const isCompact = width < 390;
   const [form, setForm] = useState<FormState>(() => initialForm());
   const [entries, setEntries] = useState<DoseEntry[]>([]);
   const [hydrated, setHydrated] = useState(false);
@@ -217,7 +216,7 @@ export default function LogScreen() {
         setEntries(normalizeDoseEntries(JSON.parse(value) as unknown));
       })
       .catch(() => {
-        if (mounted) setError('Could not load local log entries.');
+        if (mounted) setError('Lokale Notizen konnten nicht geladen werden.');
       })
       .finally(() => {
         if (mounted) setHydrated(true);
@@ -231,7 +230,7 @@ export default function LogScreen() {
   useEffect(() => {
     if (!hydrated) return;
     AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(entries)).catch(() => {
-      setError('Could not save local log entries.');
+      setError('Lokale Notizen konnten nicht gespeichert werden.');
     });
   }, [entries, hydrated]);
 
@@ -294,7 +293,7 @@ export default function LogScreen() {
   function deleteEntry(id: string) {
     Alert.alert(
       'Eintrag löschen?',
-      'Der lokale Check-in-Eintrag wird von diesem Gerät entfernt.',
+      'Diese private Notiz wird von diesem Gerät entfernt.',
       [
         { text: 'Abbrechen', style: 'cancel' },
         {
@@ -316,7 +315,7 @@ export default function LogScreen() {
     try {
       if (!hydrated) {
         setExportStatus('error');
-        setExportMessage('Private Check-in wird noch geladen. Bitte gleich erneut versuchen.');
+        setExportMessage('Private Notizen werden noch geladen. Bitte gleich erneut versuchen.');
         return;
       }
 
@@ -326,7 +325,7 @@ export default function LogScreen() {
         return;
       }
 
-      const fileName = `synapedia-private-check-in-${exportDateStamp()}.csv`;
+      const fileName = `synapedia-private-notizen-${exportDateStamp()}.csv`;
       const csv = doseEntriesToCsv(sortedEntries);
 
       if (Platform.OS === 'web') {
@@ -361,7 +360,7 @@ export default function LogScreen() {
       await Sharing.shareAsync(fileUri, {
         mimeType: 'text/csv',
         UTI: 'public.comma-separated-values-text',
-        dialogTitle: 'Synapedia Private Check-in exportieren',
+        dialogTitle: 'Synapedia private Notizen exportieren',
       });
       await FileSystem.deleteAsync(fileUri, { idempotent: true }).catch(() => {
         // Sharing succeeded; a stale temp export is harmless and can be overwritten next time.
@@ -385,15 +384,15 @@ export default function LogScreen() {
       <ScrollView
         contentContainerStyle={[
           styles.content,
-          { paddingBottom: insets.bottom + Spacing.screenBottom + Spacing.xl },
+          { paddingBottom: getScreenBottomPadding(insets.bottom, Spacing.xl) },
         ]}
         keyboardDismissMode="on-drag"
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={[Typography.heroTitle, { color: colors.textPrimary }]}>Private Check-in</Text>
+          <Text style={[Typography.heroTitle, { color: colors.textPrimary }]}>Private Notizen</Text>
           <Text style={[Typography.body, styles.subtitle, { color: colors.textSecondary }]}>
-            Lokale Reflexionsnotizen. Kein Account, keine Cloud-Synchronisierung.
+            Bleibt lokal auf deinem Gerät. Keine Diagnose, keine medizinische Empfehlung.
           </Text>
         </View>
 
@@ -424,35 +423,6 @@ export default function LogScreen() {
             ))}
           </View>
 
-          <View style={[styles.row, isCompact && styles.rowCompact]}>
-            <View style={styles.rowField}>
-              <Field
-                label="Menge (optional)"
-                value={form.dose}
-                onChangeText={(value) => updateField('dose', value)}
-                placeholder="80"
-                keyboardType="decimal-pad"
-              />
-            </View>
-            <View style={styles.rowField}>
-              <Text style={[Typography.captionBold, { color: colors.textSecondary }]}>Einheit</Text>
-              <ChipRow
-                items={UNITS}
-                selected={form.unit}
-                onSelect={(value) => updateField('unit', value)}
-              />
-            </View>
-          </View>
-
-          <View style={styles.group}>
-            <Text style={[Typography.captionBold, { color: colors.textSecondary }]}>Kontext</Text>
-            <ChipRow
-              items={ROUTES}
-              selected={form.route}
-              onSelect={(value) => updateField('route', value)}
-            />
-          </View>
-
           <Field
             label="Zeitpunkt"
             value={form.timestamp}
@@ -469,7 +439,7 @@ export default function LogScreen() {
             label="Notizen"
             value={form.notes}
             onChangeText={(value) => updateField('notes', value)}
-            placeholder="Kontext, Wirkung, Erinnerungen"
+            placeholder="Kontext, Fragen, Erinnerungen"
             multiline
           />
 
@@ -486,7 +456,7 @@ export default function LogScreen() {
               { backgroundColor: pressed ? colors.tabIconSelected : colors.accent },
             ]}>
             <Ionicons name="add-circle-outline" size={18} color="#FFFFFF" />
-            <Text style={[Typography.bodyBold, { color: '#FFFFFF' }]}>Eintrag hinzufügen</Text>
+            <Text style={[Typography.bodyBold, { color: '#FFFFFF' }]}>Notiz speichern</Text>
           </Pressable>
         </View>
 
@@ -538,11 +508,12 @@ export default function LogScreen() {
         )}
 
         {sortedEntries.length === 0 ? (
-          <View style={[styles.emptyCard, { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder }]}>
-            <Ionicons name="document-text-outline" size={34} color={colors.textTertiary} />
-            <Text style={[Typography.body, styles.emptyText, { color: colors.textSecondary }]}>
-              Noch keine Einträge.
-            </Text>
+          <View style={styles.emptyWrap}>
+            <StateCard
+              icon="document-text-outline"
+              title="Noch keine privaten Notizen"
+              body="Speichere kurze Reflexionen lokal auf deinem Gerät. Das ist kein medizinischer Tracker."
+            />
           </View>
         ) : (
           <View style={styles.entryList}>
@@ -596,39 +567,6 @@ function Field({
   );
 }
 
-function ChipRow<T extends string>({
-  items,
-  selected,
-  onSelect,
-}: {
-  items: readonly T[];
-  selected: T;
-  onSelect: (value: T) => void;
-}) {
-  const colors = useThemeColors();
-
-  return (
-    <View style={styles.chipRow}>
-      {items.map((item) => (
-        <Pressable
-          key={item}
-          onPress={() => onSelect(item)}
-          style={[
-            styles.chip,
-            {
-              backgroundColor: selected === item ? colors.accent : colors.backgroundTertiary,
-              borderColor: selected === item ? `${colors.accent}75` : colors.border,
-            },
-          ]}>
-          <Text style={[Typography.chip, { color: selected === item ? '#FFFFFF' : colors.textSecondary }]}>
-            {item}
-          </Text>
-        </Pressable>
-      ))}
-    </View>
-  );
-}
-
 function EntryCard({ entry, onDelete }: { entry: DoseEntry; onDelete: () => void }) {
   const colors = useThemeColors();
 
@@ -640,7 +578,7 @@ function EntryCard({ entry, onDelete }: { entry: DoseEntry; onDelete: () => void
             {entry.substance}
           </Text>
           <Text style={[Typography.caption, { color: colors.textSecondary }]}>
-            {entry.dose ? `${entry.dose} ${entry.unit}` : 'Menge nicht notiert'} · {entry.route}
+            Private Reflexionsnotiz
           </Text>
         </View>
         <Pressable
@@ -697,17 +635,6 @@ const styles = StyleSheet.create({
   group: {
     gap: Spacing.sm,
   },
-  row: {
-    flexDirection: 'row',
-    gap: Spacing.md,
-  },
-  rowCompact: {
-    flexDirection: 'column',
-  },
-  rowField: {
-    flex: 1,
-    gap: Spacing.sm,
-  },
   input: {
     minHeight: 48,
     borderRadius: Radius.md,
@@ -724,19 +651,6 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   suggestionChip: {
-    minHeight: 44,
-    borderRadius: Radius.full,
-    paddingHorizontal: Spacing.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: StyleSheet.hairlineWidth,
-  },
-  chipRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.sm,
-  },
-  chip: {
     minHeight: 44,
     borderRadius: Radius.full,
     paddingHorizontal: Spacing.md,
@@ -785,16 +699,8 @@ const styles = StyleSheet.create({
   exportMessage: {
     marginBottom: Spacing.sm,
   },
-  emptyCard: {
-    borderRadius: Radius.xl,
-    borderWidth: StyleSheet.hairlineWidth,
-    padding: Spacing.xl,
-    alignItems: 'center',
-    ...Elevation.subtle,
-  },
-  emptyText: {
-    marginTop: Spacing.md,
-    textAlign: 'center',
+  emptyWrap: {
+    marginHorizontal: -Spacing.page,
   },
   entryList: {
     gap: Spacing.sm,

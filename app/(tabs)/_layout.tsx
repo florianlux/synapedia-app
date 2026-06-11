@@ -39,7 +39,7 @@ export default function TabLayout() {
           left: 10,
           right: 10,
           bottom: bottomInset,
-          height: 68 + bottomInset,
+          height: 64 + bottomInset,
           paddingTop: 6,
           paddingHorizontal: 8,
           paddingBottom: Math.max(bottomInset - 2, 10),
@@ -57,7 +57,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          title: 'Start',
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons name={focused ? 'home' : 'home-outline'} size={size} color={color} />
           ),
@@ -84,7 +84,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="log"
         options={{
-          title: 'Notes',
+          title: 'Notizen',
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons name={focused ? 'create' : 'create-outline'} size={size} color={color} />
           ),

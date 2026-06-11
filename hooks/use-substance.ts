@@ -58,7 +58,7 @@ function sanitizeSubstance(substance: Substance): Substance {
     aliases: Array.isArray(substance.aliases) ? substance.aliases : [],
     chemicalName: substance.chemicalName ?? '',
     primaryClass,
-    summary: substance.summary || 'Noch keine Zusammenfassung verfuegbar.',
+    summary: substance.summary || 'Noch keine Zusammenfassung verfügbar.',
     categories,
     riskLevel: substance.riskLevel ?? 'unknown',
     riskLabel: substance.riskLabel || 'Unbekanntes Risiko',
@@ -156,7 +156,7 @@ export function useSubstance(
     if (!slug) {
       return {
         status: 'error',
-        message: 'Ungueltige Substanz-ID.',
+        message: 'Ungültige Substanz-ID.',
         notFound: true,
       };
     }
@@ -174,7 +174,7 @@ export function useSubstance(
     if (!slug) {
       setState({
         status: 'error',
-        message: 'Ungueltige Substanz-ID.',
+        message: 'Ungültige Substanz-ID.',
         notFound: true,
       });
       return () => {

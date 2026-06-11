@@ -143,7 +143,7 @@ export async function getJson<T>(
   } catch (error) {
     if (error instanceof SynapediaApiError) throw error;
     if (isAbortError(error)) {
-      throw new SynapediaApiError('Zeitueberschreitung beim Laden.', 408, 'TIMEOUT');
+      throw new SynapediaApiError('Zeitüberschreitung beim Laden.', 408, 'TIMEOUT');
     }
     throw new SynapediaApiError('Synapedia API nicht erreichbar.', 503, 'NETWORK_ERROR');
   } finally {
@@ -191,7 +191,7 @@ export async function postJson<T>(
   } catch (error) {
     if (error instanceof SynapediaApiError) throw error;
     if (isAbortError(error)) {
-      throw new SynapediaApiError('Zeitueberschreitung beim Laden.', 408, 'TIMEOUT');
+      throw new SynapediaApiError('Zeitüberschreitung beim Laden.', 408, 'TIMEOUT');
     }
     throw new SynapediaApiError('Synapedia API nicht erreichbar.', 503, 'NETWORK_ERROR');
   } finally {

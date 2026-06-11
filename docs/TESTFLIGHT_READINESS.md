@@ -12,7 +12,7 @@ Use this checklist before uploading the first iOS build to App Store Connect.
 
 ## iOS Smoke Test
 
-- Home opens in dark theme and the primary MixCheck CTA navigates to Check.
+- Start opens in dark theme and the primary MixCheck CTA navigates to Check.
 - Wiki opens with local curated substances before or during live sync.
 - Wiki search works for `MDMA`, `Kokain`, `Ketamin`, and `LSD`.
 - Substance detail opens from Wiki and shows source/fallback status.
@@ -22,15 +22,15 @@ Use this checklist before uploading the first iOS build to App Store Connect.
 - MixCheck no-data states say missing data is not safety clearance.
 - Guides list opens with local content if live data is unavailable.
 - Guide detail loading/error/fallback states do not crash.
-- Private Check-in persists entries locally after app restart.
-- Private Check-in export/share is user-initiated only.
-- Disable network and confirm Home, Wiki local data, Guides local data, and known MixCheck local pairs remain usable.
+- Private Notizen persists entries locally after app restart.
+- Private Notizen export/share is user-initiated only.
+- Disable network and confirm Start, Wiki local data, Guides local data, and known MixCheck local pairs remain usable.
 
-## App Store Review Notes
+## App Store Review Notizen
 
 - Position as an informational harm-reduction tool, not medical diagnosis, treatment, emergency response, or professional advice.
 - Use a conservative age rating because the app contains frequent references to drugs/substances and medical-adjacent safety context.
 - Avoid marketing language that encourages substance use or implies combinations are safe.
 - Privacy questionnaire should state that the current app code does not collect account, location, health, tracking, or analytics data.
-- Local Private Check-in data is stored on-device and is only shared if the user explicitly exports it.
+- Local Private Notizen data is stored on-device and is only shared if the user explicitly exports it.
 - Export compliance: `ITSAppUsesNonExemptEncryption` is set to `false`; the app uses standard platform/network encryption only.

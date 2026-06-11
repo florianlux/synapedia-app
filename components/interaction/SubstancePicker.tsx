@@ -47,7 +47,7 @@ export function SubstancePicker({
       ? 'Live-Katalog wird abgefragt. Lokale Referenzdaten bleiben sichtbar.'
       : source === 'offline'
         ? 'Offline-Fallback aktiv. Lokale Referenzdaten bleiben nutzbar.'
-        : 'Live-Katalog und lokale Referenzdaten werden zusammengefuehrt.');
+        : 'Live-Katalog und lokale Referenzdaten werden zusammengeführt.');
 
   function handleClose() {
     setQuery('');
@@ -156,7 +156,7 @@ export function SubstancePicker({
                   Typography.body,
                   { color: colors.textSecondary, textAlign: 'center', padding: Spacing.xl },
                 ]}>
-                Keine Treffer. Passe Suche oder Schreibweise an.
+                Keine passende Substanz gefunden. Prüfe Schreibweise oder wähle einen Vorschlag.
               </Text>
             ) : null
           }

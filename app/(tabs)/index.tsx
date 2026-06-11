@@ -40,7 +40,7 @@ const QUICK_ACTIONS: {
     tint: '#4DA3FF',
   },
   {
-    title: 'Private Check-in',
+    title: 'Private Notizen',
     subtitle: 'Lokale Reflexionsnotizen',
     icon: 'create-outline',
     route: '/(tabs)/log',
@@ -48,7 +48,7 @@ const QUICK_ACTIONS: {
   },
   {
     title: 'Guides',
-    subtitle: 'Recovery & Harm Reduction',
+    subtitle: 'Recovery & Harm-Reduction-Kontext',
     icon: 'heart-circle-outline',
     route: '/(tabs)/guides',
     tint: '#D63A4A',
@@ -56,7 +56,7 @@ const QUICK_ACTIONS: {
 ];
 
 const SAFETY_NOTE =
-  'Mischkonsum, Downer-Kombinationen und akute Symptome ernst nehmen. Bei Bewusstlosigkeit, Atemproblemen, Brustschmerz oder Krampfanfällen sofort medizinische Hilfe holen.';
+  'Mischkonsum, Downer-Kombinationen und Warnzeichen verständlich einordnen. Bei Bewusstlosigkeit, Atemproblemen, Brustschmerz oder Krampfanfällen: medizinische Hilfe.';
 
 const FEATURED_SUBSTANCES = ['mdma', 'lsd', 'ketamin', 'kokain', 'diazepam'];
 
@@ -152,8 +152,8 @@ export default function HomeScreen() {
             </View>
           </View>
           <View style={[styles.heroStatus, isCompact && styles.heroTopCompactStatus]}>
-            <HeroBadge label="Knowledge Graph" icon="git-network-outline" tint={colors.accent} />
-            <HeroBadge label="Risk Awareness" icon="shield-outline" tint={colors.riskModerate} />
+            <HeroBadge label="Wissensgraph" icon="git-network-outline" tint={colors.accent} />
+            <HeroBadge label="Risikofokus" icon="shield-outline" tint={colors.riskModerate} />
           </View>
         </View>
 
@@ -161,7 +161,7 @@ export default function HomeScreen() {
           Synapedia
         </Text>
         <Text style={[Typography.body, styles.subtitle, { color: colors.textSecondary }]}>
-          Der schnelle iOS-Startpunkt fuer Interaktionen, Substanzwissen und Recovery-Kontext.
+          Dein mobiler Startpunkt für Interaktionen, Substanzwissen und Recovery-Kontext.
         </Text>
 
         <Pressable
@@ -248,10 +248,10 @@ export default function HomeScreen() {
             </View>
             <View style={styles.actionText}>
               <Text style={[Typography.bodyBold, { color: colors.textPrimary }]}>
-                Safety & Privacy
+                Sicherheit & Datenschutz
               </Text>
               <Text style={[Typography.caption, styles.actionSubtitle, { color: colors.textSecondary }]}>
-                Educational scope, local notes, and API lookups.
+                Harm-Reduction-Rahmen, lokale Notizen und Live-Abfragen.
               </Text>
             </View>
             <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
@@ -305,12 +305,12 @@ export default function HomeScreen() {
           „Keine Daten“ bedeutet nicht „sicher“.
         </Text>
         <Text style={[Typography.caption, { color: colors.textSecondary }]}>
-          MixCheck nutzt Live-Daten und lokale kuratierte Fallbacks. Unbekannte Kombinationen koennen
+          MixCheck nutzt Live-Daten und lokale kuratierte Fallbacks. Unbekannte Kombinationen können
           trotzdem riskant oder unvorhersehbar sein.
         </Text>
       </PremiumCard>
 
-      <DisclaimerCard text="Educational reference only. No medical advice or emergency service." />
+      <DisclaimerCard text="Nur Wissens- und Harm-Reduction-Kontext. Keine medizinische Beratung oder Notfallversorgung." />
     </Screen>
   );
 }
@@ -324,7 +324,7 @@ const styles = StyleSheet.create({
     padding: Spacing.lg,
     paddingTop: Spacing.lg,
     paddingBottom: Spacing.xl,
-    minHeight: 260,
+    minHeight: 230,
     ...Elevation.card,
   },
   heroBackground: {
@@ -362,7 +362,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     justifyContent: 'space-between',
     gap: Spacing.md,
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.md,
   },
   heroTopCompact: {
     flexDirection: 'column',

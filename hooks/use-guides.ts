@@ -51,7 +51,7 @@ export function useGuide(slug: string | undefined): GuideState {
   const localGuide = slug ? GUIDES_MAP[slug] : undefined;
   const [state, setState] = useState<GuideState>(() => {
     if (!slug) {
-      return { status: 'error', message: 'Ungueltige Guide-ID.', notFound: true };
+      return { status: 'error', message: 'Ungültige Guide-ID.', notFound: true };
     }
     if (localGuide) {
       return { status: 'success', data: localGuide, source: 'local', refreshing: true };
@@ -63,7 +63,7 @@ export function useGuide(slug: string | undefined): GuideState {
     let active = true;
 
     if (!slug) {
-      setState({ status: 'error', message: 'Ungueltige Guide-ID.', notFound: true });
+      setState({ status: 'error', message: 'Ungültige Guide-ID.', notFound: true });
       return () => {
         active = false;
       };

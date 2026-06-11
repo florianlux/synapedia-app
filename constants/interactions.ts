@@ -45,11 +45,11 @@ const INTERACTIONS: InteractionDetail[] = [
     riskLevel: 'high',
     severity: 'risky',
     summary:
-      'Die Kombination kann euphorische und psychedelische Effekte deutlich verstaerken und die psychische sowie koerperliche Belastung erhoehen.',
+      'Die Kombination kann euphorische und psychedelische Effekte deutlich verstärken und die psychische sowie körperliche Belastung erhöhen.',
     mechanisms: [
-      'Serotonerge Stimulation durch MDMA plus psychedelische 5-HT2A-Aktivitaet.',
-      'Additive Belastung fuer Herzfrequenz, Blutdruck und Temperaturregulation.',
-      'Laengere LSD-Wirkdauer kann MDMA-Comedown und Verwirrung verstaerken.',
+      'Serotonerge Stimulation durch MDMA plus psychedelische 5-HT2A-Aktivität.',
+      'Additive Belastung für Herzfrequenz, Blutdruck und Temperaturregulation.',
+      'Längere LSD-Wirkdauer kann MDMA-Comedown und Verwirrung verstärken.',
     ],
     riskFactors: [
       'Unklare Menge oder wiederholtes Nachlegen',
@@ -57,12 +57,12 @@ const INTERACTIONS: InteractionDetail[] = [
       'Angst, Panik oder instabile psychische Lage',
     ],
     saferUseNotes: [
-      'Keine zusaetzliche Einnahme, wenn Wirkung oder Belastung unklar ist.',
-      'Kuehlpausen, Elektrolyte und ruhiges Setting einplanen.',
-      'Eine nuechterne Vertrauensperson kann Eskalationen frueh erkennen.',
+      'Keine zusätzliche Einnahme, wenn Wirkung oder Belastung unklar ist.',
+      'Kühlpausen, Elektrolyte und ruhiges Setting einplanen.',
+      'Eine nüchterne Vertrauensperson kann Eskalationen früh erkennen.',
     ],
     redFlags: [
-      'Verwirrtheit, Ueberhitzung, Kollaps oder Krampfanfall.',
+      'Verwirrtheit, Überhitzung, Kollaps oder Krampfanfall.',
       'Brustschmerz, Atemnot oder anhaltende Panik mit Kontrollverlust.',
     ],
     evidence: 'moderate',
@@ -77,11 +77,11 @@ const INTERACTIONS: InteractionDetail[] = [
     riskLevel: 'critical',
     severity: 'dangerous',
     summary:
-      'SSRI/SNRI koennen MDMA-Wirkung abschwaechen oder unvorhersehbar machen; serotonerge Belastung und riskantes Nachlegen bleiben zentrale Risiken.',
+      'SSRI/SNRI können MDMA-Wirkung abschwächen oder unvorhersehbar machen; serotonerge Belastung und riskantes Nachlegen bleiben zentrale Risiken.',
     mechanisms: [
-      'SSRI/SNRI veraendern Serotonintransporter-Signalwege, an denen MDMA wesentlich ansetzt.',
-      'Abgeschwaechte subjektive Wirkung kann zu gefaehrlichem Nachlegen verleiten.',
-      'Serotonerge Mehrfachbelastung kann Unruhe, Ueberhitzung, Verwirrtheit und Serotonin-Toxizitaet beguenstigen.',
+      'SSRI/SNRI verändern Serotonintransporter-Signalwege, an denen MDMA wesentlich ansetzt.',
+      'Abgeschwächte subjektive Wirkung kann zu gefährlichem Nachlegen verleiten.',
+      'Serotonerge Mehrfachbelastung kann Unruhe, Überhitzung, Verwirrtheit und Serotonin-Toxizität begünstigen.',
     ],
     riskFactors: [
       'Unklare MDMA-Menge oder wiederholtes Nachlegen',
@@ -89,17 +89,17 @@ const INTERACTIONS: InteractionDetail[] = [
       'Hitze, Tanzen, Schlafmangel oder bestehende Kreislaufbelastung',
     ],
     saferUseNotes: [
-      'Nicht nachlegen, nur weil MDMA subjektiv schwaecher wirkt.',
-      'Medikamente nicht eigenmaechtig pausieren oder absetzen, um MDMA staerker zu spueren.',
-      'Bei serotonergen Symptomen frueh Hilfe holen und keine weiteren Stimulanzien nehmen.',
+      'Nicht nachlegen, nur weil MDMA subjektiv schwächer wirkt.',
+      'Medikamente nicht eigenmaechtig pausieren oder absetzen, um MDMA stärker zu spüren.',
+      'Bei serotonergen Symptomen früh Hilfe holen und keine weiteren Stimulanzien nehmen.',
     ],
     redFlags: [
-      'Verwirrtheit, starke Unruhe, Fieber/Ueberhitzung, Muskelzucken oder Krampf.',
-      'Brustschmerz, Kollaps, Atemnot oder sehr schneller/unregelmaessiger Puls.',
+      'Verwirrtheit, starke Unruhe, Fieber/Überhitzung, Muskelzucken oder Krampf.',
+      'Brustschmerz, Kollaps, Atemnot oder sehr schneller/unregelmäßiger Puls.',
     ],
     evidence: 'moderate',
-    evidenceNote: 'Lokale kuratierte Bewertung; SSRI/SNRI koennen Wirkung und Risiko von MDMA relevant veraendern.',
-    sourceNote: 'Pharmakologie des Serotonintransporters plus klinische Warnsignale serotonerger Toxizitaet.',
+    evidenceNote: 'Lokale kuratierte Bewertung; SSRI/SNRI können Wirkung und Risiko von MDMA relevant verändern.',
+    sourceNote: 'Pharmakologie des Serotonintransporters plus klinische Warnsignale serotonerger Toxizität.',
   },
   {
     id: makeKey('mdma', 'alkohol'),
@@ -109,24 +109,24 @@ const INTERACTIONS: InteractionDetail[] = [
     riskLevel: 'high',
     severity: 'risky',
     summary:
-      'Alkohol kann Urteilsvermoegen, Fluessigkeitshaushalt und Kreislauf unter MDMA verschlechtern und riskantes Nachlegen wahrscheinlicher machen.',
+      'Alkohol kann Urteilsvermögen, Flüssigkeitshaushalt und Kreislauf unter MDMA verschlechtern und riskantes Nachlegen wahrscheinlicher machen.',
     mechanisms: [
-      'Alkohol enthemmt und erschwert das Einschaetzen von Koerpersignalen und Grenzen.',
+      'Alkohol enthemmt und erschwert das Einschaetzen von Körpersignalen und Grenzen.',
       'MDMA-Stimulation plus Alkoholbelastung kann Puls, Temperaturregulation und Dehydrierung verschlechtern.',
-      'Alkohol kann Uebelkeit, Erbrechen, Stuerze und Blackouts in einem stimulierten Setting riskanter machen.',
+      'Alkohol kann Übelkeit, Erbrechen, Stürze und Blackouts in einem stimulierten Setting riskanter machen.',
     ],
     riskFactors: [
-      'Viel Alkohol vor oder waehrend MDMA',
+      'Viel Alkohol vor oder während MDMA',
       'Tanzen, Hitze, wenig Pausen oder wenig Schlaf',
       'Weitere Stimulanzien oder wiederholtes Nachlegen',
     ],
     saferUseNotes: [
       'Kombination meiden oder Alkohol klar begrenzen; keine Trinkspiele oder Nachlegen unter Alkoholeinfluss.',
-      'Kuehlpausen machen und kleine Mengen Wasser/Elektrolyte ueber Zeit nutzen.',
-      'Nicht allein bleiben, wenn Uebelkeit, Verwirrung oder Kreislaufprobleme auftreten.',
+      'Kühlpausen machen und kleine Mengen Wasser/Elektrolyte über Zeit nutzen.',
+      'Nicht allein bleiben, wenn Übelkeit, Verwirrung oder Kreislaufprobleme auftreten.',
     ],
     redFlags: [
-      'Ueberhitzung, Verwirrtheit, Kollaps, Krampf oder nicht mehr ansprechbar.',
+      'Überhitzung, Verwirrtheit, Kollaps, Krampf oder nicht mehr ansprechbar.',
       'Brustschmerz, Atemnot, wiederholtes Erbrechen oder starke Dehydrierungszeichen.',
     ],
     evidence: 'moderate',
@@ -141,14 +141,14 @@ const INTERACTIONS: InteractionDetail[] = [
     riskLevel: 'critical',
     severity: 'dangerous',
     summary:
-      'Diese Kombination bildet Cocaethylen und erhoeht Herz-Kreislauf-, Leber- und Risikoverhaltensbelastung deutlich.',
+      'Diese Kombination bildet Cocaethylen und erhöht Herz-Kreislauf-, Leber- und Risikoverhaltensbelastung deutlich.',
     mechanisms: [
-      'In der Leber entsteht Cocaethylen, ein toxischer und laenger wirksamer Metabolit.',
+      'In der Leber entsteht Cocaethylen, ein toxischer und länger wirksamer Metabolit.',
       'Alkohol maskiert Kokain-Intoxikation und Kokain maskiert Alkohol-Sedierung.',
-      'Additive Belastung fuer Herz, Blutdruck und Impulskontrolle.',
+      'Additive Belastung für Herz, Blutdruck und Impulskontrolle.',
     ],
     riskFactors: [
-      'Mehrstuendiges Nachlegen',
+      'Mehrstündiges Nachlegen',
       'Hohe Alkoholmengen',
       'Herz-Kreislauf-Vorerkrankungen oder Brustschmerz',
     ],
@@ -159,11 +159,11 @@ const INTERACTIONS: InteractionDetail[] = [
     ],
     redFlags: [
       'Brustschmerz, Atemnot, Ohnmacht oder neurologische Ausfaelle.',
-      'Starke Unruhe, Ueberhitzung oder anhaltendes Herzrasen.',
+      'Starke Unruhe, Überhitzung oder anhaltendes Herzrasen.',
     ],
     evidence: 'strong',
     evidenceNote: 'Lokale kuratierte Bewertung; Cocaethylen ist als Risiko gut beschrieben.',
-    sourceNote: 'Toxikologische Literatur zu Cocaethylen wird fuer die mobile Ansicht kuratiert.',
+    sourceNote: 'Toxikologische Literatur zu Cocaethylen wird für die mobile Ansicht kuratiert.',
   },
   {
     id: makeKey('ketamin', 'alkohol'),
@@ -173,11 +173,11 @@ const INTERACTIONS: InteractionDetail[] = [
     riskLevel: 'critical',
     severity: 'dangerous',
     summary:
-      'Beide Substanzen beeintraechtigen Koordination, Bewusstsein und Schutzreflexe; Erbrechen und Aspiration werden riskanter.',
+      'Beide Substanzen beeinträchtigen Koordination, Bewusstsein und Schutzreflexe; Erbrechen und Aspiration werden riskanter.',
     mechanisms: [
-      'Additive ZNS-Daempfung und motorische Beeintraechtigung.',
-      'Ketamin-Dissoziation erschwert Einschaetzung von Alkoholintoxikation.',
-      'Erhoehtes Risiko fuer Stuerze, Erbrechen und Aspiration.',
+      'Additive ZNS-Dämpfung und motorische Beeintraechtigung.',
+      'Ketamin-Dissoziation erschwert Einschätzung von Alkoholintoxikation.',
+      'Erhöhtes Risiko für Stürze, Erbrechen und Aspiration.',
     ],
     riskFactors: [
       'Liegen auf dem Ruecken oder Alleinsein',
@@ -186,8 +186,8 @@ const INTERACTIONS: InteractionDetail[] = [
     ],
     saferUseNotes: [
       'Kombination vermeiden; keine weitere Einnahme, wenn Alkohol im Spiel ist.',
-      'Bei Uebelkeit Seitenlage und Beobachtung sicherstellen.',
-      'Sturzrisiken und gefaehrliche Umgebungen vermeiden.',
+      'Bei Übelkeit Seitenlage und Beobachtung sicherstellen.',
+      'Sturzrisiken und gefährliche Umgebungen vermeiden.',
     ],
     redFlags: [
       'Bewusstlosigkeit, langsame Atmung oder nicht weckbar.',
@@ -207,9 +207,9 @@ const INTERACTIONS: InteractionDetail[] = [
     summary:
       'Cannabis kann LSD-Wirkungen stark und unvorhersehbar intensivieren, besonders Angst, Verwirrung und Gedankenschleifen.',
     mechanisms: [
-      'THC kann sensorische und kognitive Trip-Intensitaet verstaerken.',
+      'THC kann sensorische und kognitive Trip-Intensität verstärken.',
       'Cannabis-induzierte Angst oder Paranoia kann unter LSD eskalieren.',
-      'Zeitpunkt ist wichtig: Konsum waehrend Peak ist oft riskanter.',
+      'Zeitpunkt ist wichtig: Konsum während Peak ist oft riskanter.',
     ],
     riskFactors: [
       'Hoher THC-Gehalt',
@@ -217,12 +217,12 @@ const INTERACTIONS: InteractionDetail[] = [
       'Belastendes Setting oder bestehende Angst',
     ],
     saferUseNotes: [
-      'Cannabis waehrend LSD-Peak vermeiden.',
-      'Wenn ueberfordert: Reize reduzieren, ruhige Begleitung, keine weiteren Substanzen.',
-      'Keine weitere Einnahme, wenn Intensitaet oder Orientierung unklar sind.',
+      'Cannabis während LSD-Peak vermeiden.',
+      'Wenn überfordert: Reize reduzieren, ruhige Begleitung, keine weiteren Substanzen.',
+      'Keine weitere Einnahme, wenn Intensität oder Orientierung unklar sind.',
     ],
     redFlags: [
-      'Anhaltende Panik, Realitaetsverlust oder Selbst-/Fremdgefaehrdung.',
+      'Anhaltende Panik, Realitätsverlust oder Selbst-/Fremdgefährdung.',
       'Verwirrtheit, die nicht durch Ruhe und Begleitung besser wird.',
     ],
     evidence: 'limited',
@@ -237,11 +237,11 @@ const INTERACTIONS: InteractionDetail[] = [
     riskLevel: 'critical',
     severity: 'dangerous',
     summary:
-      'Beide Substanzen stimulieren stark und koennen Herz-Kreislauf-Belastung, Ueberhitzung und wiederholte Einnahmeimpulse erhoehen.',
+      'Beide Substanzen stimulieren stark und können Herz-Kreislauf-Belastung, Überhitzung und wiederholte Einnahmeimpulse erhöhen.',
     mechanisms: [
       'Additive sympathomimetische Effekte auf Puls, Blutdruck und Temperatur.',
-      'Kokain kann subjektiv MDMA ueberdecken und Nachlegen beguenstigen.',
-      'Serotonerge und dopaminerge Belastung koennen Unruhe und Toxizitaet verstaerken.',
+      'Kokain kann subjektiv MDMA überdecken und Nachlegen begünstigen.',
+      'Serotonerge und dopaminerge Belastung können Unruhe und Toxizität verstärken.',
     ],
     riskFactors: [
       'Club/Festival-Hitze und Tanzen',
@@ -250,16 +250,16 @@ const INTERACTIONS: InteractionDetail[] = [
     ],
     saferUseNotes: [
       'Kombination vermeiden; keine weiteren Stimulanzien nachlegen.',
-      'Kuehlen, pausieren, Wasser/Elekrolyte angemessen nutzen.',
+      'Kühlen, pausieren, Wasser/Elekrolyte angemessen nutzen.',
       'Bei Herzsymptomen sofort Hilfe holen.',
     ],
     redFlags: [
       'Brustschmerz, starker Kopfschmerz, Krampf, Kollaps.',
-      'Ueberhitzung, Verwirrtheit oder anhaltendes Herzrasen.',
+      'Überhitzung, Verwirrtheit oder anhaltendes Herzrasen.',
     ],
     evidence: 'moderate',
     evidenceNote: 'Lokale kuratierte Bewertung; Quellen werden transparent erweitert.',
-    sourceNote: 'Stimulanzien-Toxizitaet und Notaufnahme-Kontext.',
+    sourceNote: 'Stimulanzien-Toxizität und Notaufnahme-Kontext.',
   },
   {
     id: makeKey('kratom', 'diazepam'),
@@ -269,11 +269,11 @@ const INTERACTIONS: InteractionDetail[] = [
     riskLevel: 'critical',
     severity: 'dangerous',
     summary:
-      'Opioidartige Effekte von Kratom plus Benzodiazepin-Sedierung koennen Atem- und Bewusstseinsrisiken erhoehen.',
+      'Opioidartige Effekte von Kratom plus Benzodiazepin-Sedierung können Atem- und Bewusstseinsrisiken erhöhen.',
     mechanisms: [
-      'Additive ZNS-Daempfung durch opioidartige und GABAerge Wirkung.',
-      'Sedierung kann Warnzeichen fuer akute Atem- oder Bewusstseinsprobleme verschleiern.',
-      'Toleranz und Produktstaerke sind schwer einschaetzbar.',
+      'Additive ZNS-Dämpfung durch opioidartige und GABAerge Wirkung.',
+      'Sedierung kann Warnzeichen für akute Atem- oder Bewusstseinsprobleme verschleiern.',
+      'Toleranz und Produktstärke sind schwer einschätzbar.',
     ],
     riskFactors: [
       'Weitere Downer wie Alkohol, Phenibut oder Opioide',
@@ -283,7 +283,7 @@ const INTERACTIONS: InteractionDetail[] = [
     saferUseNotes: [
       'Kombination vermeiden, besonders mit weiteren Downern.',
       'Nicht allein bleiben; Atem- und Bewusstseinslage beobachten.',
-      'Bei opioidartigem Konsum Naloxon-Verfuegbarkeit erwaegen.',
+      'Bei opioidartigem Konsum Naloxon-Verfügbarkeit erwaegen.',
     ],
     redFlags: [
       'Langsame/ungewoehnliche Atmung, nicht weckbar, blaeuliche Lippen.',
@@ -303,9 +303,9 @@ const INTERACTIONS: InteractionDetail[] = [
     summary:
       'Opioid plus Benzodiazepin ist eine Hochrisiko-Kombination wegen additiver Sedierung und Atemdepression.',
     mechanisms: [
-      'O-DSMT kann Atemantrieb reduzieren; Diazepam verstaerkt ZNS-Daempfung.',
-      'Bewusstseinsverlust und Erbrechen werden gefaehrlicher.',
-      'Lange Diazepam-Wirkdauer verlaengert das Risikofenster.',
+      'O-DSMT kann Atemantrieb reduzieren; Diazepam verstaerkt ZNS-Dämpfung.',
+      'Bewusstseinsverlust und Erbrechen werden gefährlicher.',
+      'Lange Diazepam-Wirkdauer verlängert das Risikofenster.',
     ],
     riskFactors: [
       'Opioidnaivitaet oder unklare Menge',
@@ -314,7 +314,7 @@ const INTERACTIONS: InteractionDetail[] = [
     ],
     saferUseNotes: [
       'Kombination vermeiden; keine weiteren Downer.',
-      'Naloxon und eine informierte Person koennen lebenswichtig sein.',
+      'Naloxon und eine informierte Person können lebenswichtig sein.',
       'Keine weitere Einnahme, wenn Sedierung einsetzt.',
     ],
     redFlags: [
@@ -333,11 +333,11 @@ const INTERACTIONS: InteractionDetail[] = [
     riskLevel: 'critical',
     severity: 'dangerous',
     summary:
-      'Beide wirken daempfend; die Kombination kann Blackouts, Kontrollverlust, Erbrechen und Atem-/Bewusstseinsrisiken verstaerken.',
+      'Beide wirken dämpfend; die Kombination kann Blackouts, Kontrollverlust, Erbrechen und Atem-/Bewusstseinsrisiken verstärken.',
     mechanisms: [
-      'Additive GABAerge/ZNS-daempfende Effekte.',
-      'Phenibut hat langsamen Onset; Alkohol kann zu fruehem Nachlegen verleiten.',
-      'Lange Wirk- und Nachwirkzeit erhoeht Blackout- und Unfallrisiko.',
+      'Additive GABAerge/ZNS-dämpfende Effekte.',
+      'Phenibut hat langsamen Onset; Alkohol kann zu frühem Nachlegen verleiten.',
+      'Lange Wirk- und Nachwirkzeit erhöht Blackout- und Unfallrisiko.',
     ],
     riskFactors: [
       'Weitere Einnahme vor vollem Wirkungseintritt',
@@ -346,7 +346,7 @@ const INTERACTIONS: InteractionDetail[] = [
     ],
     saferUseNotes: [
       'Kombination vermeiden; Phenibut-Onset abwarten und nicht nachlegen.',
-      'Keine Fahrzeuge, Hoehen, Wasser oder riskante Umgebungen.',
+      'Keine Fahrzeuge, Höhen, Wasser oder riskante Umgebungen.',
       'Bei starker Sedierung Beobachtung sicherstellen.',
     ],
     redFlags: [

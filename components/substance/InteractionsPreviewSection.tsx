@@ -65,7 +65,7 @@ export function InteractionsPreviewSection({ interactions, onOpenMixCheck }: Pro
             Keine Vorschau gespeichert
           </Text>
           <Text style={[Typography.caption, { color: colors.textSecondary, marginTop: 2 }]}>
-            Pruefe konkrete Kombinationen im MixCheck.
+            Prüfe konkrete Kombinationen im MixCheck.
           </Text>
         </View>
         <Pressable
@@ -75,7 +75,7 @@ export function InteractionsPreviewSection({ interactions, onOpenMixCheck }: Pro
             { backgroundColor: pressed ? '#0066D6' : colors.accent },
           ]}>
           <Text style={[Typography.captionBold, { color: '#FFFFFF' }]}>
-            Oeffnen
+            Öffnen
           </Text>
         </Pressable>
       </View>

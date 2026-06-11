@@ -1,6 +1,6 @@
-# iOS Preview Build
+# iOS Preview- und Simulator-Build
 
-Diese Anleitung beschreibt ein internes iOS Preview Build fuer echte Testgeraete. Ziel ist Alpha-v0.2-Testing, kein App Store Release.
+Diese Anleitung beschreibt interne iOS Builds für Simulator und echte Testgeräte. Ziel ist MVP-Testing, kein App Store Release.
 
 ## Voraussetzungen
 
@@ -8,7 +8,7 @@ Diese Anleitung beschreibt ein internes iOS Preview Build fuer echte Testgeraete
 - Expo Account
 - EAS CLI: `npm install -g eas-cli`
 - Zugriff auf das Expo/EAS-Projekt
-- Apple Developer Team mit interner Distribution ueber EAS Credentials
+- Apple Developer Team mit interner Distribution über EAS Credentials
 
 ## Setup
 
@@ -26,32 +26,35 @@ eas build:configure
 
 ## Environment
 
-Preview Builds nutzen:
+Preview-Builds nutzen:
 
 ```bash
 EXPO_PUBLIC_API_BASE_URL=https://synapedia.com
 ```
 
-Der Wert ist in `eas.json` fuer `preview`, `ios-simulator` und `production` gesetzt. Keine API-Secrets in die App legen.
+Der Wert ist in `eas.json` für `preview`, `ios-simulator` und `production` gesetzt. Keine API-Secrets in die App legen.
 
-## Validierung Vor Build
+## Validierung vor Build
 
 ```bash
 npm run typecheck
 npm run lint
 npx expo-doctor
 npx expo config --type public
+npx eas config --platform ios --profile preview --json
+npx eas config --platform ios --profile ios-simulator --json
 ```
 
 `npm test` ist aktuell nicht definiert.
 
-## iOS Preview Build Fuer Geraete
+## iOS Preview-Build Für Geräte
 
 ```bash
 eas build --platform ios --profile preview
 ```
 
-Das `preview`-Profil baut eine interne iOS-Distribution fuer Geraete. Es ist nicht fuer App Store Submission gedacht.
+Das `preview`-Profil baut eine interne iOS-Distribution für Geräte. Es ist nicht für App Store Submission gedacht.
+Ein echtes iPhone Preview-/TestFlight-Setup benötigt einen Apple Developer Account.
 
 ## iOS Simulator Build
 
@@ -59,18 +62,21 @@ Das `preview`-Profil baut eine interne iOS-Distribution fuer Geraete. Es ist nic
 eas build --platform ios --profile ios-simulator
 ```
 
+Der Simulator Build läuft lokal auf einem Mac-Simulator und ist der nächste manuelle Test vor echter Geräteverteilung.
+
 ## Nach Installation Testen
 
-- Home und Safety & Privacy oeffnen.
+- Start und Sicherheit & Datenschutz öffnen.
 - Wiki Search und Live-Katalog testen.
-- Substance Detail oeffnen und zurueck navigieren.
+- Substance Detail öffnen und zurück navigieren.
 - MixCheck mit Popular Pair und manueller Auswahl testen.
-- Private Check-in lokal speichern, loeschen und CSV exportieren.
+- Private Notizen lokal speichern, löschen und CSV exportieren.
 - Guides und Guide Detail testen.
-- Netzwerk deaktivieren und lokale Fallbacks pruefen.
+- Prüfen, dass auf Start, Wiki, Check, Notizen, Guides, Guide Detail und Substance Detail keine Inhalte von der Bottom Tab Bar verdeckt werden.
+- Netzwerk deaktivieren und lokale Fallbacks prüfen.
 
 ## Bekannte Grenzen
 
-- No medical advice, no emergency service.
-- Backend-Logging fuer Privacy Labels separat verifizieren.
-- App Store Review Metadaten, Screenshots und Age Rating sind nicht durch den Preview Build abgedeckt.
+- Keine medizinische Beratung, keine Notfallversorgung.
+- Backend-Logging für Privacy Labels separat verifizieren.
+- App Store Review Metadaten, Screenshots und Age Rating sind nicht durch den Preview-Build abgedeckt.

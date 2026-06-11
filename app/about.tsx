@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-import { Elevation, Radius, Spacing, Typography } from '@/constants/theme';
+import { Elevation, Radius, Spacing, Typography, getScreenBottomPadding } from '@/constants/theme';
 import { useThemeColors } from '@/hooks/use-theme';
 
 type InfoItem = {
@@ -14,41 +14,41 @@ type InfoItem = {
 
 const SAFETY_ITEMS: InfoItem[] = [
   {
-    title: 'Educational reference only',
-    body: 'Synapedia summarizes substance, interaction, and recovery context for learning and reflection.',
+    title: 'Harm-Reduction-Wissensapp',
+    body: 'Synapedia ordnet Substanz-, Interaktions- und Recovery-Kontext für Lernen und Reflexion ein.',
     icon: 'book-outline',
   },
   {
-    title: 'No medical advice',
-    body: 'The app does not diagnose, treat, prescribe, or replace professional care. For medical decisions, contact a qualified professional.',
+    title: 'Keine medizinische Beratung',
+    body: 'Die App diagnostiziert, behandelt oder verschreibt nicht und ersetzt keine professionelle Versorgung.',
     icon: 'medkit-outline',
   },
   {
-    title: 'No emergency service',
-    body: 'Synapedia is not monitored and cannot respond to urgent situations. In emergencies, contact local emergency services immediately.',
+    title: 'Keine Notfallversorgung',
+    body: 'Synapedia wird nicht überwacht und kann nicht auf akute Situationen reagieren. Bei Notfällen lokale Notfalldienste kontaktieren.',
     icon: 'alert-circle-outline',
   },
   {
-    title: 'No encouragement',
-    body: 'Content is intended to communicate risks and uncertainty, not to encourage illegal substance use or risky behavior.',
+    title: 'Keine Konsumempfehlung',
+    body: 'Inhalte erklären Risiken und Unsicherheit. Sie ermutigen nicht zu illegalem Substanzgebrauch oder riskantem Verhalten.',
     icon: 'shield-outline',
   },
 ];
 
 const PRIVACY_ITEMS: InfoItem[] = [
   {
-    title: 'Local notes',
-    body: 'Private Check-in entries stay on this device unless you explicitly export or share them.',
+    title: 'Lokale private Notizen',
+    body: 'Private Notizen bleiben auf diesem Gerät, außer du exportierst oder teilst sie ausdrücklich.',
     icon: 'lock-closed-outline',
   },
   {
-    title: 'API lookups',
-    body: 'Wiki searches, detail lookups, and MixCheck requests may contact synapedia.com to return live results.',
+    title: 'Live-Abfragen',
+    body: 'Wiki-Suchen, Detailseiten und MixCheck-Anfragen können synapedia.com kontaktieren, um Live-Ergebnisse zu laden.',
     icon: 'cloud-outline',
   },
   {
-    title: 'No tracking stack',
-    body: 'The current app code does not add advertising SDKs, tracking permission, location, HealthKit, or analytics SDKs.',
+    title: 'Kein Tracking-Stack',
+    body: 'Der aktuelle App-Code enthält keine Werbe-SDKs, Tracking-Permission, Standortabfrage, HealthKit-Integration oder Analytics-SDKs.',
     icon: 'eye-off-outline',
   },
 ];
@@ -68,7 +68,7 @@ export default function AboutScreen() {
           <Ionicons name="chevron-back" size={28} color={colors.accent} />
         </Pressable>
         <Text style={[Typography.navTitle, styles.navTitle, { color: colors.textPrimary }]}>
-          Safety & Privacy
+          Sicherheit & Datenschutz
         </Text>
         <View style={styles.navButton} />
       </View>
@@ -77,27 +77,27 @@ export default function AboutScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.content,
-          { paddingBottom: insets.bottom + Spacing.screenBottom },
+          { paddingBottom: getScreenBottomPadding(insets.bottom) },
         ]}>
         <View style={[styles.hero, { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder }]}>
           <View style={[styles.heroIcon, { backgroundColor: colors.accentLight }]}>
             <Ionicons name="shield-checkmark-outline" size={26} color={colors.accent} />
           </View>
           <Text style={[Typography.heroTitle, styles.title, { color: colors.textPrimary }]}>
-            Review scope
+            Review-Rahmen
           </Text>
           <Text style={[Typography.body, { color: colors.textSecondary }]}>
-            Synapedia is an educational harm-reduction reference. It is designed to make risk context visible, not to provide medical care or operational guidance.
+            Synapedia ist eine Harm-Reduction- und Wissens-App. Sie macht Risikokontext sichtbar, ersetzt keine medizinische Beratung und ist keine Notfallversorgung.
           </Text>
         </View>
 
-        <Section title="Safety Boundaries" items={SAFETY_ITEMS} />
-        <Section title="Privacy Boundaries" items={PRIVACY_ITEMS} />
+        <Section title="Sicherheitsgrenzen" items={SAFETY_ITEMS} />
+        <Section title="Datenschutzgrenzen" items={PRIVACY_ITEMS} />
 
         <View style={[styles.footerNote, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
           <Ionicons name="information-circle-outline" size={18} color={colors.accent} />
           <Text style={[Typography.caption, styles.footerText, { color: colors.textSecondary }]}>
-            Backend logging and retention for synapedia.com must be verified in the privacy policy before public App Store submission.
+            Vor einer öffentlichen App-Store-Einreichung müssen Logging und Aufbewahrung auf synapedia.com in der Datenschutzerklärung bestätigt sein.
           </Text>
         </View>
       </ScrollView>

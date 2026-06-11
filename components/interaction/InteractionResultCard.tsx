@@ -153,6 +153,7 @@ export function InteractionResultCard({ interaction, source, refreshing = false 
   const evidenceNote = usefulText(interaction.evidenceNote);
   const sourceNote = usefulText(interaction.sourceNote);
   const hasEvidence = Boolean(evidenceNote || sourceNote);
+  const hasElevatedRisk = interaction.riskLevel === 'high' || interaction.riskLevel === 'critical';
 
   return (
     <View style={styles.container}>
@@ -190,13 +191,25 @@ export function InteractionResultCard({ interaction, source, refreshing = false 
       )}
 
       {mechanisms.length > 0 && (
-        <Section title="Risikomechanismen" icon="git-network-outline">
+        <Section title="Warum riskant?" icon="git-network-outline">
           <BulletList items={mechanisms} />
         </Section>
       )}
 
+      {hasElevatedRisk && (
+        <Section title="Was jetzt wichtig ist" icon="shield-outline" danger>
+          <BulletList
+            danger
+            items={[
+              'Diese Kombination sollte nicht als planbar oder sicher verstanden werden.',
+              'Bei Bewusstseinsstörung, Atemproblemen, Krampfanfällen, Brustschmerz oder schwerer Verwirrtheit: medizinische Hilfe.',
+            ]}
+          />
+        </Section>
+      )}
+
       {saferUseNotes.length > 0 && (
-        <Section title="Risikobewusste Hinweise" icon="shield-checkmark-outline">
+        <Section title="Konservative Einordnung" icon="shield-checkmark-outline">
           <BulletList items={saferUseNotes} />
         </Section>
       )}
@@ -225,7 +238,7 @@ export function InteractionResultCard({ interaction, source, refreshing = false 
       <View style={[styles.disclaimer, { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder }]}>
         <Ionicons name="information-circle-outline" size={18} color={colors.accent} />
         <Text style={[Typography.caption, { color: colors.textSecondary, flex: 1 }]}>
-          Educational reference only. No medical advice or emergency service.
+          Nur Wissens- und Harm-Reduction-Kontext. Keine medizinische Beratung oder Notfallversorgung.
         </Text>
       </View>
 
@@ -257,7 +270,7 @@ function DetailButton({ name, slug }: { name: string; slug: string }) {
         },
       ]}>
       <Text style={[Typography.bodyBold, { color: colors.accent }]}>
-        Mehr über {name}
+        Wiki-Detail öffnen: {name}
       </Text>
       <Ionicons name="chevron-forward" size={16} color={colors.accent} />
     </Pressable>

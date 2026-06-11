@@ -11,7 +11,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-import { Elevation, Radius, Spacing, Typography } from '@/constants/theme';
+import { Elevation, Radius, Spacing, Typography, getScreenBottomPadding } from '@/constants/theme';
 import { useThemeColors } from '@/hooks/use-theme';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
@@ -29,7 +29,7 @@ export function Screen({
   const insets = useSafeAreaInsets();
   const content = [
     styles.screenContent,
-    { paddingTop: insets.top + Spacing.md, paddingBottom: insets.bottom + Spacing.screenBottom },
+    { paddingTop: insets.top + Spacing.md, paddingBottom: getScreenBottomPadding(insets.bottom) },
     contentStyle,
   ];
 
