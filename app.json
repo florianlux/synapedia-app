@@ -11,7 +11,13 @@
     "ios": {
       "bundleIdentifier": "com.synapedia.app",
       "buildNumber": "1",
-      "supportsTablet": false
+      "supportsTablet": false,
+      "requireFullScreen": true,
+      "infoPlist": {
+        "CFBundleDisplayName": "Synapedia",
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIUserInterfaceStyle": "Dark"
+      }
     },
     "android": {
       "package": "com.synapedia.app",
