@@ -23,14 +23,14 @@ export type Guide = {
 };
 
 export const GUIDE_DISCLAIMER =
-  'Informations- und Harm-Reduction-Tool. Keine medizinische Beratung. Bei schweren Symptomen medizinische Hilfe holen.';
+  'Educational reference only. No medical advice or emergency service. Bei schweren Symptomen lokale Notfalldienste kontaktieren.';
 
 export const GUIDES: Guide[] = [
   {
     slug: 'opioidentzug-entschaerfen',
     title: 'Opioidentzug entschärfen',
     summary:
-      'Lokaler MVP-Guide zu typischen Entzugssymptomen, Support und sicheren Eskalationspunkten bei opioidartigem Konsum.',
+      'Kuratierter Ueberblick zu typischen Entzugssymptomen, Support-Kontext und Eskalationspunkten bei opioidartigem Konsum.',
     category: 'Recovery Guide',
     accent: '#0A84FF',
     safetyDisclaimer:
@@ -42,7 +42,7 @@ export const GUIDES: Guide[] = [
       },
       {
         title: 'Support-Fokus',
-        items: ['Flüssigkeit und Elektrolyte im Blick behalten', 'Ruhige Umgebung und Begleitung organisieren', 'Rückfall- und Überdosierungsrisiko nach Pausen ernst nehmen'],
+        items: ['Flüssigkeit und Elektrolyte im Blick behalten', 'Ruhiges Umfeld und Begleitung organisieren', 'Rückfall- und akute Intoxikationsrisiken nach Pausen ernst nehmen'],
       },
     ],
     phases: [
@@ -53,20 +53,20 @@ export const GUIDES: Guide[] = [
     redFlags: [
       'Atemprobleme, Bewusstseinsstörung oder nicht weckbar',
       'Starke Dehydrierung, anhaltendes Erbrechen oder Kreislaufkollaps',
-      'Suizidgedanken, akute Krise oder fehlende sichere Umgebung',
+      'Suizidgedanken, akute Krise oder fehlende Unterstuetzung',
     ],
     practicalSteps: [
       'Nicht allein durch schwere Phasen gehen; eine informierte Person einbinden.',
-      'Naloxon-Zugang und Überdosierungswissen im Umfeld prüfen.',
-      'Keine medizinischen Medikamente ohne ärztliche Rücksprache kombinieren.',
+      'Naloxon-Zugang und Wissen zu Atemnotfallzeichen im Umfeld pruefen.',
+      'Keine Medikamente ohne aerztliche Ruecksprache kombinieren.',
     ],
-    evidenceNote: 'Lokaler MVP-Inhalt. Quellen-/Evidence-Mapping wird später kuratiert ergänzt.',
+    evidenceNote: 'Lokaler kuratierter Inhalt. Quellen werden spaeter transparent ergaenzt.',
   },
   {
     slug: 'benzodiazepin-entzug',
     title: 'Benzodiazepin-Entzug',
     summary:
-      'Überblick zu Risiken, Warnzeichen und Support bei Benzodiazepin-Abhängigkeit oder Absetzsymptomen.',
+      'Überblick zu Risiken, Warnzeichen und Support-Kontext bei Benzodiazepin-Abhängigkeit oder Absetzsymptomen.',
     category: 'High-Risk Guide',
     accent: '#FF9F0A',
     safetyDisclaimer:
@@ -78,7 +78,7 @@ export const GUIDES: Guide[] = [
       },
       {
         title: 'Support-Fokus',
-        items: ['Keine personalisierten Taperpläne ohne medizinische Begleitung', 'Reizarmes Umfeld und Schlafschutz planen', 'Konsumhistorie ehrlich dokumentieren'],
+        items: ['Keine personalisierten Absetzplaene ohne medizinische Begleitung', 'Reizarmes Umfeld und Schlafschutz planen', 'Verlauf ehrlich dokumentieren'],
       },
     ],
     phases: [
@@ -89,20 +89,20 @@ export const GUIDES: Guide[] = [
     redFlags: [
       'Krampfanfall, Verwirrtheit, Halluzinationen oder Delirzeichen',
       'Suizidgedanken, starke Panik oder Kontrollverlust',
-      'Abruptes Absetzen nach längerem oder hochdosiertem Konsum',
+      'Abruptes Absetzen nach laengerer oder intensiver Nutzung',
     ],
     practicalSteps: [
       'Ärztliche oder suchtmedizinische Begleitung suchen.',
-      'Dosis-/Konsumverlauf notieren, aber keine Eigen-Taperpläne erzwingen.',
+      'Verlauf notieren, aber keine eigenen Absetzplaene erzwingen.',
       'Alkohol, Opioide und andere Downer nicht als Selbstmedikation nutzen.',
     ],
-    evidenceNote: 'Lokaler MVP-Inhalt. Medizinische Leitlinien und Quellen werden später verknüpft.',
+    evidenceNote: 'Lokaler kuratierter Inhalt. Medizinische Leitlinien und Quellen werden spaeter verknuepft.',
   },
   {
     slug: 'phenibut-entzug-verstehen',
     title: 'Phenibut-Entzug verstehen',
     summary:
-      'Kompakter Guide zu Phenibut-Rebound, Entzugssymptomen und sicheren nächsten Schritten ohne personalisierte Absetzpläne.',
+      'Kompakter Ueberblick zu Phenibut-Rebound, Entzugssymptomen und Support-Kontext ohne personalisierte Absetzplaene.',
     category: 'Curated Guide',
     accent: '#D63A4A',
     safetyDisclaimer:
@@ -114,7 +114,7 @@ export const GUIDES: Guide[] = [
       },
       {
         title: 'Support-Fokus',
-        items: ['Langsamen Onset und lange Nachwirkung berücksichtigen', 'Keine Alkohol-/Benzodiazepin-Selbstmedikation ohne Hilfe', 'Sichere Begleitung und Krisenplan vorbereiten'],
+        items: ['Langsamen Onset und lange Nachwirkung berücksichtigen', 'Keine Alkohol-/Benzodiazepin-Selbstmedikation ohne Hilfe', 'Unterstuetzung und Krisenplan vorbereiten'],
       },
     ],
     phases: [
@@ -128,11 +128,11 @@ export const GUIDES: Guide[] = [
       'Mischkonsum mit Alkohol, Benzodiazepinen, Opioiden oder anderen Downern',
     ],
     practicalSteps: [
-      'Konsumtage, Dosis und Mischkonsum ehrlich dokumentieren.',
-      'Professionelle Hilfe besonders bei täglichem Konsum oder hohen Dosen einplanen.',
+      'Tage, ungefaehre Menge und Mischkonsum ehrlich dokumentieren.',
+      'Professionelle Hilfe besonders bei taeglicher oder intensiver Nutzung einplanen.',
       'Schlaf, Flüssigkeit, Ernährung und soziale Unterstützung priorisieren.',
     ],
-    evidenceNote: 'Lokaler MVP-Inhalt. Quellenlage wird später kuratiert und transparent markiert.',
+    evidenceNote: 'Lokaler kuratierter Inhalt. Quellenlage wird spaeter transparent markiert.',
   },
 ];
 

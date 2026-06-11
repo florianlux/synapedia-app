@@ -18,6 +18,7 @@ import { StickyBottomBar } from '@/components/substance/StickyBottomBar';
 import { RiskProfileBars } from '@/components/visual/RiskProfileBars';
 import { DurationTimeline } from '@/components/visual/DurationTimeline';
 import { SourceBadge } from '@/components/ui/SourceBadge';
+import { StateCard } from '@/components/ui/StateCard';
 import type { RiskLevel } from '@/types/substance';
 
 // ---------------------------------------------------------------------------
@@ -109,26 +110,14 @@ export default function SubstanceDetailScreen() {
           styles.centeredContainer,
           { backgroundColor: colors.background, paddingTop: insets.top },
         ]}>
-        <Ionicons name="alert-circle-outline" size={48} color={colors.textTertiary} />
-        <Text style={[Typography.sectionTitle, styles.errorTitle, { color: colors.textPrimary }]}>
-          Detail nicht erreichbar
-        </Text>
-        <Text
-          style={[
-            Typography.body,
-            { color: colors.textSecondary, marginTop: Spacing.md, textAlign: 'center' },
-          ]}>
-          {substanceState.notFound ? 'Substanz nicht gefunden' : substanceState.message}
-        </Text>
-        <Pressable
-          onPress={goBackToWiki}
-          accessibilityRole="button"
-          style={[styles.retryButton, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
-          <Ionicons name="chevron-back" size={18} color={colors.accent} />
-          <Text style={[Typography.bodyBold, { color: colors.accent }]}>
-            Zurueck zum Wiki
-          </Text>
-        </Pressable>
+        <StateCard
+          icon="alert-circle-outline"
+          title={substanceState.notFound ? 'Substanz nicht gefunden' : 'Detail nicht erreichbar'}
+          body={substanceState.message || 'Live-Daten und lokale Fallbacks konnten gerade nicht geladen werden.'}
+          actionLabel="Zurueck zum Wiki"
+          onAction={goBackToWiki}
+          danger
+        />
       </View>
     );
   }
@@ -221,7 +210,7 @@ export default function SubstanceDetailScreen() {
               phases={substance.duration.phases}
               total={substance.duration.total}
               quickFacts={substance.quickFacts}
-              notes={['Zeitangaben sind Richtwerte und koennen je nach Dosis, Person, Route und Setting variieren.']}
+              notes={['Zeitangaben sind Richtwerte und koennen je nach Person, Kontext, Route und Produktstaerke variieren.']}
             />
           ) : (
             <DurationFallbackContent />
@@ -248,7 +237,7 @@ export default function SubstanceDetailScreen() {
           <RisksContent risks={substance.risks} warnings={substance.warnings} />
         </ExpandableSection>
 
-        <ExpandableSection title="Safer Use" hidden={substance.saferUse.length === 0}>
+        <ExpandableSection title="Risikokontext" hidden={substance.saferUse.length === 0}>
           <SaferUseContent tips={substance.saferUse} />
         </ExpandableSection>
 
@@ -260,6 +249,8 @@ export default function SubstanceDetailScreen() {
             onOpenMixCheck={() => router.push('/(tabs)/check')}
           />
         </ExpandableSection>
+
+        <RelatedActions />
 
         <ExpandableSection
           title="Evidenz & Quellen"
@@ -400,7 +391,7 @@ function DisclaimerCard() {
     <View style={[inlineStyles.disclaimerCard, { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder }]}>
       <Ionicons name="information-circle-outline" size={18} color={colors.accent} />
       <Text style={[Typography.caption, { color: colors.textSecondary, flex: 1 }]}>
-        Informations- und Harm-Reduction-Tool. Keine medizinische Beratung.
+        Educational reference only. No medical advice or emergency service.
       </Text>
     </View>
   );
@@ -469,10 +460,11 @@ function DataQualityNote({
   const fallback = source === 'offline'
     ? 'Offline-Fallback: Detaildaten koennen unvollstaendig sein.'
     : 'Datenqualitaet: mobile Vorschau, konservativ interpretieren.';
+  const tint = source === 'offline' ? colors.severityRisky : colors.accent;
 
   return (
-    <View style={[inlineStyles.dataQualityNote, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
-      <Ionicons name="shield-outline" size={16} color={colors.accent} />
+    <View style={[inlineStyles.dataQualityNote, { backgroundColor: colors.backgroundSecondary, borderColor: source === 'offline' ? `${colors.severityRisky}42` : colors.border }]}>
+      <Ionicons name="shield-outline" size={16} color={tint} />
       <Text style={[Typography.caption, inlineStyles.dataQualityText, { color: colors.textSecondary }]}>
         {details.length ? details.join(' · ') : fallback}
       </Text>
@@ -487,7 +479,7 @@ function DurationFallbackContent() {
     <View style={[inlineStyles.fallbackBox, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
       <Ionicons name="time-outline" size={18} color={colors.textTertiary} />
       <Text style={[Typography.caption, inlineStyles.fallbackText, { color: colors.textSecondary }]}>
-        Fuer diese Substanz liegen noch keine belastbaren mobilen Zeitangaben vor. Wirkungseintritt und Dauer koennen je nach Route, Dosis, Person und Setting deutlich variieren.
+        Fuer diese Substanz liegen noch keine belastbaren mobilen Zeitangaben vor. Wirkungseintritt und Dauer koennen je nach Route, Person, Kontext und Produktstaerke deutlich variieren.
       </Text>
     </View>
   );
@@ -501,7 +493,9 @@ function InfoTile({ label, value }: { label: string; value: string }) {
       <Text style={[Typography.quickFactLabel, { color: colors.textTertiary }]}>
         {label}
       </Text>
-      <Text style={[Typography.captionBold, { color: colors.textPrimary, marginTop: 2 }]}>
+      <Text
+        style={[Typography.captionBold, { color: colors.textPrimary, marginTop: 2 }]}
+        numberOfLines={2}>
         {value}
       </Text>
     </View>
@@ -717,9 +711,64 @@ function SaferUseContent({
         </View>
       ))}
       <Text style={[Typography.caption, { color: colors.textTertiary, marginTop: Spacing.xs }]}>
-        Hinweise reduzieren Risiken, machen Konsum aber nicht risikofrei.
+        Hinweise dienen der Risikoeinordnung und ersetzen keine professionelle Beratung.
       </Text>
     </View>
+  );
+}
+
+function RelatedActions() {
+  const colors = useThemeColors();
+
+  return (
+    <View style={[inlineStyles.relatedCard, { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder }]}>
+      <Text style={[Typography.captionBold, { color: colors.textSecondary }]}>
+        Weiter einordnen
+      </Text>
+      <View style={inlineStyles.relatedList}>
+        <RelatedButton
+          icon="git-compare-outline"
+          label="Kombination im MixCheck pruefen"
+          onPress={() => router.push('/(tabs)/check')}
+        />
+        <RelatedButton
+          icon="heart-circle-outline"
+          label="Recovery- und Risikokontext lesen"
+          onPress={() => router.push('/(tabs)/guides')}
+        />
+      </View>
+    </View>
+  );
+}
+
+function RelatedButton({
+  icon,
+  label,
+  onPress,
+}: {
+  icon: keyof typeof Ionicons.glyphMap;
+  label: string;
+  onPress: () => void;
+}) {
+  const colors = useThemeColors();
+
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      style={({ pressed }) => [
+        inlineStyles.relatedButton,
+        {
+          backgroundColor: pressed ? colors.backgroundTertiary : colors.backgroundSecondary,
+          borderColor: colors.border,
+        },
+      ]}>
+      <Ionicons name={icon} size={17} color={colors.accent} />
+      <Text style={[Typography.captionBold, inlineStyles.relatedLabel, { color: colors.textPrimary }]}>
+        {label}
+      </Text>
+      <Ionicons name="chevron-forward" size={15} color={colors.textTertiary} />
+    </Pressable>
   );
 }
 
@@ -806,7 +855,7 @@ function HarmReductionBox({ riskLevel }: { riskLevel: RiskLevel }) {
           {highRisk ? 'Erhoehten Risikokontext beachten' : 'Harm-Reduction-Hinweis'}
         </Text>
         <Text style={[Typography.caption, { color: colors.textSecondary, marginTop: Spacing.xs }]}>
-          Keine medizinische Beratung. Bei Bewusstlosigkeit, Atemproblemen, Brustschmerz, Krampfanfall oder ungewoehnlich schweren Symptomen sofort medizinische Hilfe holen. Fehlende Daten bedeuten nicht sicher.
+          Educational reference only. Bei Bewusstlosigkeit, Atemproblemen, Brustschmerz, Krampfanfall oder ungewoehnlich schweren Symptomen sofort lokale Notfalldienste kontaktieren. Fehlende Daten bedeuten nicht sicher.
         </Text>
       </View>
     </View>
@@ -836,10 +885,6 @@ const styles = StyleSheet.create({
   },
   navTitle: {
     flex: 1,
-    textAlign: 'center',
-  },
-  errorTitle: {
-    marginTop: Spacing.lg,
     textAlign: 'center',
   },
   errorContainer: {
@@ -1020,6 +1065,30 @@ const inlineStyles = StyleSheet.create({
     padding: Spacing.md,
     borderRadius: Radius.md,
     borderWidth: StyleSheet.hairlineWidth,
+  },
+  relatedCard: {
+    marginHorizontal: Spacing.page,
+    marginTop: Spacing.md,
+    padding: Spacing.lg,
+    borderRadius: Radius.xl,
+    borderWidth: StyleSheet.hairlineWidth,
+    gap: Spacing.md,
+  },
+  relatedList: {
+    gap: Spacing.sm,
+  },
+  relatedButton: {
+    minHeight: 46,
+    borderRadius: Radius.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+  },
+  relatedLabel: {
+    flex: 1,
   },
   bottomDisclaimer: {
     paddingHorizontal: Spacing.page,

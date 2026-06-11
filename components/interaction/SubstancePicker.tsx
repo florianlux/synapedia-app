@@ -39,6 +39,15 @@ export function SubstancePicker({
   const data =
     substancesState.status === 'success' ? substancesState.data : [];
   const isLoading = substancesState.status === 'loading';
+  const source = substancesState.status === 'success' ? substancesState.source : 'local';
+  const refreshing = substancesState.status === 'success' ? substancesState.refreshing : false;
+  const errorMessage = substancesState.status === 'success' ? substancesState.errorMessage : undefined;
+  const statusText = errorMessage
+    ?? (refreshing
+      ? 'Live-Katalog wird abgefragt. Lokale Referenzdaten bleiben sichtbar.'
+      : source === 'offline'
+        ? 'Offline-Fallback aktiv. Lokale Referenzdaten bleiben nutzbar.'
+        : 'Live-Katalog und lokale Referenzdaten werden zusammengefuehrt.');
 
   function handleClose() {
     setQuery('');
@@ -120,6 +129,17 @@ export function SubstancePicker({
           </View>
         )}
 
+        <View style={[styles.statusRow, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
+          <Ionicons
+            name={source === 'offline' ? 'cloud-offline-outline' : 'cloud-outline'}
+            size={15}
+            color={source === 'offline' ? colors.severityRisky : colors.accent}
+          />
+          <Text style={[Typography.caption, styles.statusText, { color: colors.textSecondary }]}>
+            {statusText}
+          </Text>
+        </View>
+
         {/* List */}
         <FlatList
           data={data}
@@ -136,7 +156,7 @@ export function SubstancePicker({
                   Typography.body,
                   { color: colors.textSecondary, textAlign: 'center', padding: Spacing.xl },
                 ]}>
-                Keine Substanzen gefunden.
+                Keine Treffer. Passe Suche oder Schreibweise an.
               </Text>
             ) : null
           }
@@ -248,6 +268,21 @@ const styles = StyleSheet.create({
   loadingRow: {
     paddingVertical: Spacing.sm,
     alignItems: 'center',
+  },
+  statusRow: {
+    minHeight: 38,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.sm,
+    marginHorizontal: Spacing.page,
+    marginBottom: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderRadius: Radius.md,
+    borderWidth: StyleSheet.hairlineWidth,
+  },
+  statusText: {
+    flex: 1,
   },
   list: {
     paddingHorizontal: Spacing.page,

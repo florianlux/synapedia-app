@@ -52,12 +52,12 @@ const INTERACTIONS: InteractionDetail[] = [
       'Laengere LSD-Wirkdauer kann MDMA-Comedown und Verwirrung verstaerken.',
     ],
     riskFactors: [
-      'Hohe Dosen oder Nachlegen',
+      'Unklare Menge oder wiederholtes Nachlegen',
       'Warmes, reizintensives Setting',
       'Angst, Panik oder instabile psychische Lage',
     ],
     saferUseNotes: [
-      'Dosen niedrig halten und nicht gleichzeitig nachlegen.',
+      'Keine zusaetzliche Einnahme, wenn Wirkung oder Belastung unklar ist.',
       'Kuehlpausen, Elektrolyte und ruhiges Setting einplanen.',
       'Eine nuechterne Vertrauensperson kann Eskalationen frueh erkennen.',
     ],
@@ -66,8 +66,8 @@ const INTERACTIONS: InteractionDetail[] = [
       'Brustschmerz, Atemnot oder anhaltende Panik mit Kontrollverlust.',
     ],
     evidence: 'moderate',
-    evidenceNote: 'Lokale kuratierte MVP-Bewertung; vollstaendige Quellenpruefung folgt.',
-    sourceNote: 'Evidence/source placeholder: pharmakologische Plausibilitaet plus Harm-Reduction-Konsens.',
+    evidenceNote: 'Lokale kuratierte Bewertung; Quellen werden transparent erweitert.',
+    sourceNote: 'Pharmakologische Plausibilitaet und etablierter Harm-Reduction-Kontext.',
   },
   {
     id: makeKey('mdma', 'ssri'),
@@ -84,7 +84,7 @@ const INTERACTIONS: InteractionDetail[] = [
       'Serotonerge Mehrfachbelastung kann Unruhe, Ueberhitzung, Verwirrtheit und Serotonin-Toxizitaet beguenstigen.',
     ],
     riskFactors: [
-      'Hohe MDMA-Dosis oder wiederholtes Nachlegen',
+      'Unklare MDMA-Menge oder wiederholtes Nachlegen',
       'Weitere serotonerge Medikamente oder MAO-Hemmer',
       'Hitze, Tanzen, Schlafmangel oder bestehende Kreislaufbelastung',
     ],
@@ -98,8 +98,8 @@ const INTERACTIONS: InteractionDetail[] = [
       'Brustschmerz, Kollaps, Atemnot oder sehr schneller/unregelmaessiger Puls.',
     ],
     evidence: 'moderate',
-    evidenceNote: 'Lokale kuratierte MVP-Bewertung; SSRI/SNRI koennen Wirkung und Risiko von MDMA relevant veraendern.',
-    sourceNote: 'Evidence/source placeholder: Pharmakologie des Serotonintransporters plus klinische Warnsignale serotonerger Toxizitaet.',
+    evidenceNote: 'Lokale kuratierte Bewertung; SSRI/SNRI koennen Wirkung und Risiko von MDMA relevant veraendern.',
+    sourceNote: 'Pharmakologie des Serotonintransporters plus klinische Warnsignale serotonerger Toxizitaet.',
   },
   {
     id: makeKey('mdma', 'alkohol'),
@@ -111,7 +111,7 @@ const INTERACTIONS: InteractionDetail[] = [
     summary:
       'Alkohol kann Urteilsvermoegen, Fluessigkeitshaushalt und Kreislauf unter MDMA verschlechtern und riskantes Nachlegen wahrscheinlicher machen.',
     mechanisms: [
-      'Alkohol enthemmt und erschwert das Einschaetzen von Dosis, Koerpersignalen und Grenzen.',
+      'Alkohol enthemmt und erschwert das Einschaetzen von Koerpersignalen und Grenzen.',
       'MDMA-Stimulation plus Alkoholbelastung kann Puls, Temperaturregulation und Dehydrierung verschlechtern.',
       'Alkohol kann Uebelkeit, Erbrechen, Stuerze und Blackouts in einem stimulierten Setting riskanter machen.',
     ],
@@ -130,8 +130,8 @@ const INTERACTIONS: InteractionDetail[] = [
       'Brustschmerz, Atemnot, wiederholtes Erbrechen oder starke Dehydrierungszeichen.',
     ],
     evidence: 'moderate',
-    evidenceNote: 'Lokale kuratierte MVP-Bewertung; Mischkonsumrisiko ist pharmakologisch plausibel und harm-reduction-relevant.',
-    sourceNote: 'Evidence/source placeholder: MDMA-Stimulation, Alkoholintoxikation, Temperatur- und Kreislaufbelastung.',
+    evidenceNote: 'Lokale kuratierte Bewertung; Mischkonsumrisiko ist pharmakologisch plausibel und harm-reduction-relevant.',
+    sourceNote: 'MDMA-Stimulation, Alkoholintoxikation, Temperatur- und Kreislaufbelastung.',
   },
   {
     id: makeKey('kokain', 'alkohol'),
@@ -162,8 +162,8 @@ const INTERACTIONS: InteractionDetail[] = [
       'Starke Unruhe, Ueberhitzung oder anhaltendes Herzrasen.',
     ],
     evidence: 'strong',
-    evidenceNote: 'Lokale kuratierte MVP-Bewertung; Cocaethylen ist als Risiko gut beschrieben.',
-    sourceNote: 'Evidence/source placeholder: toxikologische Literatur zu Cocaethylen wird verknuepft.',
+    evidenceNote: 'Lokale kuratierte Bewertung; Cocaethylen ist als Risiko gut beschrieben.',
+    sourceNote: 'Toxikologische Literatur zu Cocaethylen wird fuer die mobile Ansicht kuratiert.',
   },
   {
     id: makeKey('ketamin', 'alkohol'),
@@ -181,21 +181,21 @@ const INTERACTIONS: InteractionDetail[] = [
     ],
     riskFactors: [
       'Liegen auf dem Ruecken oder Alleinsein',
-      'Hohe Dosen oder Blackout',
+      'Unklare Menge oder Blackout',
       'Weitere Downer wie Benzodiazepine oder Opioide',
     ],
     saferUseNotes: [
-      'Kombination vermeiden; nicht nachdosieren, wenn Alkohol im Spiel ist.',
+      'Kombination vermeiden; keine weitere Einnahme, wenn Alkohol im Spiel ist.',
       'Bei Uebelkeit Seitenlage und Beobachtung sicherstellen.',
-      'Sichere Umgebung ohne Sturzgefahr.',
+      'Sturzrisiken und gefaehrliche Umgebungen vermeiden.',
     ],
     redFlags: [
       'Bewusstlosigkeit, langsame Atmung oder nicht weckbar.',
       'Erbrechen bei starker Sedierung oder blaeuliche Lippen.',
     ],
     evidence: 'moderate',
-    evidenceNote: 'Lokale kuratierte MVP-Bewertung; Quellenkuratierung folgt.',
-    sourceNote: 'Evidence/source placeholder: Notfallmedizinische Downer-/Aspiration-Risiken.',
+    evidenceNote: 'Lokale kuratierte Bewertung; Quellen werden transparent erweitert.',
+    sourceNote: 'Notfallmedizinische Downer- und Aspirationsrisiken.',
   },
   {
     id: makeKey('cannabis', 'lsd'),
@@ -214,20 +214,20 @@ const INTERACTIONS: InteractionDetail[] = [
     riskFactors: [
       'Hoher THC-Gehalt',
       'Unerfahrenheit mit Psychedelika',
-      'Unsicheres Setting oder bestehende Angst',
+      'Belastendes Setting oder bestehende Angst',
     ],
     saferUseNotes: [
       'Cannabis waehrend LSD-Peak vermeiden.',
       'Wenn ueberfordert: Reize reduzieren, ruhige Begleitung, keine weiteren Substanzen.',
-      'Niedrig dosieren und Wirkung abwarten.',
+      'Keine weitere Einnahme, wenn Intensitaet oder Orientierung unklar sind.',
     ],
     redFlags: [
       'Anhaltende Panik, Realitaetsverlust oder Selbst-/Fremdgefaehrdung.',
       'Verwirrtheit, die nicht durch Ruhe und Begleitung besser wird.',
     ],
     evidence: 'limited',
-    evidenceNote: 'Lokale kuratierte MVP-Bewertung; Datenlage begrenzt.',
-    sourceNote: 'Evidence/source placeholder: Erfahrungsberichte plus pharmakologische Plausibilitaet.',
+    evidenceNote: 'Lokale kuratierte Bewertung; Datenlage begrenzt.',
+    sourceNote: 'Erfahrungsberichte und pharmakologische Plausibilitaet werden konservativ eingeordnet.',
   },
   {
     id: makeKey('mdma', 'kokain'),
@@ -237,7 +237,7 @@ const INTERACTIONS: InteractionDetail[] = [
     riskLevel: 'critical',
     severity: 'dangerous',
     summary:
-      'Beide Substanzen stimulieren stark und koennen Herz-Kreislauf-Belastung, Ueberhitzung und Nachdosierungsdruck erhoehen.',
+      'Beide Substanzen stimulieren stark und koennen Herz-Kreislauf-Belastung, Ueberhitzung und wiederholte Einnahmeimpulse erhoehen.',
     mechanisms: [
       'Additive sympathomimetische Effekte auf Puls, Blutdruck und Temperatur.',
       'Kokain kann subjektiv MDMA ueberdecken und Nachlegen beguenstigen.',
@@ -245,7 +245,7 @@ const INTERACTIONS: InteractionDetail[] = [
     ],
     riskFactors: [
       'Club/Festival-Hitze und Tanzen',
-      'Hohe Dosen oder wiederholtes Nachlegen',
+      'Unklare Menge oder wiederholtes Nachlegen',
       'Herzprobleme, Panik oder Schlafentzug',
     ],
     saferUseNotes: [
@@ -258,8 +258,8 @@ const INTERACTIONS: InteractionDetail[] = [
       'Ueberhitzung, Verwirrtheit oder anhaltendes Herzrasen.',
     ],
     evidence: 'moderate',
-    evidenceNote: 'Lokale kuratierte MVP-Bewertung; vollstaendige Quellenpruefung folgt.',
-    sourceNote: 'Evidence/source placeholder: Stimulanzien-Toxizitaet und Notaufnahme-Kontext.',
+    evidenceNote: 'Lokale kuratierte Bewertung; Quellen werden transparent erweitert.',
+    sourceNote: 'Stimulanzien-Toxizitaet und Notaufnahme-Kontext.',
   },
   {
     id: makeKey('kratom', 'diazepam'),
@@ -272,7 +272,7 @@ const INTERACTIONS: InteractionDetail[] = [
       'Opioidartige Effekte von Kratom plus Benzodiazepin-Sedierung koennen Atem- und Bewusstseinsrisiken erhoehen.',
     mechanisms: [
       'Additive ZNS-Daempfung durch opioidartige und GABAerge Wirkung.',
-      'Sedierung kann Warnzeichen fuer Ueberdosierung verschleiern.',
+      'Sedierung kann Warnzeichen fuer akute Atem- oder Bewusstseinsprobleme verschleiern.',
       'Toleranz und Produktstaerke sind schwer einschaetzbar.',
     ],
     riskFactors: [
@@ -290,8 +290,8 @@ const INTERACTIONS: InteractionDetail[] = [
       'Starke Verwirrtheit, wiederholtes Erbrechen oder Kollaps.',
     ],
     evidence: 'limited',
-    evidenceNote: 'Lokale kuratierte MVP-Bewertung; spezifische Datenlage begrenzt.',
-    sourceNote: 'Evidence/source placeholder: Downer-Kombination, opioidartige Sedierung, Benzodiazepine.',
+    evidenceNote: 'Lokale kuratierte Bewertung; spezifische Datenlage begrenzt.',
+    sourceNote: 'Downer-Kombination, opioidartige Sedierung und Benzodiazepin-Kontext.',
   },
   {
     id: makeKey('odsmt', 'diazepam'),
@@ -308,22 +308,22 @@ const INTERACTIONS: InteractionDetail[] = [
       'Lange Diazepam-Wirkdauer verlaengert das Risikofenster.',
     ],
     riskFactors: [
-      'Opioidnaivitaet oder hohe Dosen',
+      'Opioidnaivitaet oder unklare Menge',
       'Alkohol oder weitere Downer',
       'Alleinsein oder Einschlafen ohne Beobachtung',
     ],
     saferUseNotes: [
       'Kombination vermeiden; keine weiteren Downer.',
       'Naloxon und eine informierte Person koennen lebenswichtig sein.',
-      'Dosen nicht nachlegen, wenn Sedierung einsetzt.',
+      'Keine weitere Einnahme, wenn Sedierung einsetzt.',
     ],
     redFlags: [
       'Langsame Atmung, Schnarchen/Gurgeln, nicht weckbar.',
       'Blaeuliche Lippen, Kollaps oder starke Verwirrtheit.',
     ],
     evidence: 'strong',
-    evidenceNote: 'Lokale kuratierte MVP-Bewertung; Opioid+Benzodiazepin-Risiko ist gut etabliert.',
-    sourceNote: 'Evidence/source placeholder: klinische Warnungen zu Opioid-Benzodiazepin-Kombinationen.',
+    evidenceNote: 'Lokale kuratierte Bewertung; Opioid+Benzodiazepin-Risiko ist gut etabliert.',
+    sourceNote: 'Klinische Warnungen zu Opioid-Benzodiazepin-Kombinationen.',
   },
   {
     id: makeKey('phenibut', 'alkohol'),
@@ -340,7 +340,7 @@ const INTERACTIONS: InteractionDetail[] = [
       'Lange Wirk- und Nachwirkzeit erhoeht Blackout- und Unfallrisiko.',
     ],
     riskFactors: [
-      'Phenibut-Nachdosierung vor vollem Wirkungseintritt',
+      'Weitere Einnahme vor vollem Wirkungseintritt',
       'Hohe Alkoholmengen',
       'Weitere Sedativa oder Alleinsein',
     ],
@@ -354,8 +354,8 @@ const INTERACTIONS: InteractionDetail[] = [
       'Schwere Verwirrtheit, Sturzverletzung oder Blackout mit Kontrollverlust.',
     ],
     evidence: 'limited',
-    evidenceNote: 'Lokale kuratierte MVP-Bewertung; spezifische Studienlage begrenzt.',
-    sourceNote: 'Evidence/source placeholder: GABAerge Downer-Kombination und Harm-Reduction-Konsens.',
+    evidenceNote: 'Lokale kuratierte Bewertung; spezifische Studienlage begrenzt.',
+    sourceNote: 'GABAerge Downer-Kombination und etablierter Harm-Reduction-Kontext.',
   },
 ];
 

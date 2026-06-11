@@ -196,7 +196,7 @@ export function InteractionResultCard({ interaction, source, refreshing = false 
       )}
 
       {saferUseNotes.length > 0 && (
-        <Section title="Safer-Use-Hinweise" icon="shield-checkmark-outline">
+        <Section title="Risikobewusste Hinweise" icon="shield-checkmark-outline">
           <BulletList items={saferUseNotes} />
         </Section>
       )}
@@ -225,7 +225,7 @@ export function InteractionResultCard({ interaction, source, refreshing = false 
       <View style={[styles.disclaimer, { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder }]}>
         <Ionicons name="information-circle-outline" size={18} color={colors.accent} />
         <Text style={[Typography.caption, { color: colors.textSecondary, flex: 1 }]}>
-          Informations- und Harm-Reduction-Tool. Keine medizinische Beratung.
+          Educational reference only. No medical advice or emergency service.
         </Text>
       </View>
 

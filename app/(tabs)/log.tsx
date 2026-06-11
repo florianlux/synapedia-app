@@ -69,8 +69,11 @@ function initialForm(): FormState {
 function validateForm(form: FormState): string | null {
   if (!form.substance.trim()) return 'Substanz ist erforderlich.';
   if (!form.timestamp.trim()) return 'Zeitpunkt ist erforderlich.';
+  if (Number.isNaN(Date.parse(form.timestamp.trim()))) {
+    return 'Zeitpunkt muss als Datum oder ISO-Zeit lesbar sein.';
+  }
   if (form.dose.trim() && Number.isNaN(Number(form.dose.replace(',', '.')))) {
-    return 'Dosis muss numerisch sein, wenn sie angegeben wird.';
+    return 'Menge muss numerisch sein, wenn sie angegeben wird.';
   }
   return null;
 }
@@ -149,9 +152,9 @@ function doseEntriesToCsv(entries: DoseEntry[]): string {
   const headers = [
     'id',
     'substance',
-    'dose',
+    'amount',
     'unit',
-    'route',
+    'context',
     'timestamp',
     'mood/condition',
     'notes',
@@ -291,7 +294,7 @@ export default function LogScreen() {
   function deleteEntry(id: string) {
     Alert.alert(
       'Eintrag löschen?',
-      'Der lokale Dose-Log-Eintrag wird von diesem Gerät entfernt.',
+      'Der lokale Check-in-Eintrag wird von diesem Gerät entfernt.',
       [
         { text: 'Abbrechen', style: 'cancel' },
         {
@@ -313,7 +316,7 @@ export default function LogScreen() {
     try {
       if (!hydrated) {
         setExportStatus('error');
-        setExportMessage('Dose Log wird noch geladen. Bitte gleich erneut versuchen.');
+        setExportMessage('Private Check-in wird noch geladen. Bitte gleich erneut versuchen.');
         return;
       }
 
@@ -323,7 +326,7 @@ export default function LogScreen() {
         return;
       }
 
-      const fileName = `synapedia-dose-log-${exportDateStamp()}.csv`;
+      const fileName = `synapedia-private-check-in-${exportDateStamp()}.csv`;
       const csv = doseEntriesToCsv(sortedEntries);
 
       if (Platform.OS === 'web') {
@@ -358,7 +361,7 @@ export default function LogScreen() {
       await Sharing.shareAsync(fileUri, {
         mimeType: 'text/csv',
         UTI: 'public.comma-separated-values-text',
-        dialogTitle: 'Synapedia Dose Log exportieren',
+        dialogTitle: 'Synapedia Private Check-in exportieren',
       });
       await FileSystem.deleteAsync(fileUri, { idempotent: true }).catch(() => {
         // Sharing succeeded; a stale temp export is harmless and can be overwritten next time.
@@ -388,9 +391,9 @@ export default function LogScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={[Typography.heroTitle, { color: colors.textPrimary }]}>Dose Log</Text>
+          <Text style={[Typography.heroTitle, { color: colors.textPrimary }]}>Private Check-in</Text>
           <Text style={[Typography.body, styles.subtitle, { color: colors.textSecondary }]}>
-            Lokales Konsumprotokoll zur Selbstreflexion. Kein Account, keine Cloud-Synchronisierung.
+            Lokale Reflexionsnotizen. Kein Account, keine Cloud-Synchronisierung.
           </Text>
         </View>
 
@@ -424,7 +427,7 @@ export default function LogScreen() {
           <View style={[styles.row, isCompact && styles.rowCompact]}>
             <View style={styles.rowField}>
               <Field
-                label="Dosis"
+                label="Menge (optional)"
                 value={form.dose}
                 onChangeText={(value) => updateField('dose', value)}
                 placeholder="80"
@@ -442,7 +445,7 @@ export default function LogScreen() {
           </View>
 
           <View style={styles.group}>
-            <Text style={[Typography.captionBold, { color: colors.textSecondary }]}>Einnahmeweg</Text>
+            <Text style={[Typography.captionBold, { color: colors.textSecondary }]}>Kontext</Text>
             <ChipRow
               items={ROUTES}
               selected={form.route}
@@ -491,7 +494,7 @@ export default function LogScreen() {
           <Ionicons name="lock-closed-outline" size={18} color={colors.accent} />
           <Text style={[Typography.caption, styles.localNoteText, { color: colors.textSecondary }]}>
             Einträge bleiben auf diesem Gerät; es gibt keinen Account und keine Cloud-Synchronisierung.
-            Geräte-Backups oder CSV-Exporte können Daten außerhalb der App speichern.
+            Sie sind persönliche Notizen und keine medizinische Bewertung. Geräte-Backups oder CSV-Exporte können Daten außerhalb der App speichern.
           </Text>
         </View>
 
@@ -637,7 +640,7 @@ function EntryCard({ entry, onDelete }: { entry: DoseEntry; onDelete: () => void
             {entry.substance}
           </Text>
           <Text style={[Typography.caption, { color: colors.textSecondary }]}>
-            {entry.dose ? `${entry.dose} ${entry.unit}` : 'Dosis nicht erfasst'} · {entry.route}
+            {entry.dose ? `${entry.dose} ${entry.unit}` : 'Menge nicht notiert'} · {entry.route}
           </Text>
         </View>
         <Pressable

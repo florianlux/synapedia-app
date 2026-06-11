@@ -8,6 +8,7 @@ import { Elevation, Radius, Spacing, Typography } from '@/constants/theme';
 import { useGuides } from '@/hooks/use-guides';
 import { useThemeColors } from '@/hooks/use-theme';
 import { SourceBadge } from '@/components/ui/SourceBadge';
+import { StateCard } from '@/components/ui/StateCard';
 
 export default function GuidesScreen() {
   const colors = useThemeColors();
@@ -35,39 +36,54 @@ export default function GuidesScreen() {
           </View>
         </View>
 
-        <View style={styles.guideList}>
-          {guides.map((guide) => (
-            <Pressable
-              key={guide.slug}
-              onPress={() => router.push({ pathname: '/guides/[slug]', params: { slug: guide.slug } })}
-              style={({ pressed }) => [
-                styles.guideCard,
-                {
-                  backgroundColor: pressed ? colors.backgroundTertiary : colors.backgroundElevated,
-                  borderColor: colors.cardBorder,
-                  shadowColor: guide.accent,
-                },
-              ]}>
-              <View style={[styles.iconBox, { backgroundColor: `${guide.accent}20` }]}>
-                <Ionicons name="book-outline" size={23} color={guide.accent} />
-              </View>
-              <View style={styles.guideContent}>
-                <Text style={[Typography.captionBold, { color: guide.accent }]}>
-                  {guide.category}
-                </Text>
-                <Text
-                  style={[Typography.bodyBold, styles.guideTitle, { color: colors.textPrimary }]}
-                  numberOfLines={2}>
-                  {guide.title}
-                </Text>
-                <Text style={[Typography.caption, { color: colors.textSecondary }]} numberOfLines={2}>
-                  {guide.summary}
-                </Text>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
-            </Pressable>
-          ))}
-        </View>
+        {guides.length > 0 ? (
+          <View style={styles.guideList}>
+            {guides.map((guide) => (
+              <Pressable
+                key={guide.slug}
+                onPress={() => router.push({ pathname: '/guides/[slug]', params: { slug: guide.slug } })}
+                style={({ pressed }) => [
+                  styles.guideCard,
+                  {
+                    backgroundColor: pressed ? colors.backgroundTertiary : colors.backgroundElevated,
+                    borderColor: colors.cardBorder,
+                    shadowColor: guide.accent,
+                  },
+                ]}>
+                <View style={[styles.iconBox, { backgroundColor: `${guide.accent}20` }]}>
+                  <Ionicons name="book-outline" size={23} color={guide.accent} />
+                </View>
+                <View style={styles.guideContent}>
+                  <Text style={[Typography.captionBold, { color: guide.accent }]}>
+                    {guide.category}
+                  </Text>
+                  <Text
+                    style={[Typography.bodyBold, styles.guideTitle, { color: colors.textPrimary }]}
+                    numberOfLines={2}>
+                    {guide.title}
+                  </Text>
+                  <Text style={[Typography.caption, { color: colors.textSecondary }]} numberOfLines={2}>
+                    {guide.summary}
+                  </Text>
+                  <View style={styles.guideMetaRow}>
+                    <MetaPill label={`${guide.redFlags.length} Red Flags`} tint={colors.severityRisky} />
+                    <MetaPill label={`${guide.phases.length} Phasen`} tint={colors.accent} />
+                  </View>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
+              </Pressable>
+            ))}
+          </View>
+        ) : (
+          <View style={styles.stateWrap}>
+            <StateCard
+              icon="book-outline"
+              title="Keine Guides verfuegbar"
+              body="Lokale Inhalte konnten nicht geladen werden. Bitte App neu starten oder spaeter erneut versuchen."
+              danger
+            />
+          </View>
+        )}
 
         <View style={[styles.note, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
           <Ionicons name="information-circle-outline" size={18} color={colors.accent} />
@@ -76,6 +92,16 @@ export default function GuidesScreen() {
           </Text>
         </View>
       </ScrollView>
+    </View>
+  );
+}
+
+function MetaPill({ label, tint }: { label: string; tint: string }) {
+  return (
+    <View style={[styles.metaPill, { backgroundColor: `${tint}12`, borderColor: `${tint}28` }]}>
+      <Text style={[Typography.quickFactLabel, { color: tint }]} numberOfLines={1}>
+        {label}
+      </Text>
     </View>
   );
 }
@@ -101,6 +127,9 @@ const styles = StyleSheet.create({
   guideList: {
     gap: Spacing.sm,
   },
+  stateWrap: {
+    marginHorizontal: -Spacing.page,
+  },
   guideCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -123,6 +152,19 @@ const styles = StyleSheet.create({
   guideTitle: {
     marginTop: Spacing.xs,
     marginBottom: Spacing.xs,
+  },
+  guideMetaRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.xs,
+    marginTop: Spacing.sm,
+  },
+  metaPill: {
+    minHeight: 22,
+    borderRadius: Radius.full,
+    borderWidth: StyleSheet.hairlineWidth,
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.sm,
   },
   note: {
     flexDirection: 'row',

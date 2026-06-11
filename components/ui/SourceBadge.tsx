@@ -9,7 +9,7 @@ function sourceMeta(source: SourceBadgeState, colors: ThemeColors): { label: str
   if (source === 'live') return { label: 'Live-Katalog', tint: colors.accent };
   if (source === 'mixed') return { label: 'Live-Daten + lokaler Fallback', tint: colors.accent };
   if (source === 'offline') return { label: 'Offline-Fallback', tint: colors.severityRisky };
-  return { label: 'Lokale MVP-Daten', tint: colors.textTertiary };
+  return { label: 'Lokale Referenzdaten', tint: colors.textTertiary };
 }
 
 export function SourceBadge({

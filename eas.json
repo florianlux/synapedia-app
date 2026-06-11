@@ -17,6 +17,15 @@
         "buildType": "apk"
       },
       "ios": {
+        "simulator": false
+      }
+    },
+    "ios-simulator": {
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "https://synapedia.com"
+      },
+      "ios": {
         "simulator": true
       }
     },
@@ -35,6 +44,11 @@
       "android": {
         "buildType": "app-bundle"
       }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {}
     }
   }
 }

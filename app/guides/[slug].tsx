@@ -1,4 +1,4 @@
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -8,6 +8,7 @@ import { Elevation, Radius, Spacing, Typography } from '@/constants/theme';
 import { useGuide } from '@/hooks/use-guides';
 import { useThemeColors } from '@/hooks/use-theme';
 import { SourceBadge } from '@/components/ui/SourceBadge';
+import { StateCard } from '@/components/ui/StateCard';
 
 function goBackToGuides() {
   if (router.canGoBack()) {
@@ -15,7 +16,7 @@ function goBackToGuides() {
     return;
   }
 
-  router.replace('/guides');
+  router.replace('/(tabs)/guides');
 }
 
 export default function GuideDetailScreen() {
@@ -27,10 +28,12 @@ export default function GuideDetailScreen() {
   if (guideState.status === 'loading') {
     return (
       <View style={[styles.centered, { backgroundColor: colors.background, paddingTop: insets.top }]}>
-        <ActivityIndicator size="large" color={colors.accent} />
-        <Text style={[Typography.body, styles.centeredText, { color: colors.textSecondary }]}>
-          Lade Guide...
-        </Text>
+        <StateCard
+          icon="book-outline"
+          title="Guide wird geladen"
+          body="Live-Daten werden abgefragt. Lokale Inhalte bleiben als Fallback aktiv."
+          loading
+        />
       </View>
     );
   }
@@ -38,13 +41,14 @@ export default function GuideDetailScreen() {
   if (guideState.status === 'error') {
     return (
       <View style={[styles.centered, { backgroundColor: colors.background, paddingTop: insets.top }]}>
-        <Ionicons name="alert-circle-outline" size={44} color={colors.textTertiary} />
-        <Text style={[Typography.body, styles.centeredText, { color: colors.textSecondary }]}>
-          {guideState.notFound ? 'Guide nicht gefunden.' : 'Guide konnte nicht geladen werden.'}
-        </Text>
-        <Pressable onPress={goBackToGuides} style={styles.backTextButton}>
-          <Text style={[Typography.bodyBold, { color: colors.accent }]}>Zurück</Text>
-        </Pressable>
+        <StateCard
+          icon="alert-circle-outline"
+          title={guideState.notFound ? 'Guide nicht gefunden' : 'Guide nicht erreichbar'}
+          body={guideState.message || 'Lokale und Live-Daten konnten gerade nicht geladen werden.'}
+          actionLabel="Zurueck zu Guides"
+          onAction={goBackToGuides}
+          danger
+        />
       </View>
     );
   }
@@ -56,7 +60,7 @@ export default function GuideDetailScreen() {
       <View
         style={[
           styles.navBar,
-          { paddingTop: insets.top, borderBottomColor: colors.separator },
+          { paddingTop: insets.top, backgroundColor: colors.backgroundGlass, borderBottomColor: colors.separator },
         ]}>
         <Pressable onPress={goBackToGuides} hitSlop={8} style={styles.navButton}>
           <Ionicons name="chevron-back" size={28} color={colors.accent} />
@@ -131,7 +135,7 @@ export default function GuideDetailScreen() {
 
         {guide.practicalSteps.length > 0 && (
           <BulletSection
-            title="Praktische Harm-Reduction-Schritte"
+            title="Harm-Reduction-Kontext"
             icon="shield-checkmark-outline"
             items={guide.practicalSteps}
           />
@@ -150,6 +154,24 @@ export default function GuideDetailScreen() {
             </View>
           </View>
         )}
+
+        <View style={[styles.relatedCard, { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder }]}>
+          <Text style={[Typography.captionBold, { color: colors.textSecondary }]}>
+            Related
+          </Text>
+          <View style={styles.relatedList}>
+            <RelatedButton
+              icon="library-outline"
+              label="Substanz-Wiki oeffnen"
+              onPress={() => router.push('/(tabs)/wiki')}
+            />
+            <RelatedButton
+              icon="git-compare-outline"
+              label="Interaktionen im MixCheck pruefen"
+              onPress={() => router.push('/(tabs)/check')}
+            />
+          </View>
+        </View>
       </ScrollView>
     </View>
   );
@@ -247,6 +269,37 @@ function BulletList({ items, danger }: { items: string[]; danger?: boolean }) {
   );
 }
 
+function RelatedButton({
+  icon,
+  label,
+  onPress,
+}: {
+  icon: keyof typeof Ionicons.glyphMap;
+  label: string;
+  onPress: () => void;
+}) {
+  const colors = useThemeColors();
+
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      style={({ pressed }) => [
+        styles.relatedButton,
+        {
+          backgroundColor: pressed ? colors.backgroundTertiary : colors.backgroundSecondary,
+          borderColor: colors.border,
+        },
+      ]}>
+      <Ionicons name={icon} size={17} color={colors.accent} />
+      <Text style={[Typography.captionBold, styles.relatedLabel, { color: colors.textPrimary }]}>
+        {label}
+      </Text>
+      <Ionicons name="chevron-forward" size={15} color={colors.textTertiary} />
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
@@ -256,14 +309,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: Spacing.xl,
-  },
-  centeredText: {
-    marginTop: Spacing.md,
-    textAlign: 'center',
-  },
-  backTextButton: {
-    marginTop: Spacing.lg,
-    padding: Spacing.md,
   },
   navBar: {
     flexDirection: 'row',
@@ -381,6 +426,30 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
   },
   evidenceText: {
+    flex: 1,
+  },
+  relatedCard: {
+    borderRadius: Radius.xl,
+    borderWidth: StyleSheet.hairlineWidth,
+    gap: Spacing.md,
+    marginTop: Spacing.lg,
+    padding: Spacing.lg,
+    ...Elevation.subtle,
+  },
+  relatedList: {
+    gap: Spacing.sm,
+  },
+  relatedButton: {
+    minHeight: 46,
+    borderRadius: Radius.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+  },
+  relatedLabel: {
     flex: 1,
   },
 });

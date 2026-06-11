@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
@@ -10,6 +10,7 @@ import { useInteraction } from '@/hooks/use-interaction';
 import { SubstancePicker } from '@/components/interaction/SubstancePicker';
 import { SelectedSubstanceChips } from '@/components/interaction/SelectedSubstanceChips';
 import { InteractionResultCard } from '@/components/interaction/InteractionResultCard';
+import { StateCard } from '@/components/ui/StateCard';
 
 type Selected = [string | null, string | null];
 
@@ -24,6 +25,7 @@ export default function CheckScreen() {
   // ---- Derived state ----
   const filledCount = selected.filter(Boolean).length;
   const interactionState = useInteraction(selected[0], selected[1]);
+  const showResultState = filledCount === 2;
 
   // ---- Handlers ----
   const openPicker = useCallback((slot: number) => {
@@ -64,23 +66,28 @@ export default function CheckScreen() {
         styles.screen,
         { backgroundColor: colors.background, paddingTop: insets.top },
       ]}>
-      {/* ── Header ── */}
-      <Text
-        style={[
-          Typography.heroTitle,
-          styles.title,
-          { color: colors.textPrimary },
-        ]}>
-        MixCheck
-      </Text>
-      <Text
-        style={[
-          Typography.caption,
-          styles.subtitle,
-          { color: colors.textSecondary },
-        ]}>
-        Live-Check fuer zwei Substanzen mit kuratiertem lokalem Fallback.
-      </Text>
+      <View style={styles.header}>
+        <View style={[styles.heroCard, { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder }]}>
+          <View style={styles.heroTop}>
+            <View style={[styles.heroIcon, { backgroundColor: colors.accentLight }]}>
+              <Ionicons name="git-compare" size={24} color={colors.accent} />
+            </View>
+            <View style={styles.heroCopy}>
+              <Text style={[Typography.heroTitle, styles.title, { color: colors.textPrimary }]}>
+                MixCheck
+              </Text>
+              <Text style={[Typography.body, styles.subtitle, { color: colors.textSecondary }]}>
+                Zwei Substanzen waehlen, Risiko lesen, Red Flags ernst nehmen.
+              </Text>
+            </View>
+          </View>
+          <View style={styles.heroMetaRow}>
+            <MiniFact icon="cloud-outline" label="Live + Fallback" />
+            <MiniFact icon="shield-outline" label="Konservativ" />
+            <MiniFact icon="phone-portrait-outline" label="iOS-first" />
+          </View>
+        </View>
+      </View>
 
       {/* ── Substance selection ── */}
       <View style={styles.pickerArea}>
@@ -123,150 +130,47 @@ export default function CheckScreen() {
           </View>
         </View>
 
-        {/* Empty state */}
         {filledCount === 0 && (
-          <View style={styles.emptyState}>
-            <Ionicons
-              name="git-compare-outline"
-              size={40}
-              color={colors.textTertiary}
-            />
-            <Text
-              style={[
-                Typography.body,
-                {
-                  color: colors.textSecondary,
-                  textAlign: 'center',
-                  marginTop: Spacing.md,
-                },
-              ]}>
-              Wähle zwei Substanzen für eine{'\n'}MixCheck-Bewertung.
-            </Text>
-          </View>
+          <StateCard
+            icon="git-network-outline"
+            title="Bereit fuer den Check"
+            body="Waehle zwei Substanzen oder starte mit einer haeufigen Kombination."
+          />
         )}
 
-        {/* One selected */}
         {filledCount === 1 && (
-          <View style={styles.emptyState}>
-            <Ionicons
-              name="arrow-up-outline"
-              size={32}
-              color={colors.accent}
-            />
-            <Text
-              style={[
-                Typography.body,
-                {
-                  color: colors.textSecondary,
-                  textAlign: 'center',
-                  marginTop: Spacing.md,
-                },
-              ]}>
-              Wähle eine zweite Substanz.
-            </Text>
-          </View>
+          <StateCard
+            icon="add-circle-outline"
+            title="Eine zweite Substanz fehlt"
+            body="Der Check laeuft erst mit zwei Eintraegen. Tippe auf den freien Slot."
+          />
         )}
 
-        {/* Loading */}
-        {interactionState.status === 'loading' && (
-          <View style={styles.emptyState}>
-            <ActivityIndicator size="large" color={colors.accent} />
-            <Text
-              style={[
-                Typography.body,
-                { color: colors.textSecondary, marginTop: Spacing.md },
-              ]}>
-              Prüfe Kombination…
-            </Text>
-          </View>
+        {showResultState && interactionState.status === 'loading' && (
+          <StateCard
+            icon="sync-outline"
+            title="Kombination wird geprueft"
+            body="Live-Daten werden abgefragt. Lokale Bewertungen erscheinen sofort, wenn sie vorhanden sind."
+            loading
+          />
         )}
 
-        {/* Error */}
-        {interactionState.status === 'error' && (
-          <View
-            style={[
-              styles.noDataCard,
-              { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder },
-            ]}>
-            <Ionicons
-              name="alert-circle-outline"
-              size={28}
-              color={colors.severityRisky}
-            />
-            <Text
-              style={[
-                Typography.bodyBold,
-                { color: colors.textPrimary, marginTop: Spacing.md },
-              ]}>
-              Konnte nicht laden
-            </Text>
-            <Text
-              style={[
-                Typography.body,
-                {
-                  color: colors.textSecondary,
-                  textAlign: 'center',
-                  marginTop: Spacing.sm,
-                },
-              ]}>
-              MixCheck ist gerade nicht erreichbar. Lokale Fallback-Daten bleiben aktiv, wenn sie vorhanden sind.
-            </Text>
-          </View>
+        {showResultState && interactionState.status === 'error' && (
+          <StateCard
+            icon="alert-circle-outline"
+            title="Live-Check nicht erreichbar"
+            body={interactionState.message || 'Lokale Fallback-Daten bleiben aktiv, wenn sie vorhanden sind.'}
+            danger
+          />
         )}
 
-        {/* Two selected, no data */}
-        {interactionState.status === 'not_found' && (
-          <View
-            style={[
-              styles.noDataCard,
-              { backgroundColor: colors.backgroundElevated, borderColor: colors.cardBorder },
-            ]}>
-            <Ionicons
-              name="information-circle-outline"
-              size={28}
-              color={colors.textTertiary}
-            />
-            <Text
-              style={[
-                Typography.bodyBold,
-                { color: colors.textPrimary, marginTop: Spacing.md },
-              ]}>
-              Kombination unbekannt
-            </Text>
-            <Text
-              style={[
-                Typography.body,
-                {
-                  color: colors.textSecondary,
-                  textAlign: 'center',
-                  marginTop: Spacing.sm,
-                },
-              ]}>
-              Fuer diese Kombination liegt noch keine belastbare Bewertung vor.
-            </Text>
-            <View
-              style={[
-                styles.warningBanner,
-                { backgroundColor: 'rgba(255,149,0,0.10)' },
-              ]}>
-              <Ionicons
-                name="warning-outline"
-                size={16}
-                color={colors.severityRisky}
-              />
-              <Text
-                style={[
-                  Typography.caption,
-                  {
-                    color: colors.textSecondary,
-                    flex: 1,
-                    marginLeft: Spacing.sm,
-                  },
-                ]}>
-                Fehlende Daten bedeuten nicht sicher. Mischkonsum kann auch ohne kuratierte Bewertung riskant sein.
-              </Text>
-            </View>
-          </View>
+        {showResultState && interactionState.status === 'not_found' && (
+          <StateCard
+            icon="information-circle-outline"
+            title="Keine belastbare Bewertung"
+            body="Fehlende Daten bedeuten nicht sicher. Mischkonsum kann auch ohne kuratierte Bewertung riskant sein."
+            danger
+          />
         )}
 
         {/* Result */}
@@ -290,18 +194,75 @@ export default function CheckScreen() {
   );
 }
 
+function MiniFact({
+  icon,
+  label,
+}: {
+  icon: keyof typeof Ionicons.glyphMap;
+  label: string;
+}) {
+  const colors = useThemeColors();
+
+  return (
+    <View style={[styles.miniFact, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
+      <Ionicons name={icon} size={13} color={colors.accent} />
+      <Text style={[Typography.quickFactLabel, { color: colors.textSecondary }]} numberOfLines={1}>
+        {label}
+      </Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
   },
-  title: {
+  header: {
     paddingHorizontal: Spacing.page,
     paddingTop: Spacing.lg,
+    paddingBottom: Spacing.lg,
+  },
+  heroCard: {
+    borderRadius: Radius.xl,
+    borderWidth: StyleSheet.hairlineWidth,
+    padding: Spacing.lg,
+    ...Elevation.card,
+  },
+  heroTop: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.md,
+  },
+  heroIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: Radius.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  heroCopy: {
+    flex: 1,
+  },
+  title: {
+    includeFontPadding: false,
   },
   subtitle: {
-    paddingHorizontal: Spacing.page,
     marginTop: Spacing.xs,
-    marginBottom: Spacing.lg,
+  },
+  heroMetaRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.sm,
+    marginTop: Spacing.lg,
+  },
+  miniFact: {
+    minHeight: 28,
+    borderRadius: Radius.full,
+    borderWidth: StyleSheet.hairlineWidth,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    paddingHorizontal: Spacing.sm,
   },
   pickerArea: {
     marginBottom: Spacing.xl,
@@ -329,26 +290,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: StyleSheet.hairlineWidth,
-  },
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: Spacing.xxxl,
-    paddingHorizontal: Spacing.xxl,
-  },
-  noDataCard: {
-    marginHorizontal: Spacing.page,
-    padding: Spacing.xl,
-    borderRadius: Radius.xl,
-    alignItems: 'center',
-    borderWidth: StyleSheet.hairlineWidth,
-    ...Elevation.subtle,
-  },
-  warningBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: Spacing.lg,
-    padding: Spacing.md,
-    borderRadius: Radius.md,
-    alignSelf: 'stretch',
   },
 });

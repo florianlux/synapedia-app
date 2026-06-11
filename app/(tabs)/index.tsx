@@ -1,6 +1,6 @@
 import type { ComponentProps } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { SUBSTANCES } from '@/constants/mock-data';
@@ -26,6 +26,13 @@ const QUICK_ACTIONS: {
   tint: string;
 }[] = [
   {
+    title: 'MixCheck',
+    subtitle: 'Zwei Substanzen live und lokal prüfen',
+    icon: 'git-compare-outline',
+    route: '/(tabs)/check',
+    tint: '#FF9F0A',
+  },
+  {
     title: 'Wiki',
     subtitle: 'Substanzen, Risiken und Wirkprofile',
     icon: 'library-outline',
@@ -33,15 +40,8 @@ const QUICK_ACTIONS: {
     tint: '#4DA3FF',
   },
   {
-    title: 'MixCheck',
-    subtitle: 'Kombinationen prüfen',
-    icon: 'git-compare-outline',
-    route: '/(tabs)/check',
-    tint: '#FF9F0A',
-  },
-  {
-    title: 'Dose Log',
-    subtitle: 'Konsum lokal dokumentieren',
+    title: 'Private Check-in',
+    subtitle: 'Lokale Reflexionsnotizen',
     icon: 'create-outline',
     route: '/(tabs)/log',
     tint: '#30D158',
@@ -153,7 +153,7 @@ export default function HomeScreen() {
           </View>
           <View style={[styles.heroStatus, isCompact && styles.heroTopCompactStatus]}>
             <HeroBadge label="Knowledge Graph" icon="git-network-outline" tint={colors.accent} />
-            <HeroBadge label="Harm Reduction" icon="shield-outline" tint={colors.riskModerate} />
+            <HeroBadge label="Risk Awareness" icon="shield-outline" tint={colors.riskModerate} />
           </View>
         </View>
 
@@ -161,14 +161,36 @@ export default function HomeScreen() {
           Synapedia
         </Text>
         <Text style={[Typography.body, styles.subtitle, { color: colors.textSecondary }]}>
-          Pharmakologie-Wissen als ruhiges Netzwerk: Substanzen, Interaktionen, Risiken und Recovery-Kontext.
+          Der schnelle iOS-Startpunkt fuer Interaktionen, Substanzwissen und Recovery-Kontext.
         </Text>
+
+        <Pressable
+          onPress={() => router.push('/(tabs)/check')}
+          accessibilityRole="button"
+          accessibilityLabel="MixCheck starten">
+          {({ pressed }) => (
+            <View
+              style={[
+                styles.primaryCta,
+                {
+                  backgroundColor: pressed ? '#F79A0A' : colors.severityRisky,
+                  shadowColor: colors.severityRisky,
+                },
+              ]}>
+              <Ionicons name="git-compare" size={18} color="#140D03" />
+              <Text style={[Typography.bodyBold, styles.primaryCtaText]}>
+                MixCheck starten
+              </Text>
+              <Ionicons name="arrow-forward" size={17} color="#140D03" />
+            </View>
+          )}
+        </Pressable>
       </View>
 
       <View style={styles.firstSectionHeader}>
-        <Text style={[Typography.sectionTitle, { color: colors.textPrimary }]}>Schnellzugriff</Text>
+        <Text style={[Typography.sectionTitle, { color: colors.textPrimary }]}>Werkzeuge</Text>
         <Text style={[Typography.caption, { color: colors.textSecondary }]}>
-          Module als Werkzeuge, nicht als Startpunkt.
+          MixCheck zuerst, Recherche und Notizen bleiben einen Tap entfernt.
         </Text>
       </View>
       <View style={styles.actionList}>
@@ -215,9 +237,27 @@ export default function HomeScreen() {
         </View>
       </PremiumCard>
 
-      <View style={styles.graphSection}>
-        <SynapediaGraphCard />
-      </View>
+      <Pressable
+        onPress={() => router.push('/about' as Href)}
+        accessibilityRole="button"
+        accessibilityLabel="Safety and Privacy">
+        {({ pressed }) => (
+          <PremiumCard pressed={pressed} style={styles.aboutCard}>
+            <View style={[styles.actionIcon, { backgroundColor: colors.accentLight }]}>
+              <Ionicons name="shield-checkmark-outline" size={22} color={colors.accent} />
+            </View>
+            <View style={styles.actionText}>
+              <Text style={[Typography.bodyBold, { color: colors.textPrimary }]}>
+                Safety & Privacy
+              </Text>
+              <Text style={[Typography.caption, styles.actionSubtitle, { color: colors.textSecondary }]}>
+                Educational scope, local notes, and API lookups.
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
+          </PremiumCard>
+        )}
+      </Pressable>
 
       <SectionHeader
         title="Schnell nachschlagen"
@@ -255,8 +295,12 @@ export default function HomeScreen() {
         })}
       </ScrollView>
 
+      <View style={styles.graphSection}>
+        <SynapediaGraphCard />
+      </View>
+
       <PremiumCard style={styles.didYouKnow}>
-        <Text style={[Typography.captionBold, { color: colors.accent }]}>Wusstest du?</Text>
+        <Text style={[Typography.captionBold, { color: colors.accent }]}>Hinweis</Text>
         <Text style={[Typography.bodyBold, styles.didYouKnowTitle, { color: colors.textPrimary }]}>
           „Keine Daten“ bedeutet nicht „sicher“.
         </Text>
@@ -266,7 +310,7 @@ export default function HomeScreen() {
         </Text>
       </PremiumCard>
 
-      <DisclaimerCard text="Informations- und Harm-Reduction-Tool. Keine medizinische Beratung." />
+      <DisclaimerCard text="Educational reference only. No medical advice or emergency service." />
     </Screen>
   );
 }
@@ -365,6 +409,23 @@ const styles = StyleSheet.create({
   subtitle: {
     maxWidth: 430,
   },
+  primaryCta: {
+    alignSelf: 'flex-start',
+    minHeight: 48,
+    borderRadius: Radius.full,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    marginTop: Spacing.lg,
+    paddingHorizontal: Spacing.lg,
+    shadowOpacity: 0.24,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 5,
+  },
+  primaryCtaText: {
+    color: '#140D03',
+  },
   heroGraph: {
     ...StyleSheet.absoluteFillObject,
     opacity: 0.82,
@@ -446,6 +507,12 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
     marginTop: Spacing.xl,
     paddingLeft: Spacing.xl,
+  },
+  aboutCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    marginTop: Spacing.md,
   },
   warningAccent: {
     position: 'absolute',

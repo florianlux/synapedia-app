@@ -55,7 +55,7 @@ const riskLabels: Record<RiskLevel, string> = {
 const evidencePlaceholder = {
   author: 'Synapedia Redaktion',
   year: 2026,
-  title: 'Lokaler MVP-Datensatz: Evidence-Mapping und Quellenpruefung ausstehend.',
+  title: 'Lokaler kuratierter Datensatz: Quellen werden transparent erweitert.',
 };
 
 function makeRisk(entry: RiskEntry, fallbackSeverity: RiskLevel): Substance['risks']['acute'][number] {
@@ -100,7 +100,7 @@ function makeSubstance(seed: SubstanceSeed): Substance {
     interactions: seed.interactions,
     interactionsPreview: seed.interactions,
     sources: [evidencePlaceholder],
-    evidenceNote: 'Lokaler Harm-Reduction-Datensatz. Inhalte sind kompakt kuratiert und ersetzen keine medizinische Beratung.',
+    evidenceNote: 'Lokaler kuratierter Datensatz. Inhalte sind kompakt zusammengefasst und ersetzen keine professionelle Beratung.',
     lastUpdated: '2026-06-05',
   };
 }
@@ -137,7 +137,7 @@ const seeds: SubstanceSeed[] = [
       { title: 'Gefaehrliche Kombinationen meiden', description: 'Besonders MAO-Hemmer, starke Stimulanzien, serotonerge Medikamente und viel Alkohol sind kritisch.' },
       { title: 'Kuehl bleiben', description: 'Pausen, frische Luft und ein weniger heisses Setting reduzieren Temperatur- und Kreislaufstress.' },
       { title: 'Ausgewogen trinken', description: 'Regelmaessig kleine Mengen trinken; nicht aus Angst literweise Wasser erzwingen.' },
-      { title: 'Nachdosieren bremsen', description: 'Vorher klare Grenzen setzen, weil Euphorie und Gruppendruck impulsives Nachlegen beguenstigen.' },
+      { title: 'Impulsives Nachlegen bremsen', description: 'Vorher klare Grenzen setzen, weil Euphorie und Gruppendruck impulsives Nachlegen beguenstigen.' },
       { title: 'Red Flags ernst nehmen', description: 'Verwirrtheit, Kollaps, Krampf, starke Ueberhitzung, Brustschmerz oder Atemnot sind Gruende fuer sofortige Hilfe.' },
     ],
     warnings: [
@@ -165,7 +165,7 @@ const seeds: SubstanceSeed[] = [
     primaryClass: 'Psychedelikum',
     categories: ['Psychedelikum', 'Halluzinogen'],
     summary:
-      'LSD ist ein lang wirkendes Psychedelikum. Set, Setting, Dosisunsicherheit und die lange Dauer praegen Wirkung und Risiko besonders stark.',
+      'LSD ist ein lang wirkendes Psychedelikum. Set, Setting, unklare Produktstaerke und die lange Dauer praegen Wirkung und Risiko besonders stark.',
     riskLevel: 'moderate',
     riskChips: ['Set & Setting', 'Panik', 'Lange Dauer'],
     quickFacts: { onset: '20-60 min', peak: '2-4 h', duration: '8-12 h', afterEffects: '12-48 h' },
@@ -184,7 +184,7 @@ const seeds: SubstanceSeed[] = [
       { name: 'Vulnerabilitaet', severity: 'high', description: 'Bestehende psychische Instabilitaet kann durch starke psychedelische Erfahrungen verschlechtert werden.' },
     ],
     saferUse: [
-      { title: 'Sicheres Setting', description: 'Ruhiger Ort, vertraute Menschen und keine Verpflichtungen am selben Tag reduzieren Stress.' },
+      { title: 'Ruhiges Umfeld', description: 'Ruhiger Ort, vertraute Menschen und keine Verpflichtungen am selben Tag reduzieren Stress.' },
       { title: 'Begleitung einplanen', description: 'Eine nuechterne, vertraute Person kann bei Angst, Orientierung und Eskalation helfen.' },
       { title: 'Mischkonsum vermeiden', description: 'Cannabis, Stimulanzien und Alkohol koennen Intensitaet oder Kontrollverlust verstaerken.' },
       { title: 'Zeitfenster respektieren', description: 'Die lange Dauer braucht Schlaf-, Heimweg- und Ruheplanung.' },
@@ -232,7 +232,7 @@ const seeds: SubstanceSeed[] = [
       { name: 'Toleranz und Muster', severity: 'moderate', description: 'Regelmaessige Nutzung kann Toleranz, Craving und Alltagseinfluss foerdern.' },
     ],
     saferUse: [
-      { title: 'Sitzendes Setting', description: 'Sturzrisiken reduzieren: sichere Umgebung, keine Hoehen, kein Wasser, kein Verkehr.' },
+      { title: 'Sturzrisiken reduzieren', description: 'Stabile Umgebung, keine Hoehen, kein Wasser, kein Verkehr.' },
       { title: 'Downer vermeiden', description: 'Alkohol, Benzodiazepine und Opioide erhoehen Sedierung, Erbrechen und Atemrisiken.' },
       { title: 'Nicht allein bleiben', description: 'Begleitung kann bei Orientierung, Seitenlage und Hilfeholen wichtig sein.' },
       { title: 'Koerpersignale beachten', description: 'Blasenbeschwerden, Schmerzen oder Blut im Urin ernst nehmen und medizinisch abklaeren lassen.' },
@@ -272,7 +272,7 @@ const seeds: SubstanceSeed[] = [
     },
     acuteRisks: [
       { name: 'Herz-Kreislauf-Belastung', severity: 'high', description: 'Puls, Blutdruck und Gefaessverengung koennen Brustschmerz, Rhythmusprobleme oder Notfaelle beguenstigen.' },
-      { name: 'Nachdosierungsdruck', severity: 'high', description: 'Kurze Wirkung und Craving koennen lange Sessions und mehr Gesamtbelastung foerdern.' },
+      { name: 'Wiederholte Einnahmeimpulse', severity: 'high', description: 'Kurze Wirkung und Craving koennen lange Sessions und mehr Gesamtbelastung foerdern.' },
       { name: 'Ueberhitzung und Unruhe', severity: 'moderate', description: 'Aktivitaet, Hitze und andere Stimulanzien erhoehen koerperlichen Stress.' },
     ],
     longtermRisks: [
@@ -372,7 +372,7 @@ const seeds: SubstanceSeed[] = [
       { name: 'Downer-Mischkonsum', severity: 'high', description: 'Alkohol, Benzodiazepine und Opioide koennen Atem- und Bewusstseinsrisiken verstaerken.' },
     ],
     longtermRisks: [
-      { name: 'Toleranz und Abhaengigkeit', severity: 'high', description: 'Regelmaessige Nutzung kann Dosissteigerung, Craving und Entzug beguenstigen.' },
+      { name: 'Toleranz und Abhaengigkeit', severity: 'high', description: 'Regelmaessige Nutzung kann steigende Mengen, Craving und Entzug beguenstigen.' },
       { name: 'Entzug', severity: 'high', description: 'Unruhe, Schlafprobleme, Schmerzen, Durchfall und Craving koennen auftreten.' },
     ],
     saferUse: [
@@ -388,7 +388,7 @@ const seeds: SubstanceSeed[] = [
     ],
     mechanisms: [
       'Mitragynin und verwandte Alkaloide wirken unter anderem an opioidbezogenen Systemen.',
-      'Sedierung und Uebelkeit koennen dosis- und produktabhaengig variieren.',
+      'Sedierung und Uebelkeit koennen personen- und produktabhaengig variieren.',
       'Downer-Mischungen koennen Schutzreflexe und Atmung zusaetzlich belasten.',
     ],
     interactions: [
@@ -417,7 +417,7 @@ const seeds: SubstanceSeed[] = [
     acuteRisks: [
       { name: 'Atemdepression', severity: 'high', description: 'Opioide koennen Atmung und Bewusstsein gefaehrlich daempfen, besonders mit Downern.' },
       { name: 'Bewusstseinsverlust', severity: 'high', description: 'Starke Sedierung, Erbrechen und Alleinsein erhoehen Notfallrisiken.' },
-      { name: 'Ueberdosierung', severity: 'high', description: 'Toleranz, unbekannte Potenz und Nachlegen koennen das Risiko verschieben.' },
+      { name: 'Schwere Intoxikation', severity: 'high', description: 'Toleranz, unbekannte Potenz und Nachlegen koennen das Risiko verschieben.' },
     ],
     longtermRisks: [
       { name: 'Toleranz und Abhaengigkeit', severity: 'high', description: 'Regelmaessige Nutzung kann schnelle Gewoehnung und Entzug foerdern.' },
@@ -463,7 +463,7 @@ const seeds: SubstanceSeed[] = [
       negative: ['Blackouts bei Mischkonsum', 'Rebound-Angst', 'Schwerer Entzug bei regelmaessiger Nutzung'],
     },
     acuteRisks: [
-      { name: 'Nachdosieren vor Wirkungseintritt', severity: 'high', description: 'Der langsame Onset kann dazu verleiten, zu frueh nachzulegen.' },
+      { name: 'Weitere Einnahme vor Wirkungseintritt', severity: 'high', description: 'Der langsame Onset kann dazu verleiten, zu frueh nachzulegen.' },
       { name: 'Sedierung und Blackouts', severity: 'high', description: 'Alkohol, Benzodiazepine oder Opioide koennen Daempfung stark verstaerken.' },
       { name: 'Unfallrisiko', severity: 'moderate', description: 'Schwindel, Enthemmung und Koordinationsprobleme koennen riskante Situationen beguenstigen.' },
     ],
@@ -522,7 +522,7 @@ const seeds: SubstanceSeed[] = [
     saferUse: [
       { title: 'Nicht mit Alkohol oder Opioiden kombinieren', description: 'Diese Kombinationen sind besonders mit Atem- und Bewusstseinsrisiken verbunden.' },
       { title: 'Keine Fahrzeuge', description: 'Reaktion, Koordination und Erinnerung koennen deutlich eingeschraenkt sein.' },
-      { title: 'Abhaengigkeitssignale beachten', description: 'Haeufigkeit, Dosissteigerung oder Unruhe ohne Substanz sind Warnzeichen.' },
+      { title: 'Abhaengigkeitssignale beachten', description: 'Haeufigkeit, steigende Mengen oder Unruhe ohne Substanz sind Warnzeichen.' },
       { title: 'Entzug medizinisch begleiten', description: 'Nach regelmaessiger Nutzung nicht abrupt absetzen; fachliche Hilfe einplanen.' },
     ],
     warnings: [
@@ -555,7 +555,7 @@ const seeds: SubstanceSeed[] = [
     quickFacts: { onset: 'Tage-Wochen', peak: 'regelmaessige Einnahme', duration: 'substanzabhaengig', afterEffects: 'Absetzen nur aerztlich' },
     effects: {
       positive: ['Stimmungsstabilisierung bei passender Indikation', 'Reduktion von Angst- oder Depressionssymptomen', 'Therapeutische Wirkung bei regelmaessiger Einnahme'],
-      neutral: ['Wirkaufbau ueber Tage bis Wochen', 'Individuelle Unterschiede je Wirkstoff und Dosis', 'Moegliche Wechselwirkungen ueber serotonerge Systeme'],
+      neutral: ['Wirkaufbau ueber Tage bis Wochen', 'Individuelle Unterschiede je Wirkstoff und Person', 'Moegliche Wechselwirkungen ueber serotonerge Systeme'],
       negative: ['Uebelkeit, Schlaf- oder Sexualfunktionsstoerungen', 'Unruhe oder emotionale Abflachung', 'Absetzsymptome bei abruptem Stoppen'],
     },
     acuteRisks: [
@@ -568,7 +568,7 @@ const seeds: SubstanceSeed[] = [
       { name: 'Wechselwirkungen', severity: 'moderate', description: 'Andere Medikamente oder Substanzen koennen Wirkung, Nebenwirkungen und Risiko veraendern.' },
     ],
     saferUse: [
-      { title: 'Medikation nicht fuer Konsum veraendern', description: 'SSRI/SNRI nicht eigenmaechtig pausieren, absetzen oder hochdosieren, um Substanzeffekte zu steuern.' },
+      { title: 'Medikation nicht fuer Konsum veraendern', description: 'SSRI/SNRI nicht eigenmaechtig pausieren, absetzen oder veraendern, um Substanzeffekte zu steuern.' },
       { title: 'Serotonerge Mischungen meiden', description: 'MDMA, MAO-Hemmer, bestimmte Medikamente und weitere serotonerge Stoffe koennen kritisch sein.' },
       { title: 'Warnzeichen ernst nehmen', description: 'Fieber, Verwirrtheit, Muskelzucken, Krampf, starke Unruhe oder Kollaps sind Gruende fuer sofortige Hilfe.' },
     ],
@@ -617,7 +617,7 @@ const seeds: SubstanceSeed[] = [
     saferUse: [
       { title: 'Nicht mit Downern kombinieren', description: 'Benzodiazepine, Opioide, Ketamin, Phenibut und GHB/GBL sind besonders riskant.' },
       { title: 'Tempo senken', description: 'Langsames Trinken, Essen und Pausen koennen Kontrollverlust reduzieren.' },
-      { title: 'Nicht fahren', description: 'Reaktion und Koordination sind auch bei subjektiver Sicherheit eingeschraenkt.' },
+      { title: 'Nicht fahren', description: 'Reaktion und Koordination koennen auch bei subjektivem Kontrollgefuehl eingeschraenkt sein.' },
       { title: 'Notfallsignale kennen', description: 'Nicht weckbar, langsame Atmung, blasse/kalte Haut oder Erbrechen im Schlaf brauchen Hilfe.' },
     ],
     warnings: [

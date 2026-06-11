@@ -68,7 +68,7 @@ export default function WikiScreen() {
         {
           key: 'search',
           title: 'Suchergebnisse',
-          subtitle: 'Live-Suche im Synapedia-Katalog, ergänzt durch lokale MVP-Daten.',
+          subtitle: 'Live-Suche im Synapedia-Katalog, ergänzt durch lokale Referenzdaten.',
           source,
           data: searchResults,
         },
@@ -169,6 +169,16 @@ export default function WikiScreen() {
           </View>
         )}
         renderSectionFooter={({ section }) => {
+          if (section.key === 'search' && searchResults.length === 0 && !refreshing) {
+            return (
+              <CatalogStatusCard
+                icon={errorMessage ? 'cloud-offline-outline' : 'search-outline'}
+                title="Keine Treffer"
+                body={errorMessage ?? 'Passe Suche, Alias oder Substanzklasse an.'}
+              />
+            );
+          }
+
           if (section.key !== 'live') return null;
 
           if (liveCatalog.length === 0 && refreshing) {
