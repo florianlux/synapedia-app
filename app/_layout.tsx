@@ -14,6 +14,7 @@ export default function RootLayout() {
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="graph/focus" />
           <Stack.Screen name="substance/[slug]" />
           <Stack.Screen name="guides/[slug]" />
           <Stack.Screen name="about" />

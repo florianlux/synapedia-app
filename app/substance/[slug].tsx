@@ -19,6 +19,7 @@ import { RiskProfileBars } from '@/components/visual/RiskProfileBars';
 import { DurationTimeline } from '@/components/visual/DurationTimeline';
 import { SourceBadge } from '@/components/ui/SourceBadge';
 import { StateCard } from '@/components/ui/StateCard';
+import { OpenGraphButton } from '@/features/graph/components/OpenGraphButton';
 import type { RiskLevel } from '@/types/substance';
 
 // ---------------------------------------------------------------------------
@@ -250,7 +251,7 @@ export default function SubstanceDetailScreen() {
           />
         </ExpandableSection>
 
-        <RelatedActions />
+        <RelatedActions slug={substance.slug} />
 
         <ExpandableSection
           title="Evidenz & Quellen"
@@ -717,7 +718,7 @@ function SaferUseContent({
   );
 }
 
-function RelatedActions() {
+function RelatedActions({ slug }: { slug: string }) {
   const colors = useThemeColors();
 
   return (
@@ -736,6 +737,7 @@ function RelatedActions() {
           label="Passende Guides öffnen"
           onPress={() => router.push('/(tabs)/guides')}
         />
+        <OpenGraphButton slug={slug} />
       </View>
     </View>
   );

@@ -85,7 +85,7 @@ function normalizeApiBaseUrl(rawValue: string | undefined): string {
 }
 
 function buildReadOnlyUrl(path: string, params?: Record<string, string | number | boolean>): string {
-  if (!path.startsWith('/api/mobile/')) {
+  if (!path.startsWith('/api/mobile/') && path !== '/api/graph') {
     throw new SynapediaApiError('Unsicherer API-Pfad.', 0, 'UNSAFE_PATH');
   }
 

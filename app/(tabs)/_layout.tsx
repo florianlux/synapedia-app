@@ -82,6 +82,15 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="graph"
+        options={{
+          title: 'Graph',
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'git-network' : 'git-network-outline'} size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="log"
         options={{
           title: 'Notizen',
